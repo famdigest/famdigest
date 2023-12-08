@@ -1,0 +1,28 @@
+{
+  "name": "@repo/supabase",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "gen:types": "npx supabase@latest gen types typescript --local --schema auth,public > ./src/database.ts",
+    "gen:schemas": "npx supabase-to-zod@1.0.1 --input ./src/database.ts --output ./src/schemas.ts"
+  },
+  "dependencies": {
+    "@repo/ui": "workspace:*",
+    "@supabase/auth-helpers-remix": "^0.2.6",
+    "@supabase/supabase-js": "^2.39.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "stripe": "^14.8.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^20.10.4",
+    "@types/react": "^18.2.42",
+    "@types/react-dom": "^18.2.17",
+    "typescript": "^5.3.3"
+  }
+}

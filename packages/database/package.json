@@ -1,0 +1,21 @@
+{
+  "name": "@repo/database",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "scripts": {
+    "db:generate": "drizzle-kit generate:pg",
+    "db:introspect": "drizzle-kit introspect:pg",
+    "db:push": "drizzle-kit push:pg"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^20.10.4",
+    "drizzle-kit": "^0.20.6",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.29.1",
+    "postgres": "^3.4.3"
+  }
+}
