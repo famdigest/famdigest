@@ -77,6 +77,7 @@ export async function requireAuthSession(request: Request) {
     session,
     user: {
       ...user,
+      ...session.user.user_metadata,
       preferences: user.preferences as UserPreferences,
     },
     response,

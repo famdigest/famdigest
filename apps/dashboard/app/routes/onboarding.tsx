@@ -17,7 +17,7 @@ import { SESSION_KEYS } from "~/constants";
 
 export const meta = () => {
   return [
-    { title: "Account Setup | Carta Maps" },
+    { title: "Account Setup | FamDigest" },
     {
       name: "description",
       content:
@@ -30,7 +30,7 @@ export const meta = () => {
     },
     {
       property: "og:title",
-      content: "Carta Maps - Easily create, customize and share maps",
+      content: "FamDigest - Easily create, customize and share maps",
     },
     {
       property: "og:image",

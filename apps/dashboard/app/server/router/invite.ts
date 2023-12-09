@@ -64,8 +64,8 @@ export const inviteRouter = router({
       // await sendTransactionalEmail({
       //   to: input.email,
       //   mail_name: "Workspace Invitation",
-      //   from: "Carta Maps <franco@cartamaps.com>",
-      //   subject: "You have been invited to Carta Maps",
+      //   from: "FamDigest <franco@cartamaps.com>",
+      //   subject: "You have been invited to FamDigest",
       //   replacements: {
       //     workspace_name: invitation.workspace_name!,
       //     workspace_owner: sender,
@@ -109,8 +109,8 @@ export const inviteRouter = router({
       // await sendTransactionalEmail({
       //   to: input.email,
       //   mail_name: "Workspace Invitation",
-      //   from: "Carta Maps <franco@cartamaps.com>",
-      //   subject: "You have been invited to Carta Maps",
+      //   from: "FamDigest <franco@cartamaps.com>",
+      //   subject: "You have been invited to FamDigest",
       //   replacements: {
       //     workspace_name: input.workspace_name!,
       //     workspace_owner: sender,

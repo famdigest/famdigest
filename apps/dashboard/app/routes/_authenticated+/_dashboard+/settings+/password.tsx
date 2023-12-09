@@ -2,7 +2,7 @@ import { PasswordForm } from "~/components/PasswordForm";
 import { Separator } from "@repo/ui";
 
 export const meta = () => {
-  return [{ title: "Change Password | Carta Maps" }];
+  return [{ title: "Change Password | FamDigest" }];
 };
 
 export default function WorkspaceDashboardSettingsAccountsPasswordRoute() {

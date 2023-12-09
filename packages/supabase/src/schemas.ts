@@ -14,22 +14,43 @@ export const jsonSchema: z.ZodSchema<Json> = z.lazy(() =>
     .nullable()
 );
 
-export const connectionsRowSchema = z.object({
+export const digestsRowSchema = z.object({
   created_at: z.string().nullable(),
-  data: jsonSchema.nullable(),
+  enabled: z.boolean(),
+  full_name: z.string(),
   id: z.string(),
+  notify_on: z.string(),
+  opt_in: z.boolean(),
+  owner_id: z.string(),
+  phone: z.string(),
+  timezone: z.string(),
+  updated_at: z.string().nullable(),
 });
 
-export const connectionsInsertSchema = z.object({
+export const digestsInsertSchema = z.object({
   created_at: z.string().optional().nullable(),
-  data: jsonSchema.optional().nullable(),
+  enabled: z.boolean().optional(),
+  full_name: z.string(),
   id: z.string().optional(),
+  notify_on: z.string(),
+  opt_in: z.boolean().optional(),
+  owner_id: z.string(),
+  phone: z.string(),
+  timezone: z.string(),
+  updated_at: z.string().optional().nullable(),
 });
 
-export const connectionsUpdateSchema = z.object({
+export const digestsUpdateSchema = z.object({
   created_at: z.string().optional().nullable(),
-  data: jsonSchema.optional().nullable(),
+  enabled: z.boolean().optional(),
+  full_name: z.string().optional(),
   id: z.string().optional(),
+  notify_on: z.string().optional(),
+  opt_in: z.boolean().optional(),
+  owner_id: z.string().optional(),
+  phone: z.string().optional(),
+  timezone: z.string().optional(),
+  updated_at: z.string().optional().nullable(),
 });
 
 export const profilesRowSchema = z.object({
@@ -38,6 +59,7 @@ export const profilesRowSchema = z.object({
   email: z.string().nullable(),
   full_name: z.string().nullable(),
   id: z.string(),
+  phone: z.string().nullable(),
   preferences: jsonSchema,
   updated_at: z.string().nullable(),
 });
@@ -48,6 +70,7 @@ export const profilesInsertSchema = z.object({
   email: z.string().optional().nullable(),
   full_name: z.string().optional().nullable(),
   id: z.string(),
+  phone: z.string().optional().nullable(),
   preferences: jsonSchema.optional(),
   updated_at: z.string().optional().nullable(),
 });
@@ -58,6 +81,7 @@ export const profilesUpdateSchema = z.object({
   email: z.string().optional().nullable(),
   full_name: z.string().optional().nullable(),
   id: z.string().optional(),
+  phone: z.string().optional().nullable(),
   preferences: jsonSchema.optional(),
   updated_at: z.string().optional().nullable(),
 });
@@ -136,6 +160,18 @@ export const pricingTypeSchema = z.union([
   z.literal("recurring"),
 ]);
 
+export const providerTypeSchema = z.union([
+  z.literal("google"),
+  z.literal("outlook"),
+  z.literal("yahoo"),
+  z.literal("aol"),
+  z.literal("zoho"),
+  z.literal("protonmail"),
+  z.literal("icloud"),
+  z.literal("live"),
+  z.literal("hotmail"),
+]);
+
 export const subscriptionStatusSchema = z.union([
   z.literal("trialing"),
   z.literal("active"),
@@ -151,6 +187,39 @@ export const workspaceRoleSchema = z.union([
   z.literal("owner"),
   z.literal("member"),
 ]);
+
+export const connectionsRowSchema = z.object({
+  created_at: z.string().nullable(),
+  data: jsonSchema.nullable(),
+  email: z.string(),
+  enabled: z.boolean(),
+  id: z.string(),
+  owner_id: z.string(),
+  provider: providerTypeSchema,
+  updated_at: z.string().nullable(),
+});
+
+export const connectionsInsertSchema = z.object({
+  created_at: z.string().optional().nullable(),
+  data: jsonSchema.optional().nullable(),
+  email: z.string(),
+  enabled: z.boolean().optional(),
+  id: z.string().optional(),
+  owner_id: z.string(),
+  provider: providerTypeSchema,
+  updated_at: z.string().optional().nullable(),
+});
+
+export const connectionsUpdateSchema = z.object({
+  created_at: z.string().optional().nullable(),
+  data: jsonSchema.optional().nullable(),
+  email: z.string().optional(),
+  enabled: z.boolean().optional(),
+  id: z.string().optional(),
+  owner_id: z.string().optional(),
+  provider: providerTypeSchema.optional(),
+  updated_at: z.string().optional().nullable(),
+});
 
 export const invitationsRowSchema = z.object({
   created_at: z.string().nullable(),

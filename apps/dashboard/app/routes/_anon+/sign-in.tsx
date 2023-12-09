@@ -24,7 +24,7 @@ type SignInForm = z.infer<typeof signInFormSchema>;
 type SignInWithPassword = z.infer<typeof signInWithPasswordSchema>;
 
 export const meta = () => {
-  return [{ title: "Sign In | Carta Maps" }];
+  return [{ title: "Sign In | FamDigest" }];
 };
 
 export default function AuthSignInRoute() {
@@ -88,6 +88,7 @@ export default function AuthSignInRoute() {
   const signInWithGoogle = async () => {
     const options: any = {
       redirectTo: `${window.location.origin}/auth/callback`,
+      scopes: "https://www.googleapis.com/auth/contacts.readonly",
     };
     if (searchParams.has("redirectTo")) {
       options.queryParams = {

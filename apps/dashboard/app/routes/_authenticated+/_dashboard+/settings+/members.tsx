@@ -61,7 +61,7 @@ import type { Enums } from "@repo/supabase";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 
 export const meta = () => {
-  return [{ title: "Members | Carta Maps" }];
+  return [{ title: "Members | FamDigest" }];
 };
 
 export default function WorkspaceDashboardSettingsMembersRoute() {

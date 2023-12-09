@@ -18,7 +18,7 @@ export function AppNavigation() {
           className="px-3 py-2 flex items-center h-full w-full relative text-foreground/80 rounded-md"
         >
           <Logo className="flex-none sm:mr-3 h-full" />
-          <span className="hidden sm:block font-medium">Better Software</span>
+          <span className="hidden sm:block font-medium">FamDigest</span>
         </Link>
       </div>
       <NavItems />

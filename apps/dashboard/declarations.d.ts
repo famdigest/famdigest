@@ -11,6 +11,9 @@ declare global {
       PRIVATE_STRIPE_WEBHOOK_SECRET: string;
       PUBLIC_STRIPE_KEY: string;
       DATABASE_URL: string;
+      GOOGLE_CLIENT_ID: string;
+      GOOGLE_API_KEY: string;
+      GOOGLE_SECRET: string;
     }
   }
 

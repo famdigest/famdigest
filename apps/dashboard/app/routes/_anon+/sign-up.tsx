@@ -14,7 +14,7 @@ const signUpFormSchema = z.object({
 type SignUpForm = z.infer<typeof signUpFormSchema>;
 
 export const meta = () => {
-  return [{ title: "Create Your Account | Carta Maps" }];
+  return [{ title: "Create Your Account | FamDigest" }];
 };
 
 export default function AuthSignUpRoute() {
@@ -55,6 +55,7 @@ export default function AuthSignUpRoute() {
   const signInWithGoogle = async () => {
     const options: any = {
       redirectTo: `${window.location.origin}/auth/callback`,
+      scopes: "https://www.googleapis.com/auth/contacts.readonly",
     };
     if (searchParams.has("redirectTo")) {
       options.queryParams = {

@@ -14,7 +14,7 @@ export const meta: MetaFunction = () => {
     },
     {
       property: "og:title",
-      content: "[OG Title]",
+      content: "FamDigest",
     },
     // {
     //   property: "og:image",
@@ -34,7 +34,7 @@ export default function AuthLayout() {
           <div className="flex flex-col items-center lg:items-start gap-y-2 w-full max-w-lg">
             <Logo className="h-16" />
             <p className="text-4xl font-medium tracking-tight">
-              Build Better Software
+              FamDigest - Build Better Software
             </p>
           </div>
         </div>

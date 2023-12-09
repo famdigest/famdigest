@@ -4,7 +4,7 @@ import { Separator } from "@repo/ui";
 import { trpc } from "~/lib/trpc";
 
 export const meta: MetaFunction = () => {
-  return [{ title: "Your Account | Carta Maps" }];
+  return [{ title: "Your Account | FamDigest" }];
 };
 
 export default function WorkspaceDashboardSettingsAccountsRoute() {

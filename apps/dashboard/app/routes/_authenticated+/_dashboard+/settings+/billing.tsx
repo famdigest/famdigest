@@ -6,7 +6,7 @@ import { useIsTeamOwner } from "~/hooks/is-team-owner";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 
 export const meta = () => {
-  return [{ title: "Billing | Carta Maps" }];
+  return [{ title: "Billing | FamDigest" }];
 };
 
 export default function WorkspaceDashboardSettingsBillingRoute() {

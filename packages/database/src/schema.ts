@@ -2,23 +2,23 @@ import {
   pgTable,
   pgSchema,
   index,
-  uniqueIndex,
-  unique,
   pgEnum,
   uuid,
-  varchar,
+  json,
   timestamp,
-  jsonb,
+  varchar,
+  unique,
+  bigserial,
   boolean,
+  uniqueIndex,
+  jsonb,
   text,
   smallint,
-  json,
-  foreignKey,
-  bigserial,
   inet,
   bigint,
   integer,
   primaryKey,
+  time,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -79,8 +79,77 @@ export const invitation_type = pgEnum("invitation_type", [
   "24-hour",
   "one-time",
 ]);
+export const provider_type = pgEnum("provider_type", [
+  "hotmail",
+  "live",
+  "icloud",
+  "protonmail",
+  "zoho",
+  "aol",
+  "yahoo",
+  "outlook",
+  "google",
+]);
 
 export const auth = pgSchema("auth");
+
+export const audit_log_entries = auth.table(
+  "audit_log_entries",
+  {
+    instance_id: uuid("instance_id"),
+    id: uuid("id").primaryKey().notNull(),
+    payload: json("payload"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
+    ip_address: varchar("ip_address", { length: 64 })
+      .default(sql`''::character varying`)
+      .notNull(),
+  },
+  (table) => {
+    return {
+      audit_logs_instance_id_idx: index("audit_logs_instance_id_idx").on(
+        table.instance_id
+      ),
+    };
+  }
+);
+
+export const refresh_tokens = auth.table(
+  "refresh_tokens",
+  {
+    instance_id: uuid("instance_id"),
+    id: bigserial("id", { mode: "bigint" }).primaryKey().notNull(),
+    token: varchar("token", { length: 255 }),
+    user_id: varchar("user_id", { length: 255 }),
+    revoked: boolean("revoked"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
+    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" }),
+    parent: varchar("parent", { length: 255 }),
+    session_id: uuid("session_id").references(() => sessions.id, {
+      onDelete: "cascade",
+    }),
+  },
+  (table) => {
+    return {
+      instance_id_idx: index("refresh_tokens_instance_id_idx").on(
+        table.instance_id
+      ),
+      instance_id_user_id_idx: index(
+        "refresh_tokens_instance_id_user_id_idx"
+      ).on(table.instance_id, table.user_id),
+      parent_idx: index("refresh_tokens_parent_idx").on(table.parent),
+      session_id_revoked_idx: index("refresh_tokens_session_id_revoked_idx").on(
+        table.revoked,
+        table.session_id
+      ),
+      updated_at_idx: index("refresh_tokens_updated_at_idx").on(
+        table.updated_at
+      ),
+      refresh_tokens_token_unique: unique("refresh_tokens_token_unique").on(
+        table.token
+      ),
+    };
+  }
+);
 
 export const users = auth.table(
   "users",
@@ -181,64 +250,6 @@ export const users = auth.table(
       ),
       email_partial_key: uniqueIndex("users_email_partial_key").on(table.email),
       users_phone_key: unique("users_phone_key").on(table.phone),
-    };
-  }
-);
-
-export const audit_log_entries = auth.table(
-  "audit_log_entries",
-  {
-    instance_id: uuid("instance_id"),
-    id: uuid("id").primaryKey().notNull(),
-    payload: json("payload"),
-    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
-    ip_address: varchar("ip_address", { length: 64 })
-      .default(sql`''::character varying`)
-      .notNull(),
-  },
-  (table) => {
-    return {
-      audit_logs_instance_id_idx: index("audit_logs_instance_id_idx").on(
-        table.instance_id
-      ),
-    };
-  }
-);
-
-export const refresh_tokens = auth.table(
-  "refresh_tokens",
-  {
-    instance_id: uuid("instance_id"),
-    id: bigserial("id", { mode: "bigint" }).primaryKey().notNull(),
-    token: varchar("token", { length: 255 }),
-    user_id: varchar("user_id", { length: 255 }),
-    revoked: boolean("revoked"),
-    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
-    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" }),
-    parent: varchar("parent", { length: 255 }),
-    session_id: uuid("session_id").references(() => sessions.id, {
-      onDelete: "cascade",
-    }),
-  },
-  (table) => {
-    return {
-      instance_id_idx: index("refresh_tokens_instance_id_idx").on(
-        table.instance_id
-      ),
-      instance_id_user_id_idx: index(
-        "refresh_tokens_instance_id_user_id_idx"
-      ).on(table.instance_id, table.user_id),
-      parent_idx: index("refresh_tokens_parent_idx").on(table.parent),
-      session_id_revoked_idx: index("refresh_tokens_session_id_revoked_idx").on(
-        table.revoked,
-        table.session_id
-      ),
-      updated_at_idx: index("refresh_tokens_updated_at_idx").on(
-        table.updated_at
-      ),
-      refresh_tokens_token_unique: unique("refresh_tokens_token_unique").on(
-        table.token
-      ),
     };
   }
 );
@@ -643,8 +654,44 @@ export const connections = pgTable("connections", {
     .default(sql`uuid_generate_v4()`)
     .primaryKey()
     .notNull(),
+  owner_id: uuid("owner_id")
+    .notNull()
+    .references(() => profiles.id),
+  email: text("email").notNull(),
+  provider: provider_type("provider").notNull(),
+  enabled: boolean("enabled").default(true).notNull(),
   data: jsonb("data"),
   created_at: timestamp("created_at", {
+    withTimezone: true,
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
+  updated_at: timestamp("updated_at", {
+    withTimezone: true,
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
+});
+
+export const digests = pgTable("digests", {
+  id: uuid("id")
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey()
+    .notNull(),
+  owner_id: uuid("owner_id")
+    .notNull()
+    .references(() => profiles.id),
+  full_name: text("full_name").notNull(),
+  phone: text("phone").notNull(),
+  opt_in: boolean("opt_in").default(false).notNull(),
+  enabled: boolean("enabled").default(true).notNull(),
+  timezone: text("timezone").notNull(),
+  notify_on: time("notify_on", {
+    withTimezone: true,
+  }).notNull(),
+  created_at: timestamp("created_at", {
+    withTimezone: true,
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
+  updated_at: timestamp("updated_at", {
     withTimezone: true,
     mode: "string",
   }).default(sql`timezone('utc'::text, now())`),

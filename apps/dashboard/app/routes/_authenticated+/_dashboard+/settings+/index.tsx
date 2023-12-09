@@ -3,7 +3,7 @@ import { Separator } from "@repo/ui";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 
 export const meta = () => {
-  return [{ title: "Settings | Carta Maps" }];
+  return [{ title: "Settings | FamDigest" }];
 };
 
 export default function WorkspaceDashboardSettingsRoute() {

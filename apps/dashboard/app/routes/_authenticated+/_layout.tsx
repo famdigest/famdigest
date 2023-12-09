@@ -8,8 +8,6 @@ import {
 } from "@remix-run/react";
 import { WorkspaceBillingStatus } from "@repo/supabase";
 import { Button } from "@repo/ui";
-import { getQueryKey } from "@trpc/react-query";
-import { trpc } from "~/lib/trpc";
 import { getSessionWorkspace } from "~/lib/workspace.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -29,11 +27,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   //   });
   // }
 
-  return json({
-    user,
-    workspace,
-    billing_status: data as WorkspaceBillingStatus,
-  });
+  return json(
+    {
+      user,
+      workspace,
+      billing_status: data as WorkspaceBillingStatus,
+    },
+    {
+      headers: response.headers,
+    }
+  );
 }
 
 export default function WorkspaceLayout() {

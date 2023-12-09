@@ -806,19 +806,87 @@ export interface Database {
         Row: {
           created_at: string | null
           data: Json | null
+          email: string
+          enabled: boolean
           id: string
+          owner_id: string
+          provider: Database["public"]["Enums"]["provider_type"]
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           data?: Json | null
+          email: string
+          enabled?: boolean
           id?: string
+          owner_id: string
+          provider: Database["public"]["Enums"]["provider_type"]
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           data?: Json | null
+          email?: string
+          enabled?: boolean
           id?: string
+          owner_id?: string
+          provider?: Database["public"]["Enums"]["provider_type"]
+          updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "connections_owner_id_fkey"
+            columns: ["owner_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      digests: {
+        Row: {
+          created_at: string | null
+          enabled: boolean
+          full_name: string
+          id: string
+          notify_on: string
+          opt_in: boolean
+          owner_id: string
+          phone: string
+          timezone: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          enabled?: boolean
+          full_name: string
+          id?: string
+          notify_on: string
+          opt_in?: boolean
+          owner_id: string
+          phone: string
+          timezone: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          enabled?: boolean
+          full_name?: string
+          id?: string
+          notify_on?: string
+          opt_in?: boolean
+          owner_id?: string
+          phone?: string
+          timezone?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "digests_owner_id_fkey"
+            columns: ["owner_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
       }
       invitations: {
         Row: {
@@ -886,6 +954,7 @@ export interface Database {
           email: string | null
           full_name: string | null
           id: string
+          phone: string | null
           preferences: Json
           updated_at: string | null
         }
@@ -895,6 +964,7 @@ export interface Database {
           email?: string | null
           full_name?: string | null
           id: string
+          phone?: string | null
           preferences?: Json
           updated_at?: string | null
         }
@@ -904,6 +974,7 @@ export interface Database {
           email?: string | null
           full_name?: string | null
           id?: string
+          phone?: string | null
           preferences?: Json
           updated_at?: string | null
         }
@@ -1046,6 +1117,16 @@ export interface Database {
       invitation_type: "one-time" | "24-hour"
       pricing_plan_interval: "day" | "week" | "month" | "year"
       pricing_type: "one_time" | "recurring"
+      provider_type:
+        | "google"
+        | "outlook"
+        | "yahoo"
+        | "aol"
+        | "zoho"
+        | "protonmail"
+        | "icloud"
+        | "live"
+        | "hotmail"
       subscription_status:
         | "trialing"
         | "active"
