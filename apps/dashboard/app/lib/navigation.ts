@@ -6,10 +6,14 @@ import {
   IconPassword,
   IconUsersGroup,
   IconLayoutDashboard,
+  IconCalendar,
+  IconHttpConnect,
+  IconLink,
 } from "@tabler/icons-react";
 
 export const navigation = [
   { slug: "/", name: "Dashboard", icon: IconLayoutDashboard },
+  { slug: "/calendars", name: "Calendars", icon: IconCalendar },
   { slug: "/settings", name: "Settings", icon: IconSettings },
 ];
 

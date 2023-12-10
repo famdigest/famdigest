@@ -6,6 +6,7 @@ import {
 import { protectedProcedure, router } from "../trpc.server";
 import { db, desc, eq, schema } from "@repo/database";
 import { z } from "zod";
+import { getCalendarList } from "~/lib/google.server";
 
 export const connectionsRouter = router({
   all: protectedProcedure.query(async ({ ctx }) => {

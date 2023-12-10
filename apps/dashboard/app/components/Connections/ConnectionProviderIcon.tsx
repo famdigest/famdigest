@@ -2,7 +2,7 @@ import { Enums } from "@repo/supabase";
 import { cn } from "@repo/ui";
 import { IconBrandGoogle, IconCalendar } from "@tabler/icons-react";
 
-export function CalendarProviderIcon({
+export function ConnectionProviderIcon({
   provider,
 }: {
   provider: Enums<"provider_type">;

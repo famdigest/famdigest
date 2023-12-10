@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import jwt from "jsonwebtoken";
 import { and, db, eq, schema } from "@repo/database";
-import { getToken } from "~/lib/google.server";
+import { getCalendarList, getToken } from "~/lib/google.server";
 import { requireAuthSession } from "~/lib/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -25,11 +25,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
     .where(eq(schema.connections.email, parsedIdToken.email));
 
   if (!existingConnection) {
-    await db.insert(schema.connections).values({
-      owner_id: user.id,
-      email: parsedIdToken.email,
-      provider: "google",
-      data: tokens,
+    const [connection] = await db
+      .insert(schema.connections)
+      .values({
+        owner_id: user.id,
+        email: parsedIdToken.email,
+        provider: "google",
+        data: tokens,
+      })
+      .returning();
+
+    /**
+     * on new connections, redirect to page where user can select calendars
+     */
+    return redirect(`/calendars/${connection.id}`, {
+      headers: response.headers,
     });
   } else {
     await db
@@ -38,6 +48,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
         data: tokens,
       })
       .where(eq(schema.connections.id, existingConnection.id));
+
+    return redirect(`/calendars/${existingConnection.id}`, {
+      headers: response.headers,
+    });
   }
 
   // save tokens

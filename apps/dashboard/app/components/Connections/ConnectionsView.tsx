@@ -1,13 +1,13 @@
 import { Table } from "@repo/supabase";
 import { Separator } from "@repo/ui";
 import { trpc } from "~/lib/trpc";
-import { CalendarGrid } from "./CalendarGrid";
-import { AddCalendarDropdown } from "./AddCalendarDropdown";
+import { ConnectionGrid } from "./ConnectionGrid";
+import { AddConnectionDropdown } from "./AddConnectionDropdown";
 
-type CalendarsViewProps = {
+type ConnectionsViewProps = {
   initialData: Table<"connections">[];
 };
-export function CalendarsView({ initialData }: CalendarsViewProps) {
+export function ConnectionsView({ initialData }: ConnectionsViewProps) {
   const { data: connections } = trpc.connections.all.useQuery(undefined, {
     initialData: initialData,
   });
@@ -18,15 +18,15 @@ export function CalendarsView({ initialData }: CalendarsViewProps) {
         <div className="space-y-0.5">
           <h2 className="text-2xl font-semibold tracking-tight">Calendars</h2>
           <p className="text-muted-foreground">
-            Select which calendars you want to include in your family digest.
+            Manage calendars across many providers.
           </p>
         </div>
         <div className="mt-4 md:mt-0 md:ml-auto">
-          <AddCalendarDropdown />
+          <AddConnectionDropdown />
         </div>
       </header>
       <Separator />
-      <CalendarGrid calendars={connections} />
+      <ConnectionGrid connections={connections} />
     </div>
   );
 }

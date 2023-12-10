@@ -802,6 +802,52 @@ export interface Database {
           }
         ]
       }
+      calendars: {
+        Row: {
+          connection_id: string
+          created_at: string | null
+          data: Json | null
+          enabled: boolean
+          external_id: string
+          id: string
+          owner_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          connection_id: string
+          created_at?: string | null
+          data?: Json | null
+          enabled?: boolean
+          external_id: string
+          id?: string
+          owner_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          connection_id?: string
+          created_at?: string | null
+          data?: Json | null
+          enabled?: boolean
+          external_id?: string
+          id?: string
+          owner_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendars_connection_id_fkey"
+            columns: ["connection_id"]
+            referencedRelation: "connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendars_owner_id_fkey"
+            columns: ["owner_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       connections: {
         Row: {
           created_at: string | null

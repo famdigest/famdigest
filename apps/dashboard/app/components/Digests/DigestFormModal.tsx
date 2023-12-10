@@ -20,12 +20,13 @@ import {
   toast,
 } from "@repo/ui";
 import { IconLoader2 } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { memo, useEffect, useId, useState } from "react";
 import { z } from "zod";
+import { getUtcOffset, guessTimezone } from "~/lib/dates";
 import { trpc } from "~/lib/trpc";
 
-type DigestFormModalProps = {
-  children: React.ReactNode;
+type DigestFormModalProps = React.ComponentPropsWithoutRef<typeof Dialog> & {
+  children?: React.ReactNode;
   digest?: Table<"digests">;
 };
 
@@ -37,9 +38,6 @@ const formValues = digestsRowSchema.pick({
   enabled: true,
 });
 
-function getBrowserTimezone() {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
-}
 function getAllTimezones() {
   const tz = [];
   for (const timeZone of Intl.supportedValuesOf("timeZone")) {
@@ -48,13 +46,19 @@ function getAllTimezones() {
   return tz;
 }
 
-export function DigestFormModal({ digest, children }: DigestFormModalProps) {
-  const [open, setOpen] = useState(false);
+export function DigestFormModal({
+  digest,
+  children,
+  open,
+  onOpenChange,
+}: DigestFormModalProps) {
+  const id = useId();
+  // const [open, setOpen] = useState(false);
   const [tz] = useState(() => getAllTimezones());
   const utils = trpc.useUtils();
   const onSuccess = () => {
     utils.digests.all.invalidate();
-    setOpen(false);
+    onOpenChange?.(false);
     toast({
       title: "Digest Added!",
     });
@@ -76,20 +80,23 @@ export function DigestFormModal({ digest, children }: DigestFormModalProps) {
   useEffect(() => {
     form.setValues((prev) => ({
       ...prev,
-      timezone: prev.timezone || getBrowserTimezone(),
+      timezone: prev.timezone || guessTimezone(),
     }));
   }, []);
 
   const onSubmit = (values: typeof form.values) => {
     //...
+    const offset = getUtcOffset(values.timezone);
     if (digest) {
       update.mutate({
         ...values,
         id: digest.id,
+        notify_on: `${values.notify_on}${offset}`,
       });
     } else {
       create.mutate({
         ...values,
+        notify_on: `${values.notify_on}${offset}`,
       });
     }
   };
@@ -97,8 +104,8 @@ export function DigestFormModal({ digest, children }: DigestFormModalProps) {
   const isLoading = create.isLoading || update.isLoading;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Digest</DialogTitle>
@@ -106,7 +113,7 @@ export function DigestFormModal({ digest, children }: DigestFormModalProps) {
             Add a new subscriber to your daily digest.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.onSubmit(onSubmit)}>
+        <form key={digest?.id ?? id} onSubmit={form.onSubmit(onSubmit)}>
           <div className="grid grid-cols-2 gap-4">
             <FormField
               label="Full Name"
@@ -162,7 +169,7 @@ export function DigestFormModal({ digest, children }: DigestFormModalProps) {
             <Button
               variant="outline"
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={() => onOpenChange?.(false)}
             >
               Cancel
             </Button>

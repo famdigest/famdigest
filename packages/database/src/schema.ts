@@ -7,6 +7,7 @@ import {
   json,
   timestamp,
   varchar,
+  foreignKey,
   unique,
   bigserial,
   boolean,
@@ -17,8 +18,8 @@ import {
   inet,
   bigint,
   integer,
-  primaryKey,
   time,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -660,7 +661,7 @@ export const connections = pgTable("connections", {
   email: text("email").notNull(),
   provider: provider_type("provider").notNull(),
   enabled: boolean("enabled").default(true).notNull(),
-  data: jsonb("data"),
+  data: jsonb("data").$type<Record<string, any>>(),
   created_at: timestamp("created_at", {
     withTimezone: true,
     mode: "string",
@@ -683,10 +684,32 @@ export const digests = pgTable("digests", {
   phone: text("phone").notNull(),
   opt_in: boolean("opt_in").default(false).notNull(),
   enabled: boolean("enabled").default(true).notNull(),
-  timezone: text("timezone").notNull(),
-  notify_on: time("notify_on", {
+  created_at: timestamp("created_at", {
     withTimezone: true,
-  }).notNull(),
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
+  updated_at: timestamp("updated_at", {
+    withTimezone: true,
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
+  timezone: text("timezone").notNull(),
+  notify_on: time("notify_on").notNull(),
+});
+
+export const calendars = pgTable("calendars", {
+  id: uuid("id")
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey()
+    .notNull(),
+  owner_id: uuid("owner_id")
+    .notNull()
+    .references(() => profiles.id),
+  connection_id: uuid("connection_id")
+    .notNull()
+    .references(() => connections.id),
+  external_id: text("external_id").notNull(),
+  enabled: boolean("enabled").default(true).notNull(),
+  data: jsonb("data").$type<Record<string, any>>(),
   created_at: timestamp("created_at", {
     withTimezone: true,
     mode: "string",

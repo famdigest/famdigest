@@ -14,6 +14,39 @@ export const jsonSchema: z.ZodSchema<Json> = z.lazy(() =>
     .nullable()
 );
 
+export const calendarsRowSchema = z.object({
+  connection_id: z.string(),
+  created_at: z.string().nullable(),
+  data: jsonSchema.nullable(),
+  enabled: z.boolean(),
+  external_id: z.string(),
+  id: z.string(),
+  owner_id: z.string(),
+  updated_at: z.string().nullable(),
+});
+
+export const calendarsInsertSchema = z.object({
+  connection_id: z.string(),
+  created_at: z.string().optional().nullable(),
+  data: jsonSchema.optional().nullable(),
+  enabled: z.boolean().optional(),
+  external_id: z.string(),
+  id: z.string().optional(),
+  owner_id: z.string(),
+  updated_at: z.string().optional().nullable(),
+});
+
+export const calendarsUpdateSchema = z.object({
+  connection_id: z.string().optional(),
+  created_at: z.string().optional().nullable(),
+  data: jsonSchema.optional().nullable(),
+  enabled: z.boolean().optional(),
+  external_id: z.string().optional(),
+  id: z.string().optional(),
+  owner_id: z.string().optional(),
+  updated_at: z.string().optional().nullable(),
+});
+
 export const digestsRowSchema = z.object({
   created_at: z.string().nullable(),
   enabled: z.boolean(),

@@ -1,8 +1,14 @@
 import {
   Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Table,
   TableBody,
@@ -16,6 +22,9 @@ import { IconCheck, IconDotsVertical, IconX } from "@tabler/icons-react";
 import { DigestFormModal } from "./DigestFormModal";
 import dayjs from "dayjs";
 import { fromNow } from "~/lib/dates";
+import { trpc } from "~/lib/trpc";
+import { ConfirmDeleteButton } from "../ConfirmDeleteButton";
+import { useState } from "react";
 
 type DigestTableProps = {
   digests: DbTable<"digests">[];
@@ -30,7 +39,7 @@ export function DigestTable({ digests }: DigestTableProps) {
             <TableHead>Scheduled</TableHead>
             <TableHead>Opt-In</TableHead>
             <TableHead>Enabled</TableHead>
-            <TableHead>Date Added</TableHead>
+            <TableHead>Updated</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -60,28 +69,67 @@ export function DigestTable({ digests }: DigestTableProps) {
 }
 
 function DigestTableRow({ digest }: { digest: DbTable<"digests"> }) {
+  const [open, setOpen] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+  const utils = trpc.useUtils();
+  const remove = trpc.digests.remove.useMutation({
+    onSuccess() {
+      utils.digests.all.invalidate();
+    },
+  });
+
   return (
-    <TableRow>
-      <TableCell>
-        <p className="font-medium">{digest.full_name}</p>
-        <p className="text-sm">{digest.phone}</p>
-      </TableCell>
-      <TableCell>{digest.notify_on}</TableCell>
-      <TableCell>{digest.opt_in ? <IconCheck /> : <IconX />}</TableCell>
-      <TableCell>{digest.enabled ? <IconCheck /> : <IconX />}</TableCell>
-      <TableCell>{fromNow(digest.created_at)}</TableCell>
-      <TableCell className="text-right">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="icon-sm" variant="ghost">
-              <IconDotsVertical size={16} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Something</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </TableCell>
-    </TableRow>
+    <>
+      <TableRow>
+        <TableCell>
+          <p className="font-medium">{digest.full_name}</p>
+          <p className="text-sm">{digest.phone}</p>
+        </TableCell>
+        <TableCell>{digest.notify_on}</TableCell>
+        <TableCell>{digest.opt_in ? <IconCheck /> : <IconX />}</TableCell>
+        <TableCell>{digest.enabled ? <IconCheck /> : <IconX />}</TableCell>
+        <TableCell>{fromNow(digest.updated_at)}</TableCell>
+        <TableCell className="text-right">
+          <DropdownMenu
+            onOpenChange={() => {
+              setConfirm(false);
+            }}
+          >
+            <DropdownMenuTrigger asChild>
+              <Button size="icon-sm" variant="ghost">
+                <IconDotsVertical size={16} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => setOpen(true)}
+              >
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="cursor-pointer bg-destructive text-destructive-foreground focus:bg-destructive/50 focus:text-destructive-foreground"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (confirm) {
+                    remove.mutate(digest.id);
+                  } else {
+                    setConfirm(true);
+                  }
+                }}
+              >
+                {remove.isLoading
+                  ? "Deleting..."
+                  : confirm
+                    ? "Are you sure?"
+                    : "Delete"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TableCell>
+      </TableRow>
+      <DigestFormModal digest={digest} open={open} onOpenChange={setOpen} />
+    </>
   );
 }

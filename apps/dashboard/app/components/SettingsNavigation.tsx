@@ -1,4 +1,4 @@
-import { NavLink, useLocation, useNavigate } from "@remix-run/react";
+import { Link, NavLink, useLocation, useNavigate } from "@remix-run/react";
 import { settings } from "~/lib/navigation";
 import {
   Select,
@@ -10,42 +10,58 @@ import {
   SelectLabel,
   cn,
 } from "@repo/ui";
+import { IconArrowLeft } from "@tabler/icons-react";
 
 export function SettingsNavigation() {
   return (
-    <div className={cn("group flex-shrink-0 scrollbar-none w-full")}>
+    <div
+      className={cn(
+        "group sticky top-0 flex-shrink-0 scrollbar-none",
+        "transition-all ease-in-out duration-150",
+        "sm:w-52 h-screen overflow-y-auto",
+        "bg-secondary"
+      )}
+    >
+      <div className="flex items-center p-4">
+        <Link to="/" className="flex items-center gap-x-2 text-sm">
+          <IconArrowLeft size={14} />
+          <span className="hidden sm:inline">Back</span>
+        </Link>
+      </div>
+
       <NavItems />
-      <NavItemsMobile />
     </div>
   );
 }
 
 function NavItems() {
   return (
-    <div className="hidden lg:flex flex-col gap-y-2 px-2 justify-start w-full">
+    <div className="flex flex-col gap-y-0.5 p-2 justify-start w-full">
       {settings.map((group, idx) => {
         return (
-          <div className="mb-6 last-of-type:mb-0" key={idx}>
-            <p className="p-2 inline-block text-sm font-medium">{group.name}</p>
-            <nav className="flex flex-col gap-y-2 justify-start w-full">
+          <div className="" key={idx}>
+            <p className="hidden p-2 sm:inline-block text-sm font-medium">
+              {group.name}
+            </p>
+            <nav className="flex flex-col gap-y-0.5">
               {group.items.map((item) => (
                 <NavLink
                   key={item.slug}
                   to={item.slug}
-                  end={item.end}
+                  end={item.slug === "/settings"}
                   className={({ isActive }) =>
                     cn(
-                      "px-3 py-2 flex items-center h-full w-full relative text-foreground/80 rounded-md",
-                      isActive ? "bg-muted" : "hover:bg-muted"
+                      "text-sm px-2 py-1.5 flex items-center h-full w-full relative text-foreground/80 rounded-md",
+                      isActive ? "bg-foreground/10" : "hover:bg-foreground/10"
                     )
                   }
                 >
                   <item.icon
-                    className="flex-none mr-3"
-                    size={20}
+                    className="flex-none sm:mr-2"
+                    size={16}
                     strokeWidth={1.5}
                   />
-                  <span className="text-sm">{item.name}</span>
+                  <span className="hidden sm:block text-sm">{item.name}</span>
                 </NavLink>
               ))}
             </nav>
@@ -53,30 +69,5 @@ function NavItems() {
         );
       })}
     </div>
-  );
-}
-
-function NavItemsMobile() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  return (
-    <Select value={location.pathname} onValueChange={(val) => navigate(val)}>
-      <SelectTrigger className="w-full lg:hidden">
-        <SelectValue placeholder="Theme" />
-      </SelectTrigger>
-      <SelectContent>
-        {settings.map((group, idx) => (
-          <SelectGroup key={idx}>
-            <SelectLabel>{group.name}</SelectLabel>
-            {group.items.map((item) => (
-              <SelectItem value={item.slug} key={item.slug}>
-                {item.name}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        ))}
-      </SelectContent>
-    </Select>
   );
 }

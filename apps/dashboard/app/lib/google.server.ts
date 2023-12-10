@@ -1,4 +1,5 @@
 import { google } from "googleapis";
+import type { Credentials } from "google-auth-library";
 
 const scopes = [
   "https://www.googleapis.com/auth/calendar.readonly",
@@ -28,8 +29,12 @@ export async function getToken(code: string) {
   return tokens;
 }
 
-export async function getCalendarList(token: string) {
+export async function getCalendarList(tokens: Credentials) {
   auth.setCredentials({
-    access_token: token,
+    ...tokens,
   });
+
+  google.options({ auth });
+
+  return await calendar.calendarList.list();
 }

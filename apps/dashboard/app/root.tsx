@@ -1,4 +1,5 @@
 import "@repo/ui/styles/global.css";
+import "@fontsource-variable/open-sans";
 
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import {

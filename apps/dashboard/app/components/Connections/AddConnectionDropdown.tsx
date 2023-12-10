@@ -7,10 +7,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui";
-import { IconCirclePlus } from "@tabler/icons-react";
+import { IconBrandGoogle, IconCirclePlus } from "@tabler/icons-react";
 import { trpc } from "~/lib/trpc";
 
-export function AddCalendarDropdown() {
+export function AddConnectionDropdown() {
   const addGoogle = trpc.google.authorize.useMutation({
     onSuccess(data) {
       window.location.href = data.authorizeUrl;
@@ -28,7 +28,11 @@ export function AddCalendarDropdown() {
       <DropdownMenuContent className="min-w-[200px]" align="end">
         <DropdownMenuLabel>Choose Provider</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => addGoogle.mutate()}>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => addGoogle.mutate()}
+        >
+          <IconBrandGoogle size={14} className="mr-2" />
           Google
         </DropdownMenuItem>
       </DropdownMenuContent>

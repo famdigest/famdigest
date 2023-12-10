@@ -30,6 +30,11 @@ import {
   AvatarImage,
   Badge,
   Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -102,6 +107,204 @@ export default function WorkspaceDashboardSettingsMembersRoute() {
       });
     },
   });
+
+  return (
+    <div className="container max-w-screen-md p-6 md:p-12 space-y-12">
+      <Card>
+        <CardHeader className="border-b flex-row justify-between">
+          <div className="flex flex-col space-y-1.5">
+            <CardTitle className="text-xl">Members</CardTitle>
+            <CardDescription>
+              Manage and Invite members to your workspace.
+            </CardDescription>
+          </div>
+
+          {isTeamPlan && isTeamOwner ? (
+            <InviteMemberForm />
+          ) : (
+            <>
+              {!isTeamPlan && (
+                <div>
+                  <HoverCard>
+                    <HoverCardTrigger>
+                      <Badge>
+                        <IconBolt size={12} className="mr-1" />
+                        Teams Plan
+                      </Badge>
+                    </HoverCardTrigger>
+                    <HoverCardContent>
+                      <p className="mb-2 text-sm">
+                        To invite members to your workspace, upgrade to our{" "}
+                        <b>Teams</b> plan.
+                      </p>
+                      <Button size="sm" asChild>
+                        <Link to="/settings/billing">Upgrade</Link>
+                      </Button>
+                    </HoverCardContent>
+                  </HoverCard>
+                </div>
+              )}
+            </>
+          )}
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="flex flex-col gap-y-4">
+            {data?.map((member) => {
+              const [user] = Array.isArray(member.user)
+                ? member.user
+                : [member.user];
+              const isYou = member.user_id === signInUser.id;
+              return (
+                <div
+                  className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between relative"
+                  key={member.user_id}
+                >
+                  <div className="flex items-center gap-x-3">
+                    <Avatar className="">
+                      {user.avatar_url ? (
+                        <AvatarImage src={user.avatar_url}></AvatarImage>
+                      ) : (
+                        <AvatarFallback className="uppercase bg-muted">
+                          {user.email?.substring(0, 2)}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <div>
+                      {user.full_name && (
+                        <p className="text-sm font-medium">{user.full_name}</p>
+                      )}
+                      <p className="text-sm text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                    {isYou && (
+                      <Badge
+                        variant="secondary"
+                        className="absolute top-0 right-0 transform -translate-y-1/2 -translate-x-4 md:relative md:transform-none"
+                      >
+                        You
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-x-3">
+                    <Badge className="capitalize select-none">
+                      {member.role}
+                    </Badge>
+
+                    {!isYou && (
+                      <ManageMemberPopover
+                        role={member.role}
+                        disabled={isYou || !isTeamOwner}
+                        isLoading={
+                          updateRole.isLoading || removeMember.isLoading
+                        }
+                        onChangeRole={(role) => {
+                          updateRole.mutate({
+                            role,
+                            user_id: member.user_id,
+                            workspace_id: member.workspace_id,
+                          });
+                        }}
+                        onRemoveMember={() => {
+                          removeMember.mutate({
+                            user_id: member.user_id,
+                            workspace_id: member.workspace_id,
+                          });
+                        }}
+                      />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="border-b flex-row justify-between">
+          <div className="flex flex-col space-y-1.5">
+            <CardTitle className="text-xl">Pending Invites</CardTitle>
+            <CardDescription>Manage invites not yet accepted.</CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          {invitations?.length === 0 && (
+            <div className="border rounded-lg p-4 flex items-center justify-between">
+              <p className="text-sm">No pending invites found</p>
+            </div>
+          )}
+          {invitations?.map((invite) => {
+            return (
+              <div
+                className="border rounded-lg p-4 flex items-center justify-between"
+                key={invite.id}
+              >
+                <div className="flex items-center gap-x-3">
+                  <Avatar className="">
+                    <AvatarFallback className="uppercase bg-muted">
+                      {invite.email?.substring(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex items-center gap-x-2">
+                    <p>{invite.email}</p>
+                    {invite.invite_url && (
+                      <Tooltip label="Copy Invite Link">
+                        <Button
+                          variant="ghost"
+                          size={"icon-sm"}
+                          onClick={() => {
+                            copy(invite.invite_url);
+                            toast({
+                              title: "Invite Link Copied",
+                            });
+                          }}
+                        >
+                          <IconClipboardCopy size={16} />
+                        </Button>
+                      </Tooltip>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-x-3">
+                  <Badge className="capitalize">{invite.role}</Badge>
+                  <Tooltip label="Resend">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => resendInvite.mutate(invite)}
+                    >
+                      {resendInvite.isLoading ? (
+                        <IconLoader2 className="animate-spin" size={20} />
+                      ) : (
+                        <IconRefreshDot size={20} />
+                      )}
+                    </Button>
+                  </Tooltip>
+                  <ConfirmDeleteButton
+                    onConfirm={() => removeInvite.mutate(invite.id)}
+                  >
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="text-destructive"
+                      disabled={removeInvite.isLoading}
+                    >
+                      {removeInvite.isLoading ? (
+                        <IconLoader2 className="animate-spin" size={20} />
+                      ) : (
+                        <IconX size={20} />
+                      )}
+                    </Button>
+                  </ConfirmDeleteButton>
+                </div>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
+    </div>
+  );
 
   return (
     <div className="space-y-12">

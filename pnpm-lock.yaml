@@ -23,6 +23,9 @@ importers:
 
   apps/dashboard:
     dependencies:
+      '@fontsource-variable/open-sans':
+        specifier: ^5.0.19
+        version: 5.0.19
       '@mantine/form':
         specifier: ^7.3.1
         version: 7.3.1(react@18.2.0)
@@ -65,6 +68,9 @@ importers:
       dayjs:
         specifier: ^1.11.10
         version: 1.11.10
+      google-auth-library:
+        specifier: ^9.4.1
+        version: 9.4.1
       googleapis:
         specifier: ^129.0.0
         version: 129.0.0
@@ -353,6 +359,9 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.10
         version: 0.5.10(tailwindcss@3.3.6)
+      '@types/node':
+        specifier: ^20.10.4
+        version: 20.10.4
       '@types/react':
         specifier: ^18.2.28
         version: 18.2.42
@@ -1754,6 +1763,10 @@ packages:
 
   /@floating-ui/utils@0.1.6:
     resolution: {integrity: sha512-OfX7E2oUDYxtBvsuS4e/jSn4Q9Qb6DzgeYtsAdkPZ47znpoNsMgZw0+tVijiv3uGNR6dgNlty6r9rzIzHjtd/A==}
+    dev: false
+
+  /@fontsource-variable/open-sans@5.0.19:
+    resolution: {integrity: sha512-dq9wgiocYit93EdQuvRQUVG5FaEkeNIyk1wg9Dk7kXjQBcnrksea/dhIXU8wWNofN5nYsCPX7r+CzBcAnUqU2g==}
     dev: false
 
   /@humanwhocodes/config-array@0.11.13:

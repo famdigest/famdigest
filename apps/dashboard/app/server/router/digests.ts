@@ -48,4 +48,7 @@ export const digestsRouter = router({
         .where(eq(schema.digests.id, input.id));
       return digest;
     }),
+  remove: protectedProcedure.input(z.string()).mutation(async ({ input }) => {
+    await db.delete(schema.digests).where(eq(schema.digests.id, input));
+  }),
 });
