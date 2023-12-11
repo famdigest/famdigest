@@ -14,6 +14,9 @@ declare global {
       GOOGLE_CLIENT_ID: string;
       GOOGLE_API_KEY: string;
       GOOGLE_SECRET: string;
+      HUMANLOOP_API_KEY: string;
+      HUMANLOOP_PROJECT_ID: string;
+      OPENAI_API_KEY: string;
     }
   }
 

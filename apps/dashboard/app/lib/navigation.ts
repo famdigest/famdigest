@@ -9,11 +9,13 @@ import {
   IconCalendar,
   IconHttpConnect,
   IconLink,
+  IconMessage,
 } from "@tabler/icons-react";
 
 export const navigation = [
   { slug: "/", name: "Dashboard", icon: IconLayoutDashboard },
   { slug: "/calendars", name: "Calendars", icon: IconCalendar },
+  { slug: "/digests", name: "Digests", icon: IconMessage },
   { slug: "/settings", name: "Settings", icon: IconSettings },
 ];
 

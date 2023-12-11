@@ -181,6 +181,11 @@ export const invitationTypeSchema = z.union([
   z.literal("24-hour"),
 ]);
 
+export const messageRoleSchema = z.union([
+  z.literal("assistant"),
+  z.literal("user"),
+]);
+
 export const pricingPlanIntervalSchema = z.union([
   z.literal("day"),
   z.literal("week"),
@@ -294,6 +299,45 @@ export const invitationsUpdateSchema = z.object({
   updated_at: z.string().optional().nullable(),
   workspace_id: z.string().optional(),
   workspace_name: z.string().optional().nullable(),
+});
+
+export const messagesRowSchema = z.object({
+  created_at: z.string().nullable(),
+  data: jsonSchema.nullable(),
+  digest_id: z.string(),
+  external_id: z.string(),
+  id: z.string(),
+  message: z.string(),
+  owner_id: z.string(),
+  role: messageRoleSchema,
+  segments: z.number(),
+  updated_at: z.string().nullable(),
+});
+
+export const messagesInsertSchema = z.object({
+  created_at: z.string().optional().nullable(),
+  data: jsonSchema.optional().nullable(),
+  digest_id: z.string(),
+  external_id: z.string(),
+  id: z.string().optional(),
+  message: z.string(),
+  owner_id: z.string(),
+  role: messageRoleSchema,
+  segments: z.number(),
+  updated_at: z.string().optional().nullable(),
+});
+
+export const messagesUpdateSchema = z.object({
+  created_at: z.string().optional().nullable(),
+  data: jsonSchema.optional().nullable(),
+  digest_id: z.string().optional(),
+  external_id: z.string().optional(),
+  id: z.string().optional(),
+  message: z.string().optional(),
+  owner_id: z.string().optional(),
+  role: messageRoleSchema.optional(),
+  segments: z.number().optional(),
+  updated_at: z.string().optional().nullable(),
 });
 
 export const workspaceUsersRowSchema = z.object({

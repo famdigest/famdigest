@@ -16,11 +16,9 @@ import {
   DropdownMenuTrigger,
   cn,
 } from "@repo/ui";
-import { Logo } from "./Logo";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 import {
   IconDeviceDesktop,
-  IconLogout,
   IconLogout2,
   IconMoon,
   IconPalette,

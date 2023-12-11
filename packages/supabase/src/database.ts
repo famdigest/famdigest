@@ -993,6 +993,58 @@ export interface Database {
           }
         ]
       }
+      messages: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          digest_id: string
+          external_id: string
+          id: string
+          message: string
+          owner_id: string
+          role: Database["public"]["Enums"]["message_role"]
+          segments: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          digest_id: string
+          external_id: string
+          id?: string
+          message: string
+          owner_id: string
+          role: Database["public"]["Enums"]["message_role"]
+          segments: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          digest_id?: string
+          external_id?: string
+          id?: string
+          message?: string
+          owner_id?: string
+          role?: Database["public"]["Enums"]["message_role"]
+          segments?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_digest_id_fkey"
+            columns: ["digest_id"]
+            referencedRelation: "digests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_owner_id_fkey"
+            columns: ["owner_id"]
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1161,6 +1213,7 @@ export interface Database {
     Enums: {
       billing_providers: "stripe"
       invitation_type: "one-time" | "24-hour"
+      message_role: "assistant" | "user"
       pricing_plan_interval: "day" | "week" | "month" | "year"
       pricing_type: "one_time" | "recurring"
       provider_type:

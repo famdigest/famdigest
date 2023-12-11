@@ -4,7 +4,7 @@ create type provider_type as enum ('google', 'outlook', 'yahoo', 'aol', 'zoho', 
 
 create table if not exists public.connections (
   id uuid unique not null default uuid_generate_v4() primary key,
-  owner_id uuid references public.profiles not null,
+  owner_id uuid references public.profiles on delete cascade not null,
   email text not null,
   provider provider_type not null,
   enabled boolean not null default true,

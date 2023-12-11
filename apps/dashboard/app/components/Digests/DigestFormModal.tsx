@@ -22,7 +22,12 @@ import {
 import { IconLoader2 } from "@tabler/icons-react";
 import { memo, useEffect, useId, useState } from "react";
 import { z } from "zod";
-import { getUtcOffset, guessTimezone } from "~/lib/dates";
+import {
+  convertToLocal,
+  convertToUTC,
+  getUtcOffset,
+  guessTimezone,
+} from "~/lib/dates";
 import { trpc } from "~/lib/trpc";
 
 type DigestFormModalProps = React.ComponentPropsWithoutRef<typeof Dialog> & {
@@ -72,7 +77,9 @@ export function DigestFormModal({
       full_name: digest?.full_name ?? "",
       phone: digest?.phone ?? "",
       timezone: digest?.timezone ?? "",
-      notify_on: digest?.notify_on ?? "",
+      notify_on: digest
+        ? convertToLocal(digest.notify_on).format("HH:mm:ss")
+        : "",
       enabled: digest?.enabled ?? true,
     },
   });
@@ -86,17 +93,18 @@ export function DigestFormModal({
 
   const onSubmit = (values: typeof form.values) => {
     //...
-    const offset = getUtcOffset(values.timezone);
+    console.log(values.notify_on);
+    const notify_on = convertToUTC(values.notify_on);
     if (digest) {
       update.mutate({
         ...values,
         id: digest.id,
-        notify_on: `${values.notify_on}${offset}`,
+        notify_on,
       });
     } else {
       create.mutate({
         ...values,
-        notify_on: `${values.notify_on}${offset}`,
+        notify_on,
       });
     }
   };

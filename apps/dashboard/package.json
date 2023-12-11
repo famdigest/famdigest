@@ -21,18 +21,27 @@
     "@repo/ui": "workspace:*",
     "@tabler/icons-react": "^2.42.0",
     "@tanstack/react-query": "^4.36.1",
+    "@trigger.dev/react": "^2.3.4",
+    "@trigger.dev/remix": "^2.3.4",
+    "@trigger.dev/sdk": "^2.3.4",
     "@trpc/client": "^10.44.1",
     "@trpc/react-query": "^10.44.1",
     "@trpc/server": "^10.44.1",
     "dayjs": "^1.11.10",
+    "dedent": "^1.5.1",
+    "endent": "^2.1.0",
     "google-auth-library": "^9.4.1",
     "googleapis": "^129.0.0",
+    "humanloop": "^0.5.32",
     "isbot": "^3.6.8",
     "jsonwebtoken": "^9.0.2",
+    "openai": "^4.20.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "sms-segments-calculator": "^1.2.0",
     "stripe": "^14.8.0",
     "superjson": "^2.2.1",
+    "twilio": "^4.19.3",
     "uuid": "^9.0.1",
     "zod": "^3.22.4"
   },
@@ -55,5 +64,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "trigger.dev": {
+    "endpointId": "famdigetcom-DrMH"
   }
 }

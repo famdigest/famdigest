@@ -21,7 +21,7 @@ import type { Table as DbTable } from "@repo/supabase";
 import { IconCheck, IconDotsVertical, IconX } from "@tabler/icons-react";
 import { DigestFormModal } from "./DigestFormModal";
 import dayjs from "dayjs";
-import { fromNow } from "~/lib/dates";
+import { convertToLocal, fromNow } from "~/lib/dates";
 import { trpc } from "~/lib/trpc";
 import { ConfirmDeleteButton } from "../ConfirmDeleteButton";
 import { useState } from "react";
@@ -85,7 +85,9 @@ function DigestTableRow({ digest }: { digest: DbTable<"digests"> }) {
           <p className="font-medium">{digest.full_name}</p>
           <p className="text-sm">{digest.phone}</p>
         </TableCell>
-        <TableCell>{digest.notify_on}</TableCell>
+        <TableCell>
+          {convertToLocal(digest.notify_on).format("hh:mm A")}
+        </TableCell>
         <TableCell>{digest.opt_in ? <IconCheck /> : <IconX />}</TableCell>
         <TableCell>{digest.enabled ? <IconCheck /> : <IconX />}</TableCell>
         <TableCell>{fromNow(digest.updated_at)}</TableCell>

@@ -80,7 +80,7 @@ export default function Route() {
   return (
     <div className="container max-w-screen-md p-6 md:p-12">
       <div className="flex items-center p-4">
-        <Link to="/" className="flex items-center gap-x-2 text-sm">
+        <Link to="/calendars" className="flex items-center gap-x-2 text-sm">
           <IconArrowLeft size={14} />
           <span className="hidden sm:inline">Back to Calendars</span>
         </Link>

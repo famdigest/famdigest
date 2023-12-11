@@ -91,6 +91,7 @@ export const provider_type = pgEnum("provider_type", [
   "outlook",
   "google",
 ]);
+export const message_role = pgEnum("message_role", ["user", "assistant"]);
 
 export const auth = pgSchema("auth");
 
@@ -694,6 +695,32 @@ export const digests = pgTable("digests", {
   }).default(sql`timezone('utc'::text, now())`),
   timezone: text("timezone").notNull(),
   notify_on: time("notify_on").notNull(),
+});
+
+export const messages = pgTable("messages", {
+  id: uuid("id")
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey()
+    .notNull(),
+  owner_id: uuid("owner_id")
+    .notNull()
+    .references(() => profiles.id, { onDelete: "cascade" }),
+  digest_id: uuid("digest_id")
+    .notNull()
+    .references(() => digests.id, { onDelete: "cascade" }),
+  external_id: text("external_id").notNull(),
+  message: text("message").notNull(),
+  segments: integer("segments").notNull(),
+  role: message_role("role").notNull(),
+  data: jsonb("data").$type<Record<string, any>>(),
+  created_at: timestamp("created_at", {
+    withTimezone: true,
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
+  updated_at: timestamp("updated_at", {
+    withTimezone: true,
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
 });
 
 export const calendars = pgTable("calendars", {

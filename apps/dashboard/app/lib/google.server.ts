@@ -29,6 +29,26 @@ export async function getToken(code: string) {
   return tokens;
 }
 
+export async function getEvents({
+  tokens,
+  calendarId,
+  timeMin,
+  timeMax,
+}: {
+  tokens: Credentials;
+  calendarId: string;
+  timeMin: string;
+  timeMax: string;
+}) {
+  auth.setCredentials({
+    ...tokens,
+  });
+
+  google.options({ auth });
+
+  return await calendar.events.list({ calendarId, timeMin, timeMax });
+}
+
 export async function getCalendarList(tokens: Credentials) {
   auth.setCredentials({
     ...tokens,
