@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import type { DropzoneProps, DropzoneState } from "react-dropzone";
 import * as rdz from "react-dropzone";
