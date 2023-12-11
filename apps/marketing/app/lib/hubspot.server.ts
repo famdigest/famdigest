@@ -8,7 +8,7 @@ export async function addToWaitlist(email: string) {
   try {
     const getContactResponse =
       await hubspotClient.crm.contacts.searchApi.doSearch({
-        query: `email=${email}`,
+        query: email,
         limit: 1,
         sorts: ["-createdate"],
         properties: ["email", "createdate"],
@@ -16,7 +16,7 @@ export async function addToWaitlist(email: string) {
         after: 0,
       });
 
-    if (getContactResponse.results) {
+    if (getContactResponse.results.length > 0) {
       return getContactResponse.results[0];
     }
 

@@ -10,10 +10,10 @@ const notifySchema = z.object({
   email: z.string().email(),
 });
 export default function Route() {
-  const [show, { toggle }] = useDisclosure(false);
+  const [show, { open, close }] = useDisclosure(false);
   const addToWaitlist = trpc.users.notify.useMutation({
     onSuccess() {
-      toggle();
+      open();
       form.reset();
       toast({
         title: "Yay!",
@@ -36,7 +36,7 @@ export default function Route() {
 
   return (
     <>
-      {show && <Explosion />}
+      {show && <Explosion onConfettiComplete={() => close()} />}
       <section className="flex-1 flex items-center">
         <div className="container">
           <div className="space-y-6 md:space-y-8 max-w-screen-md">
