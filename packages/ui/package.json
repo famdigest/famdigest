@@ -1,16 +1,26 @@
 {
   "name": "@repo/ui",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "0.0.0",
+  "main": "./dist/index.js",
+  "files": [
+    "dist/",
+    "styles/global.css",
+    "postcss.config.js",
+    "tailwind.config.js"
+  ],
   "license": "MIT",
-  "type": "module",
+  "scripts": {
+    "build": "tsup ./index.ts --format esm,cjs --dts --external react",
+    "dev": "tsup ./index.ts --format esm,cjs --watch --dts --external react"
+  },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
+    "@repo/typescript-config": "*",
     "@tailwindcss/typography": "^0.5.10",
     "@types/node": "^20.10.4",
     "@types/react": "^18.2.28",
     "@types/react-dom": "^18.2.13",
     "tailwindcss": "^3.3.3",
+    "tsup": "^8.0.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {

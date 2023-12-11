@@ -2,16 +2,20 @@
   "name": "@repo/database",
   "version": "0.0.0",
   "private": true,
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
+    "build": "tsup ./src/index.ts --format esm,cjs --dts",
+    "dev": "tsup ./src/index.ts --format esm,cjs --watch --dts",
     "db:generate": "drizzle-kit generate:pg",
     "db:introspect": "drizzle-kit introspect:pg",
     "db:push": "drizzle-kit push:pg"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
+    "@repo/typescript-config": "*",
     "@types/node": "^20.10.4",
     "drizzle-kit": "^0.20.6",
+    "tsup": "^8.0.1",
     "typescript": "^5.3.3"
   },
   "dependencies": {

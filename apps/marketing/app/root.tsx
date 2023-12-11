@@ -1,7 +1,7 @@
 import serifFontStyleSheet from "./fonts.css";
 import globalStyleSheet from "@repo/ui/styles/global.css";
 // @ts-ignore
-import sansFontStyleSheet from "@fontsource-variable/open-sans";
+import sansFontStyleSheet from "@fontsource-variable/open-sans/index.css";
 
 import { cssBundleHref } from "@remix-run/css-bundle";
 import { json, LinksFunction, type LoaderFunctionArgs } from "@remix-run/node";
