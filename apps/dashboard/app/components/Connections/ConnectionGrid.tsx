@@ -12,18 +12,20 @@ export function ConnectionGrid({ connections }: ConnectionGridProps) {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {connections?.map((connection) => (
         <Card key={connection.id}>
-          <div className="flex items-start md:items-center p-6 gap-x-4">
+          <div className="flex items-start md:items-center p-4 sm:p-6 gap-x-4">
             <ConnectionProviderIcon provider={connection.provider} />
             <CardHeader className="p-0 space-y-0.5">
               <CardTitle className="capitalize text-xl">
                 {connection.provider}
               </CardTitle>
-              <CardDescription>{connection.email}</CardDescription>
+              <CardDescription className="truncate min-w-0">
+                {connection.email}
+              </CardDescription>
             </CardHeader>
-            <div className="ml-auto">
-              <Button size="icon" variant="secondary" asChild>
+            <div className="ml-auto shrink-0">
+              <Button size="icon-sm" variant="secondary" asChild>
                 <Link to={`/calendars/${connection.id}`}>
-                  <IconSettings size={20} />
+                  <IconSettings size={16} />
                 </Link>
               </Button>
             </div>

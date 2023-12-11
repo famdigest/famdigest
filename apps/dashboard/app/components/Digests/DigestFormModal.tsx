@@ -122,7 +122,7 @@ export function DigestFormModal({
           </DialogDescription>
         </DialogHeader>
         <form key={digest?.id ?? id} onSubmit={form.onSubmit(onSubmit)}>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               label="Full Name"
               {...form.getInputProps("full_name")}
@@ -173,7 +173,7 @@ export function DigestFormModal({
               )}
             />
           </div>
-          <DialogFooter>
+          <DialogFooter className="pt-6">
             <Button
               variant="outline"
               type="button"

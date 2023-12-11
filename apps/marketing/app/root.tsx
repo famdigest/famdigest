@@ -1,3 +1,4 @@
+import "./fonts.css";
 import "@repo/ui/styles/global.css";
 import "@fontsource-variable/open-sans";
 
@@ -122,7 +123,7 @@ function Document({
         <Meta />
         <Links />
       </head>
-      <body className="">
+      <body className="selection:bg-pink-300/50">
         {/* <GoogleNoScript /> */}
         {children}
         <Toaster />

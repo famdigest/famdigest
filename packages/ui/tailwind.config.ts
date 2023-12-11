@@ -19,6 +19,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Open Sans Variable", ...defaultTheme.fontFamily.sans],
+        serif: ["Gambarino-Regular", ...defaultTheme.fontFamily.serif],
       },
       colors: {
         border: "hsl(var(--border))",

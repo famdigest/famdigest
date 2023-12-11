@@ -1,7 +1,7 @@
 import { Table } from "@repo/supabase";
 import { Button, Separator } from "@repo/ui";
 import { trpc } from "~/lib/trpc";
-import { DigestTable } from "./DigestTable";
+import { DigestListing, DigestTable } from "./DigestTable";
 import { DigestFormModal } from "./DigestFormModal";
 import { IconCirclePlus } from "@tabler/icons-react";
 
@@ -33,6 +33,7 @@ export function DigestsView({ initialData }: DigestsViewProps) {
       </header>
       <Separator />
       <DigestTable digests={digests} />
+      <DigestListing digests={digests} />
     </div>
   );
 }

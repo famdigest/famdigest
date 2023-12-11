@@ -79,7 +79,7 @@ function NavDropdownMenu() {
         <Button
           variant="secondary"
           size="sm"
-          className="justify-center sm:justify-start hover:bg-primary/10 w-full"
+          className="px-0 sm:px-3 justify-center sm:justify-start hover:bg-primary/10 w-full"
         >
           <Avatar className="sm:mr-2 h-5 w-5">
             <AvatarImage

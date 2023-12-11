@@ -1,0 +1,23 @@
+/**
+ * @license
+ *
+ * Font Family: Gambarino
+ * Designed by: Théo Guillard
+ * URL: https://www.fontshare.com/fonts/gambarino
+ * © 2023 Indian Type Foundry
+ *
+ * Font Style:
+ * Gambarino Regular
+ *
+*/
+
+@font-face {
+  font-family: "Gambarino-Regular";
+  src:
+    url("./assets/fonts/Gambarino-Regular.woff2") format("woff2"),
+    url("./assets/fonts/Gambarino-Regular.woff") format("woff"),
+    url("./assets/fonts/Gambarino-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+  font-style: normal;
+}
