@@ -1,7 +1,7 @@
 import * as React from "react";
 import type { DropzoneProps, DropzoneState } from "react-dropzone";
 import * as rdz from "react-dropzone";
-import { cn } from "@repo/ui/lib/utils";
+import { cn } from "../../lib/utils";
 
 const { useDropzone } = rdz;
 

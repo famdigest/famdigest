@@ -9,8 +9,7 @@
         "^build"
       ],
       "outputs": [
-        ".build/**",
-        "!.cache/**"
+        "dist/**"
       ]
     },
     "lint": {

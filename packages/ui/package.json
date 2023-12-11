@@ -1,7 +1,8 @@
 {
   "name": "@repo/ui",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index.ts",
+  "types": "index.ts",
   "license": "MIT",
   "type": "module",
   "devDependencies": {

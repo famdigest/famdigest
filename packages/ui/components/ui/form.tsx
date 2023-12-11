@@ -2,7 +2,7 @@ import * as React from "react";
 import type { Input } from "./input";
 import { Label } from "./label";
 
-import { cn } from "@repo/ui/lib/utils";
+import { cn } from "../../lib/utils";
 
 /**
  * provider style

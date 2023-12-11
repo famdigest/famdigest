@@ -1,8 +1,10 @@
-import "./fonts.css";
-import "@repo/ui/styles/global.css";
-import "@fontsource-variable/open-sans";
+import serifFontStyleSheet from "./fonts.css";
+import globalStyleSheet from "@repo/ui/styles/global.css";
+// @ts-ignore
+import sansFontStyleSheet from "@fontsource-variable/open-sans";
 
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { cssBundleHref } from "@remix-run/css-bundle";
+import { json, LinksFunction, type LoaderFunctionArgs } from "@remix-run/node";
 import {
   isRouteErrorResponse,
   Links,
@@ -25,6 +27,21 @@ import { SESSION_KEYS } from "./constants";
 import { useState } from "react";
 import { Button, cn, Toaster } from "@repo/ui";
 import { AppProviders } from "./components/AppProviders";
+
+export const links: LinksFunction = () => [
+  { rel: "preload", href: serifFontStyleSheet, as: "style" },
+  { rel: "preload", href: sansFontStyleSheet, as: "style" },
+  { rel: "preload", href: globalStyleSheet, as: "style" },
+  ...(cssBundleHref
+    ? [{ rel: "preload", href: cssBundleHref, as: "style" }]
+    : []),
+
+  //These should match the css preloads above to avoid css as render blocking resource
+  { rel: "stylesheet", href: serifFontStyleSheet },
+  { rel: "stylesheet", href: sansFontStyleSheet },
+  { rel: "stylesheet", href: globalStyleSheet },
+  ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
+];
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const response = new Response();
