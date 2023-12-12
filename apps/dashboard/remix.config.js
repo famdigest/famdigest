@@ -7,6 +7,12 @@ export default {
   tailwind: true,
   postcss: true,
   serverModuleFormat: "esm",
+  serverDependenciesToBundle: [
+    /endent/,
+    /dedent/,
+    /objectorarray/,
+    /fast-json-parse/,
+  ],
   routes: async (defineRoutes) => {
     return flatRoutes("routes", defineRoutes, {
       ignoredRouteFiles: [

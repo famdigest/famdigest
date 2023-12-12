@@ -17,6 +17,10 @@ declare global {
       HUMANLOOP_API_KEY: string;
       HUMANLOOP_PROJECT_ID: string;
       OPENAI_API_KEY: string;
+      TWILIO_SID: string;
+      TWILIO_SERVICE_SID: string;
+      TWILIO_TOKEN: string;
+      TWILIO_PHONE: string;
     }
   }
 

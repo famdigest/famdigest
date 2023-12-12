@@ -4,7 +4,8 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import { RemoteCalendarService } from "~/lib/calendars";
 import { humanloop } from "~/lib/humanloop.server";
-import endent from "endent";
+import dedent from "dedent";
+import { sendMessage } from "~/lib/twilio.server";
 
 dayjs.extend(utc);
 
@@ -58,7 +59,7 @@ export async function action() {
       messages: [
         {
           role: "user",
-          content: endent`To: ${digest.full_name}
+          content: dedent`To: ${digest.full_name}
           From: ${owner.full_name}
           Events: ${JSON.stringify(allEvents, null, 2)}
         `,
@@ -69,6 +70,20 @@ export async function action() {
     allResponses.push(response.data.data[0].output);
 
     // twilio
+    const sentMessage = await sendMessage({
+      body: response.data.data[0].output,
+      to: digest.phone,
+    });
+
+    await db.insert(schema.messages).values({
+      role: "assistant",
+      message: response.data.data[0].output,
+      external_id: sentMessage.sid,
+      segments: Number(sentMessage.numSegments),
+      digest_id: digest.id,
+      owner_id: owner.id,
+      data: { msg: sentMessage, events: allEvents },
+    });
   }
 
   return json({
