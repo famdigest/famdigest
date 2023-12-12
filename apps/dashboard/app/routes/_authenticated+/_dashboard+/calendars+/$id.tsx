@@ -1,6 +1,6 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Link, useLoaderData, useRevalidator } from "@remix-run/react";
-import { asc, db, eq, schema } from "@repo/database";
+import { asc, db, eq, schema } from "~/lib/db.server";
 import {
   Card,
   CardHeader,
@@ -14,6 +14,10 @@ import { ConnectionProviderIcon } from "~/components/Connections/ConnectionProvi
 import { RemoteCalendarService } from "~/lib/calendars";
 import { trpc } from "~/lib/trpc";
 import { getSessionWorkspace } from "~/lib/workspace.server";
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [{ title: `Calendar: ${data?.connection.email} - FamDigest` }];
+};
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { user, response } = await getSessionWorkspace(request);

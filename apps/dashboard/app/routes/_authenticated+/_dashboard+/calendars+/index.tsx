@@ -1,12 +1,12 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { db, desc, eq, schema } from "@repo/database";
+import { db, desc, eq, schema } from "~/lib/db.server";
 import { Table } from "@repo/supabase";
 import { ConnectionsView } from "~/components/Connections/ConnectionsView";
 import { requireAuthSession } from "~/lib/session.server";
 
 export const meta: MetaFunction = () => {
-  return [{ title: "Connections - FamDigest" }];
+  return [{ title: "Calendars - FamDigest" }];
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

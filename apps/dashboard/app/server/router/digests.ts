@@ -6,7 +6,7 @@ import {
   digestsUpdateSchema,
 } from "@repo/supabase";
 import { protectedProcedure, router } from "../trpc.server";
-import { db, desc, eq, schema } from "@repo/database";
+import { db, desc, eq, schema } from "~/lib/db.server";
 import { z } from "zod";
 
 export const digestsRouter = router({

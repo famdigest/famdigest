@@ -1,8 +1,12 @@
-import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { and, db, desc, eq, schema } from "@repo/database";
+import { and, db, desc, eq, schema } from "~/lib/db.server";
 import { DigestsView } from "~/components/Digests/Digests";
 import { requireAuthSession } from "~/lib/session.server";
+
+export const meta: MetaFunction = () => {
+  return [{ title: "Digests - FamDigest" }];
+};
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { user, response } = await requireAuthSession(request);

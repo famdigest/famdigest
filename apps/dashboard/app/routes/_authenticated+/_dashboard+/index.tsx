@@ -3,24 +3,18 @@ import {
   type LoaderFunctionArgs,
   type MetaFunction,
 } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { and, db, desc, eq, schema } from "@repo/database";
-import { Table } from "@repo/supabase";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui";
-import { ConnectionsView } from "~/components/Connections/ConnectionsView";
-import { DigestsView } from "~/components/Digests/Digests";
+import { useLoaderData } from "@remix-run/react";
+import { and, db, desc, eq, schema } from "~/lib/db.server";
+import { Card, CardDescription, CardHeader, CardTitle } from "@repo/ui";
 import { requireAuthSession } from "~/lib/session.server";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "FamDigest" },
-    { name: "description", content: "Welcome to FamDigest!" },
+    { title: "FamDigest - Never use a shared calendar again" },
+    {
+      property: "og:title",
+      content: "FamDigest - Never use a shared calendar again",
+    },
   ];
 };
 

@@ -10,7 +10,13 @@ import {
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 
 export const meta = () => {
-  return [{ title: "Settings | FamDigest" }];
+  return [
+    { title: "Settings | FamDigest" },
+    {
+      property: "og:title",
+      content: "Settings | FamDigest",
+    },
+  ];
 };
 
 export default function WorkspaceDashboardSettingsRoute() {

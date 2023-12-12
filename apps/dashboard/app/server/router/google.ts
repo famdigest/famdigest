@@ -1,7 +1,7 @@
 import { google } from "googleapis";
 import { protectedProcedure, router } from "../trpc.server";
 import { generateAuthUrl } from "~/lib/google.server";
-import { and, db, eq, schema } from "@repo/database";
+import { and, db, eq, schema } from "~/lib/db.server";
 
 export const googleRouter = router({
   authorize: protectedProcedure.mutation(async ({ ctx }) => {

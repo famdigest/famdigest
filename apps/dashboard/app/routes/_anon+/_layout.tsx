@@ -3,24 +3,7 @@ import { Logo } from "~/components/Logo";
 import type { MetaFunction } from "@remix-run/node";
 
 export const meta: MetaFunction = () => {
-  return [
-    {
-      name: "description",
-      content: "[SEO Description]",
-    },
-    {
-      property: "og:description",
-      content: "[SEO Description]",
-    },
-    {
-      property: "og:title",
-      content: "FamDigest",
-    },
-    // {
-    //   property: "og:image",
-    //   content: "/social/open-graph.jpg",
-    // },
-  ];
+  return [];
 };
 
 export default function AuthLayout() {

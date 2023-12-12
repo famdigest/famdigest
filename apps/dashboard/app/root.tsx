@@ -1,9 +1,13 @@
 import globalStyleSheet from "@repo/ui/styles/global.css";
-// @ts-ignore
 import sansFontStyleSheet from "@fontsource-variable/open-sans/index.css";
 
 import { cssBundleHref } from "@remix-run/css-bundle";
-import { json, LinksFunction, type LoaderFunctionArgs } from "@remix-run/node";
+import {
+  json,
+  LinksFunction,
+  MetaFunction,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
 import {
   isRouteErrorResponse,
   Links,
@@ -40,6 +44,33 @@ export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
+export const meta: MetaFunction<typeof loader> = ({ data, location }) => {
+  return [
+    {
+      name: "description",
+      content:
+        "Send a short daily digest of your day to anyone via text message.",
+    },
+    {
+      property: "og:description",
+      content:
+        "Send a short daily digest of your day to anyone via text message.",
+    },
+    { property: "twitter:card", content: "summary_large_image" },
+    { property: "twitter:site", content: "@famdigest" },
+    { property: "twitter:creator", content: "@francoxavier33" },
+    { property: "og:type", content: "website" },
+    {
+      property: "og:url",
+      content: `${data?.url}${location.pathname}`,
+    },
+    {
+      property: "og:image",
+      content: `${data?.url}/assets/images/open-graph.jpg`,
+    },
+  ];
+};
+
 export async function loader({ request }: LoaderFunctionArgs) {
   const response = new Response();
   const supabase = createServerClient(request, response);
@@ -60,7 +91,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   response.headers.append("set-cookie", cookie);
 
-  const { hostname } = new URL(request.url);
+  const { hostname, origin } = new URL(request.url);
 
   return json(
     {
@@ -69,6 +100,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       visitorId,
       domain: hostname.split(".").slice(-2).join("."),
       theme: cookieSession.get(SESSION_KEYS.theme) ?? "light",
+      url: origin,
       env: {
         NODE_ENV: process.env.NODE_ENV,
         SUPABASE_URL: process.env.SUPABASE_URL,
@@ -134,6 +166,79 @@ function Document({
           name="viewport"
           content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"
         />
+        <link
+          rel="apple-touch-icon"
+          sizes="57x57"
+          href="/apple-icon-57x57.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="60x60"
+          href="/apple-icon-60x60.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="72x72"
+          href="/apple-icon-72x72.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="76x76"
+          href="/apple-icon-76x76.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="114x114"
+          href="/apple-icon-114x114.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="120x120"
+          href="/apple-icon-120x120.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="144x144"
+          href="/apple-icon-144x144.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="152x152"
+          href="/apple-icon-152x152.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-icon-180x180.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="192x192"
+          href="/android-icon-192x192.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="96x96"
+          href="/favicon-96x96.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="msapplication-TileColor" content="#ffffff" />
+        <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
+        <meta name="theme-color" content="#ffffff" />
         <Meta />
         <Links />
       </head>

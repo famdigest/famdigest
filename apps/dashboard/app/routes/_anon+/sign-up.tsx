@@ -14,7 +14,13 @@ const signUpFormSchema = z.object({
 type SignUpForm = z.infer<typeof signUpFormSchema>;
 
 export const meta = () => {
-  return [{ title: "Create Your Account | FamDigest" }];
+  return [
+    { title: "Create Your Account | FamDigest" },
+    {
+      property: "og:title",
+      content: "Create Your Account | FamDigest",
+    },
+  ];
 };
 
 export default function AuthSignUpRoute() {

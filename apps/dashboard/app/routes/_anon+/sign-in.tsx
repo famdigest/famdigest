@@ -24,7 +24,13 @@ type SignInForm = z.infer<typeof signInFormSchema>;
 type SignInWithPassword = z.infer<typeof signInWithPasswordSchema>;
 
 export const meta = () => {
-  return [{ title: "Sign In | FamDigest" }];
+  return [
+    { title: "Sign In | FamDigest" },
+    {
+      property: "og:title",
+      content: "Sign In | FamDigest",
+    },
+  ];
 };
 
 export default function AuthSignInRoute() {

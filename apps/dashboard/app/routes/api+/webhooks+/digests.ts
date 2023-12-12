@@ -1,10 +1,10 @@
 import { json } from "@remix-run/node";
-import { and, db, eq, schema } from "@repo/database";
+import { and, db, eq, schema } from "~/lib/db.server";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
+import utc from "dayjs/plugin/utc.js";
 import { RemoteCalendarService } from "~/lib/calendars";
 import { humanloop } from "~/lib/humanloop.server";
-import endent from "endent/src/index";
+import endent from "endent";
 
 dayjs.extend(utc);
 

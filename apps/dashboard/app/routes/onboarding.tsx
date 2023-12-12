@@ -19,22 +19,8 @@ export const meta = () => {
   return [
     { title: "Account Setup | FamDigest" },
     {
-      name: "description",
-      content:
-        "Carta is a no code platform that provides an intuitive user interface to build, customize and share custom maps.",
-    },
-    {
-      property: "og:description",
-      content:
-        "Carta is a no code platform that provides an intuitive user interface to build, customize and share custom maps.",
-    },
-    {
       property: "og:title",
-      content: "FamDigest - Easily create, customize and share maps",
-    },
-    {
-      property: "og:image",
-      content: "/social/open-graph.jpg",
+      content: "Account Setup | FamDigest",
     },
   ];
 };

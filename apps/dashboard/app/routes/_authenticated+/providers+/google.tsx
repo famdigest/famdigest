@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import jwt from "jsonwebtoken";
-import { and, db, eq, schema } from "@repo/database";
+import { and, db, eq, schema } from "~/lib/db.server";
 import { getCalendarList, getToken } from "~/lib/google.server";
 import { requireAuthSession } from "~/lib/session.server";
 
