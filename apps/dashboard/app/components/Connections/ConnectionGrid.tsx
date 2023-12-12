@@ -3,11 +3,24 @@ import { Button, Card, CardDescription, CardHeader, CardTitle } from "@repo/ui";
 import { ConnectionProviderIcon } from "./ConnectionProviderIcon";
 import { IconSettings } from "@tabler/icons-react";
 import { Link } from "@remix-run/react";
+import { AddConnectionDropdown } from "./AddConnectionDropdown";
 
 type ConnectionGridProps = {
   connections: Table<"connections">[];
 };
 export function ConnectionGrid({ connections }: ConnectionGridProps) {
+  if (!connections.length) {
+    return (
+      <div>
+        <div className="h-40 text-center">
+          <p className="text-lg font-medium tracking-tight mb-3">
+            Connect your first calendar
+          </p>
+          <AddConnectionDropdown />
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {connections?.map((connection) => (
