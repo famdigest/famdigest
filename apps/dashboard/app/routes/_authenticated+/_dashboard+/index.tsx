@@ -65,7 +65,7 @@ export default function Index() {
   return (
     <div className="p-6 md:p-12 space-y-12">
       <div>
-        <h1 className="text-xl font-medium tracking-tight">
+        <h1 className="text-2xl font-medium font-serif">
           👋🏼 Welcome back, {user.full_name}!
         </h1>
       </div>

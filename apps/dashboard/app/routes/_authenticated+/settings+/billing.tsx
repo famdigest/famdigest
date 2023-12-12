@@ -1,6 +1,15 @@
 import { IconCreditCard, IconLoader2 } from "@tabler/icons-react";
 // import { PlanCard } from "~/components/PlanCard";
-import { Button, Separator, useToast } from "@repo/ui";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Separator,
+  useToast,
+} from "@repo/ui";
 import { trpc } from "~/lib/trpc";
 import { useIsTeamOwner } from "~/hooks/is-team-owner";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
@@ -35,6 +44,31 @@ export default function WorkspaceDashboardSettingsBillingRoute() {
     }
     checkout.mutate();
   };
+
+  return (
+    <div className="container max-w-screen-md p-6 md:p-12 space-y-12">
+      <Card>
+        <CardHeader className="border-b">
+          <CardTitle className="text-xl font-serif tracking-normal">
+            Billing
+          </CardTitle>
+          <CardDescription>
+            Manage your workspace subscription and billing..
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-6">
+          <Button size="sm" variant="outline" onClick={createPortalLink}>
+            {checkout.isLoading ? (
+              <IconLoader2 className="mr-3" size={16} />
+            ) : (
+              <IconCreditCard className="mr-3" size={16} />
+            )}
+            Manage Subscription
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
 
   return (
     <div className="space-y-6">

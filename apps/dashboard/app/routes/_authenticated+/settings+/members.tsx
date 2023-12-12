@@ -113,7 +113,9 @@ export default function WorkspaceDashboardSettingsMembersRoute() {
       <Card>
         <CardHeader className="border-b flex-row justify-between">
           <div className="flex flex-col space-y-1.5">
-            <CardTitle className="text-xl">Members</CardTitle>
+            <CardTitle className="text-xl font-serif tracking-normal">
+              Members
+            </CardTitle>
             <CardDescription>
               Manage and Invite members to your workspace.
             </CardDescription>
@@ -224,7 +226,9 @@ export default function WorkspaceDashboardSettingsMembersRoute() {
       <Card>
         <CardHeader className="border-b flex-row justify-between">
           <div className="flex flex-col space-y-1.5">
-            <CardTitle className="text-xl">Pending Invites</CardTitle>
+            <CardTitle className="text-xl font-serif tracking-normal">
+              Pending Invites
+            </CardTitle>
             <CardDescription>Manage invites not yet accepted.</CardDescription>
           </div>
         </CardHeader>

@@ -8,10 +8,15 @@ const scopes = [
   "openid",
 ];
 
+let url: string = "localhost:3000";
+if (process.env.VERCEL_URL) {
+  url = `https://${process.env.VERCEL_URL}`;
+}
+
 const auth = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_SECRET,
-  `http://localhost:5173/providers/google`
+  `${url}/providers/google`
 );
 
 const calendar = google.calendar("v3");

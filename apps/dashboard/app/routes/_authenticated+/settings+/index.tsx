@@ -26,7 +26,9 @@ export default function WorkspaceDashboardSettingsRoute() {
     <div className="container max-w-screen-md p-6 md:p-12 space-y-12">
       <Card>
         <CardHeader className="border-b">
-          <CardTitle className="text-xl">Workspace Settings</CardTitle>
+          <CardTitle className="text-xl font-serif tracking-normal">
+            Workspace Settings
+          </CardTitle>
           <CardDescription>
             This is how others will see you on the site.
           </CardDescription>

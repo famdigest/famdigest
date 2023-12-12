@@ -20,7 +20,9 @@ export default function WorkspaceDashboardSettingsAccountsRoute() {
     <div className="container max-w-screen-md p-6 md:p-12 space-y-12">
       <Card>
         <CardHeader className="border-b">
-          <CardTitle className="text-xl">Personal Settings</CardTitle>
+          <CardTitle className="text-xl font-serif tracking-normal">
+            Personal Settings
+          </CardTitle>
           <CardDescription>Manage your profile details.</CardDescription>
         </CardHeader>
         <CardContent className="p-6">

@@ -16,7 +16,7 @@ export function ConnectionsView({ initialData }: ConnectionsViewProps) {
     <div className="space-y-6">
       <header className="flex flex-col md:flex-row md:items-center">
         <div className="space-y-0.5">
-          <h2 className="text-2xl font-semibold tracking-tight">Calendars</h2>
+          <h2 className="text-2xl font-semibold font-serif">Calendars</h2>
           <p className="text-muted-foreground">
             Manage calendars across many providers.
           </p>

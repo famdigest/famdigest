@@ -130,7 +130,7 @@ export default function AuthSignInRoute() {
     return (
       <div className="w-full max-w-md flex flex-col gap-y-6 p-8 md:p-12 bg-white rounded-md shadow-2xl">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight mb-3">
+          <h1 className="text-2xl font-semibold font-serif mb-3">
             Check your email
           </h1>
           <div className="text-sm mb-2">
@@ -210,7 +210,7 @@ export default function AuthSignInRoute() {
   return (
     <div className="w-full max-w-md flex flex-col gap-y-6 p-8 md:p-12 bg-white rounded-md shadow-2xl">
       <div className="text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="text-2xl font-semibold font-serif">
           Sign in to your account
         </h1>
       </div>

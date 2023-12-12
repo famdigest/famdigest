@@ -1,3 +1,4 @@
+import serifFontStyleSheet from "./fonts.css";
 import globalStyleSheet from "@repo/ui/styles/global.css";
 import sansFontStyleSheet from "@fontsource-variable/open-sans/index.css";
 
@@ -32,6 +33,7 @@ import { Button, cn, Toaster } from "@repo/ui";
 import { AppProviders } from "./components/AppProviders";
 
 export const links: LinksFunction = () => [
+  { rel: "preload", href: serifFontStyleSheet, as: "style" },
   { rel: "preload", href: sansFontStyleSheet, as: "style" },
   { rel: "preload", href: globalStyleSheet, as: "style" },
   ...(cssBundleHref
@@ -39,6 +41,7 @@ export const links: LinksFunction = () => [
     : []),
 
   //These should match the css preloads above to avoid css as render blocking resource
+  { rel: "stylesheet", href: serifFontStyleSheet },
   { rel: "stylesheet", href: sansFontStyleSheet },
   { rel: "stylesheet", href: globalStyleSheet },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
