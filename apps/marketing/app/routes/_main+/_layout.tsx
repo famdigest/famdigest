@@ -3,6 +3,8 @@ import { Button, cn } from "@repo/ui";
 import { IconBrandInstagram, IconBrandTwitter } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import noise from "~/assets/noise.svg";
+import { Footer } from "~/components/Footer";
+import { Header } from "~/components/Header";
 
 //
 export default function Layout() {
@@ -16,35 +18,11 @@ export default function Layout() {
           backgroundImage: `url(${noise})`,
         }}
       />
-      <header className="relative z-10 shrink-0">
-        <div className="container flex items-center justify-between py-4">
-          <Link to="/" className="text-2xl font-medium font-serif">
-            FamDigest
-          </Link>
-          <nav>
-            <Button>Coming Soon</Button>
-          </nav>
-        </div>
-      </header>
+      <Header />
       <main className="flex-1 flex flex-col relative z-10">
         <Outlet />
       </main>
-      <footer className="relative z-10 shrink-0 py-4">
-        <div className="container flex flex-col-reverse justify-center md:flex-row items-center md:justify-start gap-y-4 md:gap-y-0">
-          <p className="text-xs">
-            Copyright &copy; 2021 - {dayjs().year()}. FamDigest. All rights
-            reserved.
-          </p>
-          <nav className="flex gap-x-4 md:ml-auto">
-            <Link to="https://twitter.com/famdigest" target="_blank">
-              <IconBrandTwitter />
-            </Link>
-            <Link to="https://www.instagram.com/famdigest/" target="_blank">
-              <IconBrandInstagram />
-            </Link>
-          </nav>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
