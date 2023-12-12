@@ -9,8 +9,10 @@ const scopes = [
 ];
 
 let url: string = "localhost:3000";
-if (process.env.VERCEL_URL) {
+if (process.env.VERCEL_ENV !== "production") {
   url = `https://${process.env.VERCEL_URL}`;
+} else {
+  url = "https://app.famdigest.com";
 }
 
 const auth = new google.auth.OAuth2(
