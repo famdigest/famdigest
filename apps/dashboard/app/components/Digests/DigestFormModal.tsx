@@ -1,4 +1,5 @@
 import { useForm } from "@mantine/form";
+import { Link } from "@remix-run/react";
 import { Table, digestsRowSchema } from "@repo/supabase";
 import {
   Button,
@@ -173,6 +174,14 @@ export function DigestFormModal({
             />
           </div>
           <DialogFooter className="pt-6">
+            <p className="text-xs">
+              By creating this digest, you agree to our{" "}
+              <Link to="https://www.famdigest.com/terms" className="underline">
+                terms
+              </Link>{" "}
+              and <strong>opt-in</strong> to receive SMS messages from
+              FamDigest.com
+            </p>
             <Button
               variant="outline"
               type="button"
