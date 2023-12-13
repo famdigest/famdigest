@@ -19,6 +19,7 @@ import { DigestFormModal } from "./DigestFormModal";
 import { convertToLocal, fromNow } from "~/lib/dates";
 import { trpc } from "~/lib/trpc";
 import { useState } from "react";
+import { Link } from "@remix-run/react";
 
 type DigestTableProps = {
   digests: DbTable<"digests">[];
@@ -122,6 +123,9 @@ function DigestTableRow({ digest }: { digest: DbTable<"digests"> }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem className="cursor-pointer" asChild>
+                <Link to={`/digests/${digest.id}`}>View</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"
                 onClick={() => setOpen(true)}

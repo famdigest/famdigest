@@ -21,7 +21,7 @@ import {
   time,
   primaryKey,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 export const key_status = pgEnum("key_status", [
   "expired",

@@ -70,6 +70,7 @@ export class GoogleCalendarService extends RemoteCalendarService {
 
     const calendars = items.map((item) => ({
       external_id: item.id!,
+      enabled: item.primary === true,
       data: {
         ...item,
       },

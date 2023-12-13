@@ -29,6 +29,9 @@ importers:
       '@mantine/hooks':
         specifier: ^7.3.1
         version: 7.3.1(react@18.2.0)
+      '@mona-health/react-input-mask':
+        specifier: ^3.0.1
+        version: 3.0.1(react-dom@18.2.0)(react@18.2.0)
       '@remix-run/css-bundle':
         specifier: ^2.3.1
         version: 2.3.1
@@ -1994,6 +1997,19 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /@mona-health/react-input-mask@3.0.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-DAa5VPmjSk01tqXgoCDgqUmiKTFVR51SkS4fJPAuNNbatvlcJn5SzXeG7T9zMZJJ00pu2KD24Bxc7BxbGF6M1g==}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+    dependencies:
+      invariant: 2.2.4
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      warning: 4.0.3
+    dev: false
 
   /@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1:
     resolution: {integrity: sha512-54/JRvkLIzzDWshCWfuhadfrfZVPiElY8Fcgmg1HroEly/EDSszzhBAsarCux+D/kOslTRquNzuyGSmUSTTHGg==}
@@ -10627,6 +10643,12 @@ packages:
     optionalDependencies:
       fsevents: 2.3.3
     dev: true
+
+  /warning@4.0.3:
+    resolution: {integrity: sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==}
+    dependencies:
+      loose-envify: 1.4.0
+    dev: false
 
   /wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}

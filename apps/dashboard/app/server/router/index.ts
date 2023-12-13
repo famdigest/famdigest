@@ -8,6 +8,7 @@ import { googleRouter } from "./google";
 import { connectionsRouter } from "./connections";
 import { digestsRouter } from "./digests";
 import { calendarRouter } from "./calendars";
+import { messagesRouter } from "./messages";
 
 export const appRouter = router({
   healthcheck: publicProcedure.query(() => "yay!"),
@@ -20,6 +21,7 @@ export const appRouter = router({
   connections: connectionsRouter,
   digests: digestsRouter,
   calendars: calendarRouter,
+  messages: messagesRouter,
 });
 
 // Export only the type of a router!

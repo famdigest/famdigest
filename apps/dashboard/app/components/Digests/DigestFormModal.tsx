@@ -61,11 +61,11 @@ export function DigestFormModal({
   // const [open, setOpen] = useState(false);
   const [tz] = useState(() => getAllTimezones());
   const utils = trpc.useUtils();
-  const onSuccess = () => {
-    utils.digests.all.invalidate();
+  const onSuccess = async () => {
+    await utils.digests.invalidate();
     onOpenChange?.(false);
     toast({
-      title: "Digest Added!",
+      title: digest ? "Disgest Updated!" : "Digest Added!",
     });
   };
 
@@ -93,7 +93,6 @@ export function DigestFormModal({
 
   const onSubmit = (values: typeof form.values) => {
     //...
-    console.log(values.notify_on);
     const notify_on = convertToUTC(values.notify_on);
     if (digest) {
       update.mutate({

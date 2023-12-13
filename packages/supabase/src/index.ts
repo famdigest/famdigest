@@ -2,6 +2,7 @@ export { createBrowserClient } from "./client";
 export { createServerClient, createAdminClient } from "./server";
 
 export * from "./database";
+export * from "./calendar";
 export * from "./schemas";
 export * from "./helpers";
 export * from "./users";

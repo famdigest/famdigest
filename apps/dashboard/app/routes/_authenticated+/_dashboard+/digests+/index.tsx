@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { and, db, desc, eq, schema } from "~/lib/db.server";
+import { db, desc, eq, schema } from "~/lib/db.server";
 import { DigestsView } from "~/components/Digests/Digests";
 import { requireAuthSession } from "~/lib/session.server";
 
@@ -14,12 +14,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const digests = await db
     .select()
     .from(schema.digests)
-    .where(
-      and(
-        eq(schema.digests.owner_id, user.id),
-        eq(schema.digests.enabled, true)
-      )
-    )
+    .where(eq(schema.digests.owner_id, user.id))
     .orderBy(desc(schema.digests.created_at));
 
   return json(

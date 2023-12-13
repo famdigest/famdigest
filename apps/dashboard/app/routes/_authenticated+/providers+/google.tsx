@@ -2,7 +2,11 @@ import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import jwt from "jsonwebtoken";
 import { and, db, eq, schema } from "~/lib/db.server";
 import { getCalendarList, getToken } from "~/lib/google.server";
-import { requireAuthSession } from "~/lib/session.server";
+import {
+  commitSession,
+  getSession,
+  requireAuthSession,
+} from "~/lib/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { user, response } = await requireAuthSession(request);
@@ -38,6 +42,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     /**
      * on new connections, redirect to page where user can select calendars
      */
+    const session = await getSession(request);
+    if (session.has("redirect_uri")) {
+      const redirect_uri = session.get("redirect_uri");
+      session.unset("redirect_uri");
+      response.headers.set("set-cookie", await commitSession(session));
+      return redirect(redirect_uri, {
+        headers: response.headers,
+      });
+    }
     return redirect(`/calendars/${connection.id}`, {
       headers: response.headers,
     });
@@ -48,6 +61,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
         data: tokens,
       })
       .where(eq(schema.connections.id, existingConnection.id));
+
+    const session = await getSession(request);
+    if (session.has("redirect_uri")) {
+      const redirect_uri = session.get("redirect_uri");
+      session.unset("redirect_uri");
+      response.headers.set("set-cookie", await commitSession(session));
+      return redirect(redirect_uri, {
+        headers: response.headers,
+      });
+    }
 
     return redirect(`/calendars/${existingConnection.id}`, {
       headers: response.headers,

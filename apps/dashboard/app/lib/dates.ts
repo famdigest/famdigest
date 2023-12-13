@@ -2,7 +2,9 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime.js";
 import timezonePlugin from "dayjs/plugin/timezone.js";
 import utcPlugin from "dayjs/plugin/utc.js";
+import customParseFormat from "dayjs/plugin/customParseFormat.js";
 
+dayjs.extend(customParseFormat);
 dayjs.extend(relativeTime);
 dayjs.extend(timezonePlugin);
 dayjs.extend(utcPlugin);
@@ -20,8 +22,8 @@ export function getUtcOffset(timezone: string) {
 }
 
 export function convertToUTC(timestring: string) {
-  const [hour, minute] = timestring.split(":");
-  const now = dayjs().hour(Number(hour)).minute(Number(minute)).second(0);
+  const format = timestring.split(":").length > 2 ? "h:mm:ss A" : "h:mm A";
+  const now = dayjs(timestring, format);
   const utcTime = now.utc();
 
   return utcTime.format("HH:mm:ss");

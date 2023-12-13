@@ -48,6 +48,7 @@ export const userRouter = router({
         .update({
           full_name: input.full_name,
           email: input.email,
+          phone: input.phone,
         })
         .match({
           id: ctx.user.id,

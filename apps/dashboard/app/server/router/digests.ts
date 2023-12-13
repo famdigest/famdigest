@@ -3,6 +3,7 @@ import {
   connectionsRowSchema,
   connectionsUpdateSchema,
   digestsInsertSchema,
+  digestsRowSchema,
   digestsUpdateSchema,
 } from "@repo/supabase";
 import { protectedProcedure, router } from "../trpc.server";
@@ -19,6 +20,14 @@ export const digestsRouter = router({
 
     return digests;
   }),
+  one: protectedProcedure.input(z.string()).query(async ({ ctx, input }) => {
+    const [digest] = await db
+      .select()
+      .from(schema.digests)
+      .where(eq(schema.digests.id, input));
+
+    return digest;
+  }),
   create: protectedProcedure
     .input(digestsInsertSchema.omit({ owner_id: true }))
     .mutation(async ({ ctx, input }) => {
@@ -33,7 +42,11 @@ export const digestsRouter = router({
       return digests;
     }),
   update: protectedProcedure
-    .input(digestsUpdateSchema.extend({ id: z.string() }))
+    .input(
+      digestsUpdateSchema
+        .omit({ created_at: true, updated_at: true })
+        .extend({ id: z.string() })
+    )
     .mutation(async ({ ctx, input }) => {
       const [digest] = await db
         .update(schema.digests)
@@ -45,8 +58,51 @@ export const digestsRouter = router({
           timezone: input.timezone,
           notify_on: input.notify_on,
         })
-        .where(eq(schema.digests.id, input.id));
+        .where(eq(schema.digests.id, input.id))
+        .returning();
       return digest;
+    }),
+  bulkUpsert: protectedProcedure
+    .input(
+      z.array(
+        digestsRowSchema
+          .pick({
+            full_name: true,
+            notify_on: true,
+            phone: true,
+            timezone: true,
+          })
+          .extend({
+            id: z.string().optional(),
+          })
+      )
+    )
+    .mutation(async ({ ctx, input }) => {
+      const saved = [];
+      for (const digest of input) {
+        if (digest.id) {
+          const [row] = await db
+            .update(schema.digests)
+            .set({
+              ...digest,
+            })
+            .where(eq(schema.digests.id, digest.id))
+            .returning();
+          saved.push(row);
+        } else {
+          const [row] = await db
+            .insert(schema.digests)
+            .values({
+              ...digest,
+              owner_id: ctx.user.id,
+              opt_in: false,
+              enabled: true,
+            })
+            .returning();
+          saved.push(row);
+        }
+      }
+      return saved;
     }),
   remove: protectedProcedure.input(z.string()).mutation(async ({ input }) => {
     await db.delete(schema.digests).where(eq(schema.digests.id, input));

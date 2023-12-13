@@ -8,17 +8,21 @@ const scopes = [
   "openid",
 ];
 
-let url: string = "localhost:3000";
-if (process.env.VERCEL_ENV !== "production") {
-  url = `https://${process.env.VERCEL_URL}`;
-} else {
-  url = "https://app.famdigest.com";
+function getBaseUrl() {
+  let url: string = "https://app.famdigest.com";
+  if (process.env.VERCEL && process.env.VERCEL_ENV === "preview") {
+    url = `https://${process.env.VERCEL_URL}`;
+  }
+  if (process.env.NODE_ENV === "development") {
+    url = "http://localhost:3000";
+  }
+  return url;
 }
 
 const auth = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_SECRET,
-  `${url}/providers/google`
+  `${getBaseUrl()}/providers/google`
 );
 
 const calendar = google.calendar("v3");
@@ -27,6 +31,7 @@ export function generateAuthUrl() {
   const authorizeUrl = auth.generateAuthUrl({
     access_type: "offline",
     scope: scopes.join(" "),
+    redirect_uri: `${getBaseUrl()}/providers/google`,
   });
   return authorizeUrl;
 }
