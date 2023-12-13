@@ -22,7 +22,9 @@ export function getUtcOffset(timezone: string) {
 }
 
 export function convertToUTC(timestring: string) {
-  const format = timestring.split(":").length > 2 ? "h:mm:ss A" : "h:mm A";
+  const hasSeconds = timestring.split(":").length === 3;
+  const hasAmPm = timestring.toLowerCase().includes("m");
+  const format = hasAmPm ? "h:mm A" : hasSeconds ? "HH:mm:ss" : "HH:mm";
   const now = dayjs(timestring, format);
   const utcTime = now.utc();
 

@@ -9,6 +9,8 @@ import {
 import { protectedProcedure, router } from "../trpc.server";
 import { db, desc, eq, schema } from "~/lib/db.server";
 import { z } from "zod";
+import { sendMessage } from "~/lib/twilio.server";
+import dedent from "dedent";
 
 export const digestsRouter = router({
   all: protectedProcedure.query(async ({ ctx }) => {
@@ -31,15 +33,33 @@ export const digestsRouter = router({
   create: protectedProcedure
     .input(digestsInsertSchema.omit({ owner_id: true }))
     .mutation(async ({ ctx, input }) => {
-      const digests = await db
+      const [digest] = await db
         .insert(schema.digests)
         .values({
           ...input,
+          phone: `+${input.phone.replace(/\D/g, "")}`,
           owner_id: ctx.user.id,
         })
         .returning();
 
-      return digests;
+      // send opt in sms
+      const body = dedent`Welcome to FamDigest!\n${ctx.user.full_name} has invited you to receive their daily digests.\nReply YES to opt-in.`;
+      const response = await sendMessage({
+        to: digest.phone,
+        body,
+      });
+
+      await db.insert(schema.messages).values({
+        message: body,
+        role: "assistant",
+        external_id: response.sid,
+        digest_id: digest.id,
+        segments: Number(response.numSegments),
+        data: response,
+        owner_id: ctx.user.id,
+      });
+
+      return digest;
     }),
   update: protectedProcedure
     .input(
@@ -52,7 +72,7 @@ export const digestsRouter = router({
         .update(schema.digests)
         .set({
           full_name: input.full_name,
-          phone: input.phone,
+          phone: `+${input.phone?.replace(/\D/g, "")}`,
           opt_in: input.opt_in,
           enabled: input.enabled,
           timezone: input.timezone,

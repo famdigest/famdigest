@@ -201,6 +201,9 @@ function DigestListingRow({ digest }: { digest: DbTable<"digests"> }) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem className="cursor-pointer" asChild>
+              <Link to={`/digests/${digest.id}`}>View</Link>
+            </DropdownMenuItem>
             <DropdownMenuItem
               className="cursor-pointer"
               onClick={() => setOpen(true)}
@@ -230,62 +233,5 @@ function DigestListingRow({ digest }: { digest: DbTable<"digests"> }) {
       </div>
       <DigestFormModal digest={digest} open={open} onOpenChange={setOpen} />
     </div>
-  );
-
-  return (
-    <>
-      <TableRow>
-        <TableCell>
-          <p className="font-medium">{digest.full_name}</p>
-          <p className="text-sm">{digest.phone}</p>
-        </TableCell>
-        <TableCell>
-          {convertToLocal(digest.notify_on).format("hh:mm A")}
-        </TableCell>
-        <TableCell>{digest.opt_in ? <IconCheck /> : <IconX />}</TableCell>
-        <TableCell>{digest.enabled ? <IconCheck /> : <IconX />}</TableCell>
-        <TableCell>{fromNow(digest.updated_at)}</TableCell>
-        <TableCell className="text-right">
-          <DropdownMenu
-            onOpenChange={() => {
-              setConfirm(false);
-            }}
-          >
-            <DropdownMenuTrigger asChild>
-              <Button size="icon-sm" variant="ghost">
-                <IconDotsVertical size={16} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => setOpen(true)}
-              >
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="cursor-pointer bg-destructive text-destructive-foreground focus:bg-destructive/50 focus:text-destructive-foreground"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (confirm) {
-                    remove.mutate(digest.id);
-                  } else {
-                    setConfirm(true);
-                  }
-                }}
-              >
-                {remove.isLoading
-                  ? "Deleting..."
-                  : confirm
-                    ? "Are you sure?"
-                    : "Delete"}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </TableCell>
-      </TableRow>
-      <DigestFormModal digest={digest} open={open} onOpenChange={setOpen} />
-    </>
   );
 }

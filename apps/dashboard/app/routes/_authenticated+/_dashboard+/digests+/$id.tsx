@@ -65,7 +65,7 @@ export default function Route() {
       <div className="flex items-center p-4">
         <Link to="/digests" className="flex items-center gap-x-2 text-sm">
           <IconArrowLeft size={14} />
-          <span className="hidden sm:inline">Back to Digests</span>
+          <span className="">Back to Digests</span>
         </Link>
       </div>
       <Card>

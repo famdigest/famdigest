@@ -52,7 +52,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         .values({
           connection_id: connection.id,
           owner_id: user.id,
-          enabled: true,
           ...cal,
         })
         .returning();
@@ -86,7 +85,7 @@ export default function Route() {
       <div className="flex items-center p-4">
         <Link to="/calendars" className="flex items-center gap-x-2 text-sm">
           <IconArrowLeft size={14} />
-          <span className="hidden sm:inline">Back to Calendars</span>
+          <span className="">Back to Calendars</span>
         </Link>
       </div>
       <Card>

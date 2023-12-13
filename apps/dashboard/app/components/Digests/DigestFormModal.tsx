@@ -1,3 +1,5 @@
+// @ts-ignore
+import InputMask from "@mona-health/react-input-mask";
 import { useForm } from "@mantine/form";
 import { Link } from "@remix-run/react";
 import { Table, digestsRowSchema } from "@repo/supabase";
@@ -131,7 +133,11 @@ export function DigestFormModal({
             <FormField
               label="Phone Number"
               {...form.getInputProps("phone")}
-              render={(field) => <Input {...field} />}
+              render={(field) => (
+                <InputMask mask="+1 999.999.9999" {...field}>
+                  <Input />
+                </InputMask>
+              )}
             />
             <FormField<typeof Select>
               label="Timezone"

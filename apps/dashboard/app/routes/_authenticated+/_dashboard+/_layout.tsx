@@ -13,7 +13,7 @@ export const meta = () => {
 
 export default function WorkspaceDashboardLayout() {
   return (
-    <div className="flex min-h-screen flex-1 relative">
+    <div className="flex min-h-[100svh] flex-1 relative">
       <AppNavigation />
       <div className="flex-1 flex flex-col">
         {/* <AppHeader /> */}

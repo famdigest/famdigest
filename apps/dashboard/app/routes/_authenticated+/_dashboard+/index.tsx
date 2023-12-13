@@ -3,10 +3,30 @@ import {
   type LoaderFunctionArgs,
   type MetaFunction,
 } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { and, db, desc, eq, schema } from "~/lib/db.server";
-import { Card, CardDescription, CardHeader, CardTitle } from "@repo/ui";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Separator,
+} from "@repo/ui";
 import { requireAuthSession } from "~/lib/session.server";
+import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
+import {
+  IconCalendar,
+  IconChevronRight,
+  IconMessage,
+} from "@tabler/icons-react";
+import { AppFab } from "~/components/AppFab";
 
 export const meta: MetaFunction = () => {
   return [
@@ -61,27 +81,82 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function Index() {
   const { user, calendars, digests } = useLoaderData<typeof loader>();
+  const { workspace } = useWorkspaceLoader();
 
   return (
-    <div className="p-6 md:p-12 space-y-12">
-      <div>
-        <h1 className="text-2xl font-medium font-serif">
-          👋🏼 Welcome back, {user.full_name}!
-        </h1>
+    <div className="py-6 md:py-12 space-y-12 md:space-y-24">
+      <div className="flex items-center gap-x-4 container max-w-screen-lg">
+        <Avatar className="">
+          {user.avatar_url ? (
+            <AvatarImage src={user.avatar_url}></AvatarImage>
+          ) : (
+            <AvatarFallback className="uppercase bg-background">
+              {user.email?.substring(0, 2)}
+            </AvatarFallback>
+          )}
+        </Avatar>
+        <div>
+          <h1 className="text-xl md:text-2xl font-semibold font-serif">
+            Hello, {user.full_name}!
+          </h1>
+          <p className="text-sm lg:text-base">{workspace.name}</p>
+        </div>
+        <div className="absolute bottom-24 right-6 md:relative md:bottom-auto md:right-auto md:ml-auto">
+          <AppFab />
+        </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader>
-            <CardDescription>Calendars</CardDescription>
-            <CardTitle className="text-6xl">{calendars.length}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Digest</CardDescription>
-            <CardTitle className="text-6xl">{digests.length}</CardTitle>
-          </CardHeader>
-        </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 container max-w-screen-md">
+        <div>
+          <h2 className="text-foreground/80 font-semibold text-sm mb-3">
+            Daily Digest
+          </h2>
+          <div className="grid gap-4">
+            <div className="border rounded-lg p-4 relative flex items-center gap-x-4">
+              <Link to="/calendars" className="absolute inset-0">
+                <span className="sr-only">Calendars</span>
+              </Link>
+              <IconCalendar />
+              <p className="font-medium text-sm">
+                Calendars ({calendars.length})
+              </p>
+              <IconChevronRight className="ml-auto" />
+            </div>
+            <div className="border rounded-lg p-4 relative flex items-center gap-x-4">
+              <Link to="/digests" className="absolute inset-0">
+                <span className="sr-only">Contacts</span>
+              </Link>
+              <IconMessage />
+              <p className="font-medium text-sm">Contacts ({digests.length})</p>
+              <IconChevronRight className="ml-auto" />
+            </div>
+          </div>
+        </div>
+        <div>
+          <h2 className="text-foreground/80 font-semibold text-sm mb-3">
+            Account
+          </h2>
+          <div className="grid gap-4">
+            <div className="border rounded-lg p-4 relative flex items-center gap-x-4">
+              <Link to="/settings/billing" className="absolute inset-0">
+                <span className="sr-only">Plan</span>
+              </Link>
+              <IconCalendar />
+              <p className="font-medium text-sm">
+                Plan (Free Trial - <i>expired</i>)
+              </p>
+              <IconChevronRight className="ml-auto" />
+            </div>
+            <div className="border rounded-lg p-4 relative flex items-center gap-x-4">
+              <Link to="/settings" className="absolute inset-0">
+                <span className="sr-only">Settings</span>
+              </Link>
+              <IconMessage />
+              <p className="font-medium text-sm">Settings</p>
+              <IconChevronRight className="ml-auto" />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
