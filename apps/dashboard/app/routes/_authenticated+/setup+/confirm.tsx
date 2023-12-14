@@ -1,11 +1,6 @@
 import { useDisclosure } from "@mantine/hooks";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import {
-  Link,
-  useLoaderData,
-  useNavigate,
-  useRevalidator,
-} from "@remix-run/react";
+import { Link, useLoaderData, useRevalidator } from "@remix-run/react";
 import {
   Button,
   Card,
@@ -70,8 +65,8 @@ export default function Route() {
   const { calendars, digests, products } = useLoaderData<typeof loader>();
   const { billing_status } = useWorkspaceLoader();
   const [on, { toggle }] = useDisclosure(false);
-  const navigate = useNavigate();
   const revalidator = useRevalidator();
+
   const createSubscription = trpc.billing.createSubscription.useMutation({
     onSuccess() {
       toast({
@@ -79,8 +74,9 @@ export default function Route() {
       });
       revalidator.revalidate();
       setTimeout(() => {
-        navigate("/");
-      }, 1000);
+        // hard reload
+        window.location.href = window.location.origin;
+      }, 500);
     },
     onError(error) {
       toast({
@@ -89,6 +85,7 @@ export default function Route() {
       });
     },
   });
+
   const checkout = trpc.billing.portal.useMutation({
     onSuccess: (data) => {
       if (data.url) {
