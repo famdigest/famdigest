@@ -87,7 +87,7 @@ export default function AcceptInviteRoute() {
 
   const setWorkspace = trpc.workspaces.set.useMutation({
     onSuccess() {
-      navigate("/setup");
+      navigate("/setup/user-info");
     },
   });
 

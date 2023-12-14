@@ -4,10 +4,13 @@ import {
   Scripts,
   isRouteErrorResponse,
   useLoaderData,
+  useLocation,
+  useNavigate,
   useRouteError,
 } from "@remix-run/react";
 import { WorkspaceBillingStatus } from "@repo/supabase";
 import { Button } from "@repo/ui";
+import { useEffect } from "react";
 import { getSessionWorkspace } from "~/lib/workspace.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -20,12 +23,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     .returns<WorkspaceBillingStatus>();
 
   const { pathname } = new URL(request.url);
-  // if (data === null && !pathname.includes("subscribe")) {
-  //   // no subs
-  //   return redirect("/subscribe", {
-  //     headers: response.headers,
-  //   });
-  // }
+  if (data === null && !pathname.startsWith("/setup")) {
+    return redirect("/setup/confirm", {
+      headers: response.headers,
+    });
+  }
 
   return json(
     {
@@ -41,6 +43,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function WorkspaceLayout() {
   const { user, workspace, billing_status } = useLoaderData<typeof loader>();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (billing_status === null && !location.pathname.startsWith("/setup")) {
+      navigate("/setup/confirm");
+    }
+  }, [location, billing_status]);
 
   return <Outlet />;
 }

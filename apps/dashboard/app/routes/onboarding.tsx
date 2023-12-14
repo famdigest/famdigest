@@ -31,7 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const { data: workspaces } = await supabase.from("workspaces").select("*");
   if (workspaces?.length) {
-    return redirect("/onboarding/user-info", {
+    return redirect("/setup/user-info", {
       headers: response.headers,
     });
   }
@@ -54,7 +54,7 @@ export async function action({ request }: ActionFunctionArgs) {
   session.set(SESSION_KEYS.workspace, formData.workspace);
   response.headers.append("set-cookie", await commitSession(session));
 
-  return redirect("/setup", {
+  return redirect("/setup/user-info", {
     headers: response.headers,
   });
 }

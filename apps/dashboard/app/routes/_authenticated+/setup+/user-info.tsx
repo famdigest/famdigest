@@ -30,7 +30,7 @@ export default function Route() {
       },
       {
         onSuccess() {
-          navigate("/onboarding/calendars");
+          navigate("/setup/calendars");
         },
         onError(error) {
           toast({
