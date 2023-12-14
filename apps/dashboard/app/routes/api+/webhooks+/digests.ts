@@ -6,6 +6,7 @@ import { RemoteCalendarService } from "~/lib/calendars";
 import { humanloop } from "~/lib/humanloop.server";
 import dedent from "dedent";
 import { sendMessage } from "~/lib/twilio.server";
+import { sendNotification } from "~/lib/slack.server";
 
 dayjs.extend(utc);
 
@@ -14,60 +15,57 @@ export async function action() {
   const roundedMinute = Math.floor(now.minute() / 15) * 15;
   const roundedTime = now.minute(roundedMinute).second(0).millisecond(0);
 
-  const digests = await db
-    .select()
-    .from(schema.digests)
-    .where(eq(schema.digests.notify_on, roundedTime.format("HH:mm")));
+  const digests = await db.query.digests.findMany({
+    with: {
+      profile: true,
+    },
+    where: eq(schema.digests.notify_on, roundedTime.format("HH:mm:ss")),
+  });
 
-  const allEvents = [];
-  const allResponses = [];
+  let totalEventsCaptured = 0;
 
   for (const digest of digests) {
-    const [owner] = await db
-      .select()
-      .from(schema.profiles)
-      .where(eq(schema.profiles.id, digest.owner_id));
-
-    const calendars = await db
-      .select()
-      .from(schema.calendars)
-      .innerJoin(
-        schema.connections,
-        eq(schema.calendars.connection_id, schema.connections.id)
-      )
-      .where(
-        and(
-          eq(schema.calendars.owner_id, digest.owner_id),
-          eq(schema.calendars.enabled, true)
-        )
-      );
+    const owner = digest.profile;
+    const calendars = await db.query.calendars.findMany({
+      with: {
+        connection: true,
+      },
+      where: and(
+        eq(schema.calendars.owner_id, digest.owner_id),
+        eq(schema.calendars.enabled, true)
+      ),
+    });
 
     //
-    // const allEvents = [];
-    for (const item of calendars) {
-      const { calendars: calendar, connections } = item;
-      const service = RemoteCalendarService.getProviderClass(connections);
+    const allEvents = [];
+    for (const calendar of calendars) {
+      const service = RemoteCalendarService.getProviderClass(
+        calendar.connection
+      );
       const events = await service.getTodayEvents(calendar.external_id);
       allEvents.push(...events);
     }
 
     allEvents.sort((a, b) => (dayjs(a.start).isAfter(dayjs(b.start)) ? 1 : -1));
 
+    totalEventsCaptured = totalEventsCaptured + allEvents.length;
     // ai time
     const response = await humanloop.chatDeployed({
       project_id: process.env.HUMANLOOP_PROJECT_ID,
       messages: [
         {
           role: "user",
-          content: dedent`To: ${digest.full_name}
-          From: ${owner.full_name}
-          Events: ${JSON.stringify(allEvents, null, 2)}
+          content: dedent`Send my daily digest to ${digest.full_name}.
+
+          ## SENDER
+          ${owner.full_name}
+
+          ## EVENTS
+          ${JSON.stringify(allEvents, null, 2)}
         `,
         },
       ],
     });
-
-    allResponses.push(response.data.data[0].output);
 
     // twilio
     const sentMessage = await sendMessage({
@@ -86,11 +84,51 @@ export async function action() {
     });
   }
 
+  // hit slack
+  if (digests.length > 0) {
+    await sendNotification({
+      blocks: [
+        {
+          type: "header",
+          text: {
+            type: "plain_text",
+            text: "Daily Digest Report",
+          },
+        },
+        {
+          type: "rich_text",
+          elements: [
+            {
+              type: "rich_text_list",
+              style: "bullet",
+              elements: [
+                {
+                  type: "rich_text_section",
+                  elements: [
+                    {
+                      type: "text",
+                      text: `Digest Sent: ${digests.length}`,
+                    },
+                  ],
+                },
+                {
+                  type: "rich_text_section",
+                  elements: [
+                    {
+                      type: "text",
+                      text: `Total Events Captured: ${totalEventsCaptured}`,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  }
+
   return json({
-    roundedMinute,
-    roundedTime: roundedTime.toJSON(),
-    digests,
-    allEvents,
-    allResponses,
+    ok: true,
   });
 }

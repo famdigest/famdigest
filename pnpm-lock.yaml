@@ -128,6 +128,9 @@ importers:
       uuid:
         specifier: ^9.0.1
         version: 9.0.1
+      vcards-js:
+        specifier: ^2.10.0
+        version: 2.10.0
       zod:
         specifier: ^3.22.4
         version: 3.22.4
@@ -153,6 +156,9 @@ importers:
       '@types/uuid':
         specifier: ^9.0.7
         version: 9.0.7
+      '@types/vcards-js':
+        specifier: ^2.10.5
+        version: 2.10.5
       autoprefixer:
         specifier: ^10.4.16
         version: 10.4.16(postcss@8.4.32)
@@ -4234,6 +4240,10 @@ packages:
 
   /@types/uuid@9.0.7:
     resolution: {integrity: sha512-WUtIVRUZ9i5dYXefDEAI7sh9/O7jGvHg7Df/5O/gtH3Yabe5odI3UWopVR1qbPXQtvOxWu3mM4XxlYeZtMWF4g==}
+    dev: true
+
+  /@types/vcards-js@2.10.5:
+    resolution: {integrity: sha512-QkKYoDc7HcRwiJVALv3ZSl1pzX3nkGm8OiQWZVn4QM8S4xUkcZVU6ci89eF6ychyEQc3ySLDIyAa/Mymbvg3IA==}
     dev: true
 
   /@types/websocket@1.0.10:
@@ -10744,6 +10754,10 @@ packages:
   /vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
+
+  /vcards-js@2.10.0:
+    resolution: {integrity: sha512-nah+xbVInVJaO6+C5PEUqaougmv8BN8aa7ZCtmVQcX6eWIZGRukckFtseXSI7KD7/nXtwkJe624y42T0r+L+AQ==}
+    dev: false
 
   /vfile-message@3.1.4:
     resolution: {integrity: sha512-fa0Z6P8HUrQN4BZaX05SIVXic+7kE3b05PWAtPuYP9QLHsLKYR7/AlLW3NtOrpXRLeawpDLMsVkmk5DG0NXgWw==}

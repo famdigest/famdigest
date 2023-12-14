@@ -9,7 +9,8 @@
     "dev": "remix dev --manual",
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc",
-    "sync-stripe": "npx tsx -r dotenv/config scripts/sync-stripe.ts"
+    "sync-stripe": "npx tsx -r dotenv/config scripts/sync-stripe.ts",
+    "vcard": "npx tsx -r dotenv/config scripts/create-vcard.ts"
   },
   "dependencies": {
     "@fontsource-variable/open-sans": "^5.0.19",
@@ -48,6 +49,7 @@
     "superjson": "^2.2.1",
     "twilio": "^4.19.3",
     "uuid": "^9.0.1",
+    "vcards-js": "^2.10.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -58,6 +60,7 @@
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "@types/uuid": "^9.0.7",
+    "@types/vcards-js": "^2.10.5",
     "autoprefixer": "^10.4.16",
     "dotenv": "^16.3.1",
     "eslint": "^8.38.0",

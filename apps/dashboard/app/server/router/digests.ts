@@ -1,7 +1,4 @@
 import {
-  Table,
-  connectionsRowSchema,
-  connectionsUpdateSchema,
   digestsInsertSchema,
   digestsRowSchema,
   digestsUpdateSchema,
@@ -43,21 +40,23 @@ export const digestsRouter = router({
         .returning();
 
       // send opt in sms
-      const body = dedent`Welcome to FamDigest!\n${ctx.user.full_name} has invited you to receive their daily digests.\nReply YES to opt-in.`;
-      // const response = await sendMessage({
-      //   to: digest.phone,
-      //   body,
-      // });
+      const body = dedent`Welcome to FamDigest!\n\n${ctx.user.full_name} has invited you to receive their daily digests.\n\nReply YES to opt-in and save the number in your contact!`;
 
-      // await db.insert(schema.messages).values({
-      //   message: body,
-      //   role: "assistant",
-      //   external_id: response.sid,
-      //   digest_id: digest.id,
-      //   segments: Number(response.numSegments),
-      //   data: response,
-      //   owner_id: ctx.user.id,
-      // });
+      const response = await sendMessage({
+        to: digest.phone,
+        body,
+        mediaUrl: [`https://www.famdigest.com/assets/vcard.vcf`],
+      });
+
+      await db.insert(schema.messages).values({
+        message: body,
+        role: "assistant",
+        external_id: response.sid,
+        digest_id: digest.id,
+        segments: Number(response.numSegments),
+        data: response,
+        owner_id: ctx.user.id,
+      });
 
       return digest;
     }),
