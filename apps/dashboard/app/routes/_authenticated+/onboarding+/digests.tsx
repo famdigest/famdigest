@@ -122,7 +122,7 @@ export default function Route() {
     const notify_on = convertToUTC(values.notify_on);
     const onSuccess = () => {
       if (isDone) {
-        navigate("/setup/confirm");
+        navigate("/onboarding/confirm");
       }
     };
     if (values.id.length) {
@@ -199,7 +199,7 @@ export default function Route() {
                   Next
                 </Button>
                 <Button className="ml-auto" variant="ghost" asChild>
-                  <Link to="/setup/confirm">Skip</Link>
+                  <Link to="/onboarding/confirm">Skip</Link>
                 </Button>
               </div>
             </div>

@@ -1,6 +1,11 @@
 import { useDisclosure } from "@mantine/hooks";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { useLoaderData, useNavigate, useRevalidator } from "@remix-run/react";
+import {
+  Link,
+  useLoaderData,
+  useNavigate,
+  useRevalidator,
+} from "@remix-run/react";
 import {
   Button,
   Card,
@@ -14,7 +19,12 @@ import {
   displayPrice,
   toast,
 } from "@repo/ui";
-import { IconCircleCheckFilled, IconLoader2 } from "@tabler/icons-react";
+import {
+  IconArrowLeft,
+  IconCircleCheckFilled,
+  IconLoader2,
+} from "@tabler/icons-react";
+import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 import { convertToLocal } from "~/lib/dates";
 import { and, asc, db, desc, eq, schema } from "~/lib/db.server";
 import { requireAuthSession } from "~/lib/session.server";
@@ -58,6 +68,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function Route() {
   const { calendars, digests, products } = useLoaderData<typeof loader>();
+  const { billing_status } = useWorkspaceLoader();
   const [on, { toggle }] = useDisclosure(false);
   const navigate = useNavigate();
   const revalidator = useRevalidator();
@@ -78,6 +89,13 @@ export default function Route() {
       });
     },
   });
+  const checkout = trpc.billing.portal.useMutation({
+    onSuccess: (data) => {
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    },
+  });
 
   const productsSorted = [...products].sort((a, b) => {
     const aPrice = a.billing_prices.reduce(
@@ -95,7 +113,7 @@ export default function Route() {
 
   return (
     <div className="flex-1 flex flex-col py-20 items-start justify-center overflow-hidden">
-      {createSubscription.isLoading && (
+      {(createSubscription.isLoading || checkout.isLoading) && (
         <div className="fixed inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50">
           <IconLoader2 className="animate-spin" size={32} />
         </div>
@@ -168,6 +186,9 @@ export default function Route() {
 
       <div className="container max-w-screen-xl">
         <div className="animate-in duration-500 fade-in-0 slide-in-from-bottom-4">
+          <p className="text-xl md:text-2xl mt-3 mb-6 text-center">
+            🎉 Choose a plan to get started. 🎉
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card className="flex flex-col justify-end">
               <CardHeader className="flex-row items-center space-y-0 gap-x-2">
@@ -178,12 +199,12 @@ export default function Route() {
                 <h2 className="text-foreground/80 font-semibold text-sm mb-8">
                   Pricing
                 </h2>
-                <p className="font-serif text-4xl font-semibold mb-4">
+                <p className="font-serif text-4xl md:text-5xl font-semibold mb-4">
                   Simple Pricing plans
                 </p>
                 <p>
                   Simple, transparent pricing that grows with you. Try any plan
-                  free for 7 days, no credit card required.
+                  free for 14 days, no credit card required.
                 </p>
               </CardContent>
             </Card>
@@ -194,6 +215,7 @@ export default function Route() {
               const yearly = product.billing_prices.find(
                 (bp) => bp.interval === "year"
               )!;
+              const isSelected = billing_status?.plan_name === product.name;
               return (
                 <Card className="flex flex-col" key={product.id}>
                   <CardHeader className="flex-row gap-x-1.5">
@@ -231,29 +253,35 @@ export default function Route() {
                   <CardFooter>
                     <Button
                       onClick={() => {
-                        createSubscription.mutate({
-                          price_id: on ? yearly.id : monthly.id,
-                        });
+                        if (!billing_status) {
+                          createSubscription.mutate({
+                            price_id: on ? yearly.id : monthly.id,
+                          });
+                        } else {
+                          checkout.mutate();
+                        }
                       }}
                     >
-                      Get Started
+                      {isSelected ? "Manage" : "Get Started"}
                     </Button>
+                    {isSelected && (
+                      <div className="flex items-center gap-x-1 font-serif text-sm ml-2">
+                        <IconArrowLeft size={16} />
+                        <p>Your Plan</p>
+                      </div>
+                    )}
                   </CardFooter>
                 </Card>
               );
             })}
           </div>
-        </div>
-      </div>
-
-      <div className="container max-w-screen-md">
-        <div className="flex flex-col items-center justify-center animate-in duration-500 fade-in-0 slide-in-from-bottom-4 mt-12">
-          <p className="text-xl md:text-2xl mb-3">
-            🎉 Choose a plan to get started.
-          </p>
-          {/* <Button>
-            <Link to="/">Go to Dashboard</Link>
-          </Button> */}
+          {billing_status && (
+            <div className="flex justify-center mt-6">
+              <Button>
+                <Link to="/">Continue to Dashboard</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

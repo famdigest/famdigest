@@ -41,3 +41,9 @@ export function convertToLocal(timestring: string) {
 export function guessTimezone() {
   return dayjs.tz.guess();
 }
+
+export function getDaysLeft(end: string | null) {
+  if (!end) return "";
+  const diff = dayjs().diff(dayjs(end), "days");
+  return Math.abs(diff);
+}

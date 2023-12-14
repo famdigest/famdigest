@@ -49,12 +49,21 @@ export const userRouter = router({
           full_name: input.full_name,
           email: input.email,
           phone: input.phone,
+          preferences: input.preferences,
         })
         .match({
           id: ctx.user.id,
         })
         .select()
         .single();
+
+      if (data) {
+        ctx.session.set(
+          SESSION_KEYS.theme,
+          (data.preferences as UserPreferences).theme
+        );
+        ctx.res.headers.append("set-cookie", await commitSession(ctx.session));
+      }
 
       if (error) throw error;
       return data;

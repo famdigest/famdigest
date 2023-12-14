@@ -85,7 +85,7 @@ export default function Route() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2 md:mt-4 mb-6">
             <button
-              onClick={() => addGoogle.mutate("/setup/calendars")}
+              onClick={() => addGoogle.mutate("/onboarding/calendars")}
               className="bg-background rounded-lg border border-border flex flex-col items-center gap-y-3 justify-center aspect-video"
             >
               <IconBrandGoogle className="h-5 w-5 md:h-8 md:w-8" />
@@ -111,7 +111,7 @@ export default function Route() {
 
         <div>
           <Button asChild>
-            <Link to="/setup/digests">Next</Link>
+            <Link to="/onboarding/digests">Next</Link>
           </Button>
         </div>
       </div>

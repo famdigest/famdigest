@@ -5,7 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@repo/ui";
-import { IconCalendar } from "@tabler/icons-react";
+import { IconCalendar, IconSend } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { z } from "zod";
@@ -53,6 +53,12 @@ export function DisgestMessages({ digest_id }: { digest_id: string }) {
         </Popover>
       </div>
       <div className="space-y-4">
+        {data?.length === 0 && (
+          <div className="h-40 flex flex-col items-center justify-center border rounded-lg bg-muted">
+            <IconSend />
+            <p>No Digests</p>
+          </div>
+        )}
         {data?.map((message) => (
           <div key={message.id} className="bg-muted rounded-lg border p-4">
             <div

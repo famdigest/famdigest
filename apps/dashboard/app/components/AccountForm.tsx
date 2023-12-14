@@ -1,16 +1,36 @@
 import { useForm, zodResolver } from "@mantine/form";
 import { IconLoader2 } from "@tabler/icons-react";
 import type { z } from "zod";
-import { Button, FormField, Input, useToast } from "@repo/ui";
+import {
+  Button,
+  FormField,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  useToast,
+} from "@repo/ui";
 import { trpc } from "~/lib/trpc";
-import { type Table, profilesUpdateSchema } from "@repo/supabase";
+import {
+  type Table,
+  profilesUpdateSchema,
+  UserPreferences,
+} from "@repo/supabase";
+import { useRevalidator } from "@remix-run/react";
 
-export function AccountForm({ user }: { user: Table<"profiles"> }) {
+type Profile = Omit<Table<"profiles">, "preferences"> & {
+  preferences: UserPreferences;
+};
+export function AccountForm({ user }: { user: Profile }) {
   const { toast } = useToast();
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
+  const revalidator = useRevalidator();
   const updateUserData = trpc.users.update.useMutation({
     onSuccess: async () => {
       await utils.users.me.invalidate();
+      revalidator.revalidate();
       toast({
         title: "Success",
         description: "Your profile has been updated",
@@ -24,10 +44,15 @@ export function AccountForm({ user }: { user: Table<"profiles"> }) {
       });
     },
   });
+
   const form = useForm<z.infer<typeof profilesUpdateSchema>>({
     validate: zodResolver(profilesUpdateSchema),
     initialValues: {
       ...user,
+      preferences: {
+        ...(user.preferences ?? {}),
+        theme: user.preferences?.theme ?? "ligth",
+      },
     },
   });
 
@@ -48,6 +73,27 @@ export function AccountForm({ user }: { user: Table<"profiles"> }) {
         type="email"
         {...form.getInputProps("email")}
         render={(field) => <Input {...field} />}
+      />
+      <FormField<typeof Select>
+        label="Theme"
+        {...form.getInputProps("preferences.theme")}
+        render={(field) => (
+          <Select
+            value={field.value ?? "light"}
+            onValueChange={(val) =>
+              form.setFieldValue("preferences.theme", val)
+            }
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="light">Light</SelectItem>
+              <SelectItem value="dark">Dark</SelectItem>
+              <SelectItem value="system">System</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
       />
       <div>
         <Button disabled={updateUserData.isLoading}>

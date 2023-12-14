@@ -31,7 +31,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const { data: workspaces } = await supabase.from("workspaces").select("*");
   if (workspaces?.length) {
-    return redirect("/", {
+    return redirect("/onboarding/user-info", {
       headers: response.headers,
     });
   }

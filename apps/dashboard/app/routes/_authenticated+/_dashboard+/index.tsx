@@ -97,7 +97,7 @@ export default function Index() {
           ? dayjs().diff(dayjs(billing_status.trial_end), "days")
           : 0
       );
-      return `Free Trial (${diff} days left)`;
+      return `Trial (${diff} days left)`;
     }
     if (billing_status.status !== "active") {
       return "Your trial has ended";
@@ -105,7 +105,7 @@ export default function Index() {
   }, [billing_status]);
 
   return (
-    <div className="py-6 md:py-12 relative">
+    <div className="flex-1 py-6 md:py-12 relative">
       <header
         className={cn(
           "flex items-center gap-x-4 container max-w-screen-lg mb-12 md:mb-24"
@@ -126,7 +126,7 @@ export default function Index() {
           </h1>
           <p className="text-sm lg:text-base">{workspace.name}</p>
         </div>
-        <div className="absolute bottom-24 right-6 md:relative md:bottom-auto md:right-auto md:ml-auto">
+        <div className="absolute bottom-0 right-6 md:relative md:bottom-auto md:right-auto md:ml-auto">
           <AppFab />
         </div>
       </header>
@@ -167,7 +167,12 @@ export default function Index() {
                 <span className="sr-only">Plan</span>
               </Link>
               <IconWallet />
-              <p className="font-medium text-sm">Plan {planMessage}</p>
+              <div className="flex items-end gap-x-1.5">
+                <p className="font-medium text-sm">
+                  {billing_status?.plan_name}
+                </p>
+                <p className="text-xs">{planMessage}</p>
+              </div>
               <IconChevronRight className="ml-auto" />
             </div>
             <div className="border rounded-lg p-4 relative flex items-center gap-x-4">
