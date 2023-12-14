@@ -51,6 +51,50 @@ export const billingRouter = router({
     });
     return { url };
   }),
+  createSubscription: workspaceProcedure
+    .input(
+      z.object({
+        price_id: z.string(),
+        success_url: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { data, error } = await ctx.supabase
+        .from("workspace_users")
+        .select()
+        .match({
+          workspace_id: ctx.workspace.id,
+          user_id: ctx.user.id,
+        })
+        .single();
+      if (error) throw error;
+      if (data.role !== WORKSPACE_ROLES.owner) {
+        throw new Error("Only owners can manage subscriptions");
+      }
+      const customer = await createOrRetrieveCustomer({
+        workspace_id: ctx.workspace.id as string,
+        email: ctx.user.email || "",
+      });
+      if (!customer) throw Error("Could not get or create customer");
+      const { origin } = new URL(ctx.req.url);
+      const res = await stripe.subscriptions.create({
+        customer,
+        items: [
+          {
+            // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+            price: input.price_id, //"{{PRICE_ID}}",
+            quantity: 1,
+          },
+        ],
+        trial_period_days: 14,
+        trial_settings: {
+          end_behavior: {
+            missing_payment_method: "cancel",
+          },
+        },
+      });
+      return res;
+    }),
   checkout: workspaceProcedure
     .input(
       z.object({

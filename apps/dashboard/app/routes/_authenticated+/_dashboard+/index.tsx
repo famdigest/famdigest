@@ -9,11 +9,13 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
+  Badge,
   Button,
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
+  cn,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -29,6 +31,7 @@ import {
   IconWallet,
 } from "@tabler/icons-react";
 import { AppFab } from "~/components/AppFab";
+import dayjs from "dayjs";
 
 export const meta: MetaFunction = () => {
   return [
@@ -86,8 +89,12 @@ export default function Index() {
   const { workspace } = useWorkspaceLoader();
 
   return (
-    <div className="py-6 md:py-12 space-y-12 md:space-y-24">
-      <header className="flex items-center gap-x-4 container max-w-screen-lg">
+    <div className="py-6 md:py-12 relative">
+      <header
+        className={cn(
+          "flex items-center gap-x-4 container max-w-screen-lg mb-12 md:mb-24"
+        )}
+      >
         <Avatar className="">
           {user.avatar_url ? (
             <AvatarImage src={user.avatar_url}></AvatarImage>

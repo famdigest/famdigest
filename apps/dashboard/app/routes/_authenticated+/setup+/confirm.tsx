@@ -1,6 +1,6 @@
 import { useDisclosure } from "@mantine/hooks";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import {
   Button,
   Card,
@@ -12,11 +12,13 @@ import {
   Separator,
   Switch,
   displayPrice,
+  toast,
 } from "@repo/ui";
 import { IconCircleCheckFilled } from "@tabler/icons-react";
 import { convertToLocal } from "~/lib/dates";
 import { and, asc, db, desc, eq, schema } from "~/lib/db.server";
 import { requireAuthSession } from "~/lib/session.server";
+import { trpc } from "~/lib/trpc";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { user, response } = await requireAuthSession(request);
@@ -57,6 +59,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function Route() {
   const { calendars, digests, products } = useLoaderData<typeof loader>();
   const [on, { toggle }] = useDisclosure(false);
+  const navigate = useNavigate();
+  const createSubscription = trpc.billing.createSubscription.useMutation({
+    onSuccess() {
+      toast({
+        title: "Your trial has started",
+      });
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
+    },
+    onError(error) {
+      toast({
+        title: "Sorry",
+        description: error?.message ?? "Internal error",
+      });
+    },
+  });
 
   const productsSorted = [...products].sort((a, b) => {
     const aPrice = a.billing_prices.reduce(
@@ -164,11 +183,18 @@ export default function Route() {
             {productsSorted.map((product) => {
               const monthly = product.billing_prices.find(
                 (bp) => bp.interval === "month"
-              );
+              )!;
+              const yearly = product.billing_prices.find(
+                (bp) => bp.interval === "year"
+              )!;
               return (
                 <Card className="flex flex-col" key={product.id}>
                   <CardHeader className="flex-row gap-x-1.5">
-                    <CardTitle>{displayPrice(monthly?.unit_amount)}</CardTitle>
+                    <CardTitle>
+                      {!on
+                        ? displayPrice(monthly?.unit_amount)
+                        : displayPrice(yearly?.unit_amount)}
+                    </CardTitle>
                     <CardDescription>/ {on ? "year" : "month"}</CardDescription>
                   </CardHeader>
                   <CardContent className="mt-16 flex-1">
@@ -196,7 +222,15 @@ export default function Route() {
                     </ul>
                   </CardContent>
                   <CardFooter>
-                    <Button>Get Started</Button>
+                    <Button
+                      onClick={() => {
+                        createSubscription.mutate({
+                          price_id: on ? yearly.id : monthly.id,
+                        });
+                      }}
+                    >
+                      Get Started
+                    </Button>
                   </CardFooter>
                 </Card>
               );
