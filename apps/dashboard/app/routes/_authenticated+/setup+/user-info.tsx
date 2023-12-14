@@ -1,5 +1,5 @@
 import { useForm } from "@mantine/form";
-import { Button, Input } from "@repo/ui";
+import { Button, Input, toast } from "@repo/ui";
 import { useState } from "react";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 import { trpc } from "~/lib/trpc";
@@ -16,8 +16,8 @@ export default function Route() {
 
   const form = useForm({
     initialValues: {
-      full_name: user.full_name,
-      phone: user.phone,
+      full_name: user.full_name ?? "",
+      phone: user.phone ?? "",
     },
   });
 
@@ -31,6 +31,12 @@ export default function Route() {
       {
         onSuccess() {
           navigate("/setup/calendars");
+        },
+        onError(error) {
+          toast({
+            title: "Sorry!",
+            description: error?.message ?? "Something went wrong",
+          });
         },
       }
     );

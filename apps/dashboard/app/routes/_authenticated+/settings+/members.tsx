@@ -1,5 +1,5 @@
 import { useClipboard, useDisclosure } from "@mantine/hooks";
-import { Link } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import {
   IconArrowsExchange,
   IconBolt,
@@ -64,23 +64,77 @@ import { useIsTeamOwner } from "~/hooks/is-team-owner";
 import { useIsTeamPlan } from "~/hooks/is-team-plan";
 import type { Enums } from "@repo/supabase";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
+import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { getSessionWorkspace } from "~/lib/workspace.server";
+import { db, eq, schema } from "~/lib/db.server";
 
 export const meta = () => {
   return [{ title: "Members | FamDigest" }];
 };
 
-export default function WorkspaceDashboardSettingsMembersRoute() {
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { user, workspace } = await getSessionWorkspace(request);
+
+  // const { data, error } = await ctx.supabase
+  //   .from("workspace_users")
+  //   .select(
+  //     "*, user:profiles(full_name, email, avatar_url), workspaces(owner_id)"
+  //   )
+  //   .match({ workspace_id: ctx.workspace.id });
+
+  const members = await db.query.workspace_users.findMany({
+    with: {
+      profile: true,
+      workspace: {
+        columns: {
+          owner_id: true,
+        },
+      },
+    },
+    where: eq(schema.workspace_users.workspace_id, workspace.id),
+  });
+
+  // const { data, error } = await ctx.supabase
+  //   .from("invitations")
+  //   .select("*")
+  //   .match({ workspace_id: ctx.workspace.id });
+
+  const invitations = await db.query.invitations.findMany({
+    where: eq(schema.invitations.workspace_id, workspace.id),
+  });
+
+  return json({
+    members,
+    invitations,
+  });
+}
+
+export default function Route() {
   const { user: signInUser } = useWorkspaceLoader();
+  const { members, invitations: initialInvitations } =
+    useLoaderData<typeof loader>();
   const { toast } = useToast();
   const isTeamPlan = useIsTeamPlan();
   const isTeamOwner = useIsTeamOwner();
   const { copy } = useClipboard();
-  const utils = trpc.useContext();
+  const utils = trpc.useUtils();
 
-  const { data } = trpc.members.all.useQuery();
-  const { data: invitations } = trpc.invites.all.useQuery();
+  const { data } = trpc.members.all.useQuery(undefined, {
+    initialData: members,
+  });
+  const { data: invitations } = trpc.invites.all.useQuery(undefined, {
+    initialData: initialInvitations,
+  });
 
-  const updateRole = trpc.members.update.useMutation();
+  const updateRole = trpc.members.update.useMutation({
+    async onSuccess() {
+      await utils.members.invalidate();
+      toast({
+        title: "Success",
+        description: "Member has been updated",
+      });
+    },
+  });
   const removeMember = trpc.members.remove.useMutation({
     onSuccess: async () => {
       await utils.members.invalidate();
@@ -109,9 +163,9 @@ export default function WorkspaceDashboardSettingsMembersRoute() {
   });
 
   return (
-    <div className="container max-w-screen-md p-6 md:p-12 space-y-12">
+    <div className="container max-w-screen-md sm:py-6 space-y-6 md:space-y-12">
       <Card>
-        <CardHeader className="border-b flex-row justify-between">
+        <CardHeader className="border-b flex flex-col md:flex-row md:justify-between">
           <div className="flex flex-col space-y-1.5">
             <CardTitle className="text-xl font-serif tracking-normal">
               Members
@@ -121,40 +175,12 @@ export default function WorkspaceDashboardSettingsMembersRoute() {
             </CardDescription>
           </div>
 
-          {isTeamPlan && isTeamOwner ? (
-            <InviteMemberForm />
-          ) : (
-            <>
-              {!isTeamPlan && (
-                <div>
-                  <HoverCard>
-                    <HoverCardTrigger>
-                      <Badge>
-                        <IconBolt size={12} className="mr-1" />
-                        Teams Plan
-                      </Badge>
-                    </HoverCardTrigger>
-                    <HoverCardContent>
-                      <p className="mb-2 text-sm">
-                        To invite members to your workspace, upgrade to our{" "}
-                        <b>Teams</b> plan.
-                      </p>
-                      <Button size="sm" asChild>
-                        <Link to="/settings/billing">Upgrade</Link>
-                      </Button>
-                    </HoverCardContent>
-                  </HoverCard>
-                </div>
-              )}
-            </>
-          )}
+          {isTeamOwner && <InviteMemberForm />}
         </CardHeader>
         <CardContent className="p-6">
           <div className="flex flex-col gap-y-4">
             {data?.map((member) => {
-              const [user] = Array.isArray(member.user)
-                ? member.user
-                : [member.user];
+              const user = member.profile;
               const isYou = member.user_id === signInUser.id;
               return (
                 <div
@@ -172,28 +198,20 @@ export default function WorkspaceDashboardSettingsMembersRoute() {
                       )}
                     </Avatar>
                     <div>
-                      {user.full_name && (
-                        <p className="text-sm font-medium">{user.full_name}</p>
-                      )}
+                      <p className="text-sm font-medium">
+                        {user.full_name} {isYou && "(You)"}
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         {user.email}
                       </p>
                     </div>
-                    {isYou && (
-                      <Badge
-                        variant="secondary"
-                        className="absolute top-0 right-0 transform -translate-y-1/2 -translate-x-4 md:relative md:transform-none"
-                      >
-                        You
-                      </Badge>
-                    )}
                   </div>
-                  <div className="flex items-center gap-x-3">
+                  <div className="flex items-center gap-x-3 mt-2 md:mt-0">
                     <Badge className="capitalize select-none">
                       {member.role}
                     </Badge>
 
-                    {!isYou && (
+                    {isTeamOwner && !isYou && (
                       <ManageMemberPopover
                         role={member.role}
                         disabled={isYou || !isTeamOwner}
@@ -222,210 +240,19 @@ export default function WorkspaceDashboardSettingsMembersRoute() {
           </div>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader className="border-b flex-row justify-between">
-          <div className="flex flex-col space-y-1.5">
-            <CardTitle className="text-xl font-serif tracking-normal">
-              Pending Invites
-            </CardTitle>
-            <CardDescription>Manage invites not yet accepted.</CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-          {invitations?.length === 0 && (
-            <div className="border rounded-lg p-4 flex items-center justify-between">
-              <p className="text-sm">No pending invites found</p>
+      {isTeamOwner && (
+        <Card>
+          <CardHeader className="border-b flex-row justify-between">
+            <div className="flex flex-col space-y-1.5">
+              <CardTitle className="text-xl font-serif tracking-normal">
+                Pending Invites
+              </CardTitle>
+              <CardDescription>
+                Manage invites not yet accepted.
+              </CardDescription>
             </div>
-          )}
-          {invitations?.map((invite) => {
-            return (
-              <div
-                className="border rounded-lg p-4 flex items-center justify-between"
-                key={invite.id}
-              >
-                <div className="flex items-center gap-x-3">
-                  <Avatar className="">
-                    <AvatarFallback className="uppercase bg-muted">
-                      {invite.email?.substring(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex items-center gap-x-2">
-                    <p>{invite.email}</p>
-                    {invite.invite_url && (
-                      <Tooltip label="Copy Invite Link">
-                        <Button
-                          variant="ghost"
-                          size={"icon-sm"}
-                          onClick={() => {
-                            copy(invite.invite_url);
-                            toast({
-                              title: "Invite Link Copied",
-                            });
-                          }}
-                        >
-                          <IconClipboardCopy size={16} />
-                        </Button>
-                      </Tooltip>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-x-3">
-                  <Badge className="capitalize">{invite.role}</Badge>
-                  <Tooltip label="Resend">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => resendInvite.mutate(invite)}
-                    >
-                      {resendInvite.isLoading ? (
-                        <IconLoader2 className="animate-spin" size={20} />
-                      ) : (
-                        <IconRefreshDot size={20} />
-                      )}
-                    </Button>
-                  </Tooltip>
-                  <ConfirmDeleteButton
-                    onConfirm={() => removeInvite.mutate(invite.id)}
-                  >
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="text-destructive"
-                      disabled={removeInvite.isLoading}
-                    >
-                      {removeInvite.isLoading ? (
-                        <IconLoader2 className="animate-spin" size={20} />
-                      ) : (
-                        <IconX size={20} />
-                      )}
-                    </Button>
-                  </ConfirmDeleteButton>
-                </div>
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
-    </div>
-  );
-
-  return (
-    <div className="space-y-12">
-      <div className="space-y-6">
-        <div className="flex justify-between items-center flex-wrap">
-          <div className="mb-4 md:mb-0">
-            <h3 className="text-lg font-medium">Members</h3>
-            <p className="text-sm text-muted-foreground">
-              Manage and Invite members to your workspace.{" "}
-            </p>
-          </div>
-          {isTeamPlan && isTeamOwner ? (
-            <InviteMemberForm />
-          ) : (
-            <>
-              {!isTeamPlan && (
-                <div>
-                  <HoverCard>
-                    <HoverCardTrigger>
-                      <Badge>
-                        <IconBolt size={12} className="mr-1" />
-                        Teams Plan
-                      </Badge>
-                    </HoverCardTrigger>
-                    <HoverCardContent>
-                      <p className="mb-2 text-sm">
-                        To invite members to your workspace, upgrade to our{" "}
-                        <b>Teams</b> plan.
-                      </p>
-                      <Button size="sm" asChild>
-                        <Link to="/settings/billing">Upgrade</Link>
-                      </Button>
-                    </HoverCardContent>
-                  </HoverCard>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-        <Separator />
-        <div className="flex flex-col gap-y-4">
-          {data?.map((member) => {
-            const [user] = Array.isArray(member.user)
-              ? member.user
-              : [member.user];
-            const isYou = member.user_id === signInUser.id;
-            return (
-              <div
-                className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between relative"
-                key={member.user_id}
-              >
-                <div className="flex items-center gap-x-3">
-                  <Avatar className="">
-                    {user.avatar_url ? (
-                      <AvatarImage src={user.avatar_url}></AvatarImage>
-                    ) : (
-                      <AvatarFallback className="uppercase bg-muted">
-                        {user.email?.substring(0, 2)}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                  <div>
-                    {user.full_name && (
-                      <p className="text-sm font-medium">{user.full_name}</p>
-                    )}
-                    <p className="text-sm text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                  {isYou && (
-                    <Badge
-                      variant="secondary"
-                      className="absolute top-0 right-0 transform -translate-y-1/2 -translate-x-4 md:relative md:transform-none"
-                    >
-                      You
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-x-3">
-                  <Badge className="capitalize select-none">
-                    {member.role}
-                  </Badge>
-                  <ManageMemberPopover
-                    role={member.role}
-                    disabled={isYou || !isTeamOwner}
-                    isLoading={updateRole.isLoading || removeMember.isLoading}
-                    onChangeRole={(role) => {
-                      updateRole.mutate({
-                        role,
-                        user_id: member.user_id,
-                        workspace_id: member.workspace_id,
-                      });
-                    }}
-                    onRemoveMember={() => {
-                      removeMember.mutate({
-                        user_id: member.user_id,
-                        workspace_id: member.workspace_id,
-                      });
-                    }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {isTeamPlan && isTeamOwner && (
-        <div className="space-y-6">
-          <div className="">
-            <h3 className="text-lg font-medium">Pending Invites</h3>
-            <p className="text-sm text-muted-foreground">
-              Manage invites not yet accepted.
-            </p>
-          </div>
-          <Separator />
-          <div className="flex flex-col gap-y-4">
+          </CardHeader>
+          <CardContent className="p-6">
             {invitations?.length === 0 && (
               <div className="border rounded-lg p-4 flex items-center justify-between">
                 <p className="text-sm">No pending invites found</p>
@@ -498,8 +325,8 @@ export default function WorkspaceDashboardSettingsMembersRoute() {
                 </div>
               );
             })}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
@@ -527,6 +354,7 @@ function ManageMemberPopover({
   const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     onChangeRole(role);
+    toggle();
   };
 
   return (

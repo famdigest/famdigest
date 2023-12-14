@@ -21,6 +21,7 @@ declare global {
       TWILIO_SERVICE_SID: string;
       TWILIO_TOKEN: string;
       TWILIO_PHONE: string;
+      RESEND_KEY: string;
     }
   }
 

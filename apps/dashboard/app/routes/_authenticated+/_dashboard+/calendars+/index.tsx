@@ -33,7 +33,7 @@ export default function Route() {
   const { connections } = useLoaderData<typeof loader>();
 
   return (
-    <div className="p-6 md:p-12 space-y-12">
+    <div className="p-6 md:p-12 space-y-12 container max-w-screen-lg">
       <ConnectionsView initialData={connections} />
     </div>
   );

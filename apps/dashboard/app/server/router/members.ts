@@ -3,17 +3,23 @@ import {
   workspaceUsersRowSchema,
   workspaceUsersUpdateSchema,
 } from "@repo/supabase";
+import { db, eq, schema } from "~/lib/db.server";
 
 export const memberRouter = router({
   all: workspaceProcedure.query(async ({ ctx }) => {
-    const { data, error } = await ctx.supabase
-      .from("workspace_users")
-      .select(
-        "*, user:profiles(full_name, email, avatar_url), workspaces(owner_id)"
-      )
-      .match({ workspace_id: ctx.workspace.id });
-    if (error) throw error;
-    return data;
+    const members = await db.query.workspace_users.findMany({
+      with: {
+        profile: true,
+        workspace: {
+          columns: {
+            owner_id: true,
+          },
+        },
+      },
+      where: eq(schema.workspace_users.workspace_id, ctx.workspace.id),
+    });
+
+    return members;
   }),
   update: workspaceProcedure
     .input(workspaceUsersUpdateSchema)
@@ -27,7 +33,8 @@ export const memberRouter = router({
         .match({
           user_id,
           workspace_id,
-        });
+        })
+        .select();
       if (error) throw error;
       return data;
     }),

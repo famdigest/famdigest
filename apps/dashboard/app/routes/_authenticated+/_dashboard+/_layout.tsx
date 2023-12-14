@@ -1,6 +1,6 @@
 import { Outlet } from "@remix-run/react";
 import { AppHeader } from "~/components/AppHeader";
-import { AppNavigation } from "~/components/AppNavigation";
+import { AppBottomBar, AppNavigation } from "~/components/AppNavigation";
 
 export const meta = () => {
   return [
@@ -21,6 +21,7 @@ export default function WorkspaceDashboardLayout() {
           <Outlet />
         </main>
       </div>
+      <AppBottomBar />
     </div>
   );
 }

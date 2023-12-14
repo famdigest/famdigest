@@ -102,7 +102,7 @@ export function InviteMemberForm() {
   return (
     <Dialog open={open} onOpenChange={toggle}>
       <DialogTrigger asChild>
-        <Button size="sm">
+        <Button size="sm" variant="outline">
           <IconUserPlus className="mr-3" size={16} />
           Invite Members
         </Button>

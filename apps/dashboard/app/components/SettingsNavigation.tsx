@@ -16,7 +16,7 @@ export function SettingsNavigation() {
   return (
     <div
       className={cn(
-        "group sticky top-0 flex-shrink-0 scrollbar-none",
+        "hidden md:block group sticky top-0 flex-shrink-0 scrollbar-none",
         "transition-all ease-in-out duration-150",
         "sm:w-52 h-screen overflow-y-auto",
         "bg-secondary"
@@ -30,6 +30,33 @@ export function SettingsNavigation() {
       </div>
 
       <NavItems />
+    </div>
+  );
+}
+
+export function SettingsNavMobile() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  return (
+    <div className="md:hidden container py-4">
+      <Select value={location.pathname} onValueChange={(val) => navigate(val)}>
+        <SelectTrigger className="w-full lg:hidden">
+          <SelectValue placeholder="Theme" />
+        </SelectTrigger>
+        <SelectContent>
+          {settings.map((group, idx) => (
+            <SelectGroup key={idx}>
+              <SelectLabel>{group.name}</SelectLabel>
+              {group.items.map((item) => (
+                <SelectItem value={item.slug} key={item.slug}>
+                  {item.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

@@ -488,7 +488,10 @@ export const profiles = pgTable(
     email: text("email"),
     phone: text("phone"),
     avatar_url: text("avatar_url"),
-    preferences: jsonb("preferences").default({ theme: "light" }).notNull(),
+    preferences: jsonb("preferences")
+      .default({ theme: "light" })
+      .notNull()
+      .$type<Record<string, any>>(),
     created_at: timestamp("created_at", {
       withTimezone: true,
       mode: "string",

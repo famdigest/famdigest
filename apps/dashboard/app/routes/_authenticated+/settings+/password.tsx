@@ -11,9 +11,9 @@ export const meta = () => {
   return [{ title: "Change Password | FamDigest" }];
 };
 
-export default function WorkspaceDashboardSettingsAccountsPasswordRoute() {
+export default function Route() {
   return (
-    <div className="container max-w-screen-md p-6 md:p-12 space-y-12">
+    <div className="container max-w-screen-md sm:py-6 space-y-12">
       <Card>
         <CardHeader className="border-b">
           <CardTitle className="text-xl font-serif tracking-normal">

@@ -8,7 +8,8 @@
     "build": "remix build",
     "dev": "remix dev --manual",
     "start": "remix-serve ./build/index.js",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "sync-stripe": "npx tsx -r dotenv/config scripts/sync-stripe.ts"
   },
   "dependencies": {
     "@fontsource-variable/open-sans": "^5.0.19",
@@ -41,6 +42,7 @@
     "openai": "^4.20.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "resend": "^2.0.0",
     "sms-segments-calculator": "^1.2.0",
     "stripe": "^14.8.0",
     "superjson": "^2.2.1",
@@ -57,6 +59,7 @@
     "@types/react-dom": "^18.2.7",
     "@types/uuid": "^9.0.7",
     "autoprefixer": "^10.4.16",
+    "dotenv": "^16.3.1",
     "eslint": "^8.38.0",
     "postcss": "^8.4.32",
     "remix-flat-routes": "^0.6.4",

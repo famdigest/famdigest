@@ -9,6 +9,9 @@ import {
   invitationsInsertSchema,
   invitationsRowSchema,
 } from "@repo/supabase";
+import { resendClient } from "~/lib/resend.server";
+import { renderToString } from "react-dom/server";
+import { Invitation } from "~/emails/Invitation";
 
 export const inviteRouter = router({
   all: workspaceProcedure.query(async ({ ctx }) => {
@@ -28,8 +31,6 @@ export const inviteRouter = router({
         .from("invitations")
         .insert({
           ...input,
-          base_url: origin,
-          sender: ctx.user.full_name ?? ctx.user.email!,
         })
         .select("*")
         .single();
@@ -61,17 +62,16 @@ export const inviteRouter = router({
         })
         .match({ id: invitation.id });
 
-      // await sendTransactionalEmail({
-      //   to: input.email,
-      //   mail_name: "Workspace Invitation",
-      //   from: "FamDigest <franco@cartamaps.com>",
-      //   subject: "You have been invited to FamDigest",
-      //   replacements: {
-      //     workspace_name: invitation.workspace_name!,
-      //     workspace_owner: sender,
-      //     accept_invite_link: invite_url,
-      //   },
-      // });
+      const sent = await resendClient.emails.send({
+        to: [input.email],
+        from: "FamDigest <auth@hey.famdigest.com>",
+        subject: "You have been invited to FamDigest",
+        react: Invitation({
+          workspace_name: invitation.workspace_name!,
+          workspace_owner: ctx.user.full_name ?? ctx.user.email!,
+          accept_invite_link: invite_url,
+        }),
+      });
 
       return invitation;
     }),
@@ -82,7 +82,7 @@ export const inviteRouter = router({
 
       const supabaseAdmin = createAdminClient();
       const { data: user } = await supabaseAdmin
-        .from("users")
+        .from("profiles")
         .select()
         .match({ email: input.email })
         .single();
@@ -106,17 +106,16 @@ export const inviteRouter = router({
         .select()
         .single();
 
-      // await sendTransactionalEmail({
-      //   to: input.email,
-      //   mail_name: "Workspace Invitation",
-      //   from: "FamDigest <franco@cartamaps.com>",
-      //   subject: "You have been invited to FamDigest",
-      //   replacements: {
-      //     workspace_name: input.workspace_name!,
-      //     workspace_owner: sender,
-      //     accept_invite_link: invite_url,
-      //   },
-      // });
+      const sent = await resendClient.emails.send({
+        to: [input.email],
+        from: "FamDigest <auth@hey.famdigest.com>",
+        subject: "You have been invited to FamDigest",
+        react: Invitation({
+          workspace_name: input.workspace_name!,
+          workspace_owner: ctx.user.full_name ?? ctx.user.email!,
+          accept_invite_link: invite_url,
+        }),
+      });
 
       return invitation;
     }),

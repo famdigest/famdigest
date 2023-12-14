@@ -25,6 +25,8 @@ import {
   IconCalendar,
   IconChevronRight,
   IconMessage,
+  IconSettings,
+  IconWallet,
 } from "@tabler/icons-react";
 import { AppFab } from "~/components/AppFab";
 
@@ -85,28 +87,28 @@ export default function Index() {
 
   return (
     <div className="py-6 md:py-12 space-y-12 md:space-y-24">
-      <div className="flex items-center gap-x-4 container max-w-screen-lg">
+      <header className="flex items-center gap-x-4 container max-w-screen-lg">
         <Avatar className="">
           {user.avatar_url ? (
             <AvatarImage src={user.avatar_url}></AvatarImage>
           ) : (
-            <AvatarFallback className="uppercase bg-background">
+            <AvatarFallback className="uppercase bg-muted border select-none">
               {user.email?.substring(0, 2)}
             </AvatarFallback>
           )}
         </Avatar>
         <div>
           <h1 className="text-xl md:text-2xl font-semibold font-serif">
-            Hello, {user.full_name}!
+            Hello, {user.full_name ?? "fam"}!
           </h1>
           <p className="text-sm lg:text-base">{workspace.name}</p>
         </div>
         <div className="absolute bottom-24 right-6 md:relative md:bottom-auto md:right-auto md:ml-auto">
           <AppFab />
         </div>
-      </div>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 container max-w-screen-md">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 container max-w-screen-lg">
         <div>
           <h2 className="text-foreground/80 font-semibold text-sm mb-3">
             Daily Digest
@@ -141,17 +143,15 @@ export default function Index() {
               <Link to="/settings/billing" className="absolute inset-0">
                 <span className="sr-only">Plan</span>
               </Link>
-              <IconCalendar />
-              <p className="font-medium text-sm">
-                Plan (Free Trial - <i>expired</i>)
-              </p>
+              <IconWallet />
+              <p className="font-medium text-sm">Plan (Free Trial)</p>
               <IconChevronRight className="ml-auto" />
             </div>
             <div className="border rounded-lg p-4 relative flex items-center gap-x-4">
               <Link to="/settings" className="absolute inset-0">
                 <span className="sr-only">Settings</span>
               </Link>
-              <IconMessage />
+              <IconSettings />
               <p className="font-medium text-sm">Settings</p>
               <IconChevronRight className="ml-auto" />
             </div>

@@ -18,7 +18,7 @@ export const meta = () => {
   return [{ title: "Billing | FamDigest" }];
 };
 
-export default function WorkspaceDashboardSettingsBillingRoute() {
+export default function Route() {
   const isTeamOwner = useIsTeamOwner();
   const { toast } = useToast();
   const { billing_status: status } = useWorkspaceLoader();
@@ -46,7 +46,7 @@ export default function WorkspaceDashboardSettingsBillingRoute() {
   };
 
   return (
-    <div className="container max-w-screen-md p-6 md:p-12 space-y-12">
+    <div className="container max-w-screen-md sm:py-6 space-y-12">
       <Card>
         <CardHeader className="border-b">
           <CardTitle className="text-xl font-serif tracking-normal">

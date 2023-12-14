@@ -22,7 +22,7 @@ export function AppFab() {
           className="flex items-center gap-x-4 bg-slate-800 p-2 rounded-[8px]"
         >
           <div className="bg-emerald-600 text-white h-8 aspect-square flex items-center justify-center rounded-full">
-            <IconCalendar />
+            <IconCalendar size={20} />
           </div>
           <div>
             <p className="font-serif">Add Calendar</p>
@@ -37,7 +37,7 @@ export function AppFab() {
           className="flex items-center gap-x-4 bg-slate-800 p-2 rounded-[4px]"
         >
           <div className="bg-blue-600 text-white h-8 aspect-square flex items-center justify-center rounded-full">
-            <IconMessage />
+            <IconMessage size={20} />
           </div>
           <div>
             <p className="font-serif">Add Contact</p>

@@ -13,3 +13,16 @@ export function slugify(str: string) {
     .replace(/--+/g, "-") // Replace multiple consecutive hyphens with a single hyphen
     .trim(); // Trim leading and trailing spaces (if any)
 }
+
+export function displayPrice(input: number | string | null | undefined) {
+  const price = Number(input) / 100;
+  return formatPrice(price ?? 0);
+}
+
+export function formatPrice(input: number) {
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+  return formatter.format(input ?? 0);
+}

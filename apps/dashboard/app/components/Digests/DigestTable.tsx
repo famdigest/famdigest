@@ -73,15 +73,13 @@ export function DigestListing({ digests }: DigestTableProps) {
           ))}
         </>
       ) : (
-        <div>
-          <div className="h-40 text-center">
-            <p className="text-lg font-medium tracking-tight mb-3">
-              Create your first Digest
-            </p>
-            <DigestFormModal>
-              <Button size="sm">Get Started</Button>
-            </DigestFormModal>
-          </div>
+        <div className="h-40 flex flex-col items-center justify-center text-center">
+          <p className="text-lg font-medium tracking-tight mb-3">
+            Create your first Digest
+          </p>
+          <DigestFormModal>
+            <Button size="sm">Get Started</Button>
+          </DigestFormModal>
         </div>
       )}
     </div>
