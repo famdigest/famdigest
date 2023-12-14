@@ -27,7 +27,7 @@ export default function WorkspaceDashboardLayout() {
     <div className="flex min-h-[100svh] flex-1 relative">
       <AppNavigation />
       <div className="flex-1 flex flex-col">
-        {billing_status.status !== "active" && (
+        {billing_status && billing_status.status !== "active" && (
           <div
             className={cn(
               "h-12 w-full flex items-center justify-center",

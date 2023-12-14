@@ -32,6 +32,7 @@ import {
 } from "@tabler/icons-react";
 import { AppFab } from "~/components/AppFab";
 import dayjs from "dayjs";
+import { useMemo } from "react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -86,7 +87,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function Index() {
   const { user, calendars, digests } = useLoaderData<typeof loader>();
-  const { workspace } = useWorkspaceLoader();
+  const { workspace, billing_status } = useWorkspaceLoader();
+
+  const planMessage = useMemo(() => {
+    if (!billing_status) return "";
+    if (billing_status.status === "trialing") {
+      const diff = Math.abs(
+        billing_status.trial_end
+          ? dayjs().diff(dayjs(billing_status.trial_end), "days")
+          : 0
+      );
+      return `Free Trial (${diff} days left)`;
+    }
+    if (billing_status.status !== "active") {
+      return "Your trial has ended";
+    }
+  }, [billing_status]);
 
   return (
     <div className="py-6 md:py-12 relative">
@@ -151,7 +167,7 @@ export default function Index() {
                 <span className="sr-only">Plan</span>
               </Link>
               <IconWallet />
-              <p className="font-medium text-sm">Plan (Free Trial)</p>
+              <p className="font-medium text-sm">Plan {planMessage}</p>
               <IconChevronRight className="ml-auto" />
             </div>
             <div className="border rounded-lg p-4 relative flex items-center gap-x-4">

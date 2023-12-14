@@ -1,6 +1,6 @@
 import { useDisclosure } from "@mantine/hooks";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { useLoaderData, useNavigate, useRevalidator } from "@remix-run/react";
 import {
   Button,
   Card,
@@ -14,7 +14,7 @@ import {
   displayPrice,
   toast,
 } from "@repo/ui";
-import { IconCircleCheckFilled } from "@tabler/icons-react";
+import { IconCircleCheckFilled, IconLoader2 } from "@tabler/icons-react";
 import { convertToLocal } from "~/lib/dates";
 import { and, asc, db, desc, eq, schema } from "~/lib/db.server";
 import { requireAuthSession } from "~/lib/session.server";
@@ -60,11 +60,13 @@ export default function Route() {
   const { calendars, digests, products } = useLoaderData<typeof loader>();
   const [on, { toggle }] = useDisclosure(false);
   const navigate = useNavigate();
+  const revalidator = useRevalidator();
   const createSubscription = trpc.billing.createSubscription.useMutation({
     onSuccess() {
       toast({
         title: "Your trial has started",
       });
+      revalidator.revalidate();
       setTimeout(() => {
         navigate("/");
       }, 1000);
@@ -93,6 +95,11 @@ export default function Route() {
 
   return (
     <div className="flex-1 flex flex-col py-20 items-start justify-center overflow-hidden">
+      {createSubscription.isLoading && (
+        <div className="fixed inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <IconLoader2 className="animate-spin" size={32} />
+        </div>
+      )}
       <div className="container max-w-screen-md">
         <div className="grid grid-cols-4 gap-x-3 mb-12">
           <div className="h-3 rounded-full bg-foreground" />

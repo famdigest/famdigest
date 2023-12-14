@@ -26,7 +26,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const [existingConnection] = await db
     .select()
     .from(schema.connections)
-    .where(eq(schema.connections.email, parsedIdToken.email));
+    .where(
+      and(
+        eq(schema.connections.email, parsedIdToken.email),
+        eq(schema.connections.owner_id, user.id)
+      )
+    );
 
   if (!existingConnection) {
     const [connection] = await db

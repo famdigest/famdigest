@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { createOrRetrieveCustomer, stripe } from "~/lib/stripe.server";
+import {
+  createOrRetrieveCustomer,
+  stripe,
+  upsertSubscriptionRecord,
+} from "~/lib/stripe.server";
 import {
   workspaceProcedure,
   router,
@@ -93,6 +97,9 @@ export const billingRouter = router({
           },
         },
       });
+      if (res) {
+        await upsertSubscriptionRecord(res, ctx.workspace.id);
+      }
       return res;
     }),
   checkout: workspaceProcedure

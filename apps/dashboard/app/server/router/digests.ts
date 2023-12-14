@@ -44,20 +44,20 @@ export const digestsRouter = router({
 
       // send opt in sms
       const body = dedent`Welcome to FamDigest!\n${ctx.user.full_name} has invited you to receive their daily digests.\nReply YES to opt-in.`;
-      const response = await sendMessage({
-        to: digest.phone,
-        body,
-      });
+      // const response = await sendMessage({
+      //   to: digest.phone,
+      //   body,
+      // });
 
-      await db.insert(schema.messages).values({
-        message: body,
-        role: "assistant",
-        external_id: response.sid,
-        digest_id: digest.id,
-        segments: Number(response.numSegments),
-        data: response,
-        owner_id: ctx.user.id,
-      });
+      // await db.insert(schema.messages).values({
+      //   message: body,
+      //   role: "assistant",
+      //   external_id: response.sid,
+      //   digest_id: digest.id,
+      //   segments: Number(response.numSegments),
+      //   data: response,
+      //   owner_id: ctx.user.id,
+      // });
 
       return digest;
     }),

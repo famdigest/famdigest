@@ -74,6 +74,41 @@ export default function Route() {
     },
   });
 
+  const validateNameStep = () => {
+    if (form.values.full_name.length > 0) {
+      setCapture("phone");
+    } else {
+      toast({
+        title: "Please enter a name.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const validatePhoneStep = () => {
+    const valid = form.values.phone?.replace(/\D/g, "").length === 11;
+    if (valid) {
+      setCapture("notify");
+    } else {
+      toast({
+        title: "Please enter a 10 digit phone number.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const validateTime = () => {
+    const time = convertToUTC(form.values.notify_on);
+    if (time === "Invalid Date") {
+      toast({
+        title: "Please enter a valid date.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
   const setFormFromDigest = (digest: Table<"digests">) => {
     setCapture("name");
     form.setValues({
@@ -112,7 +147,17 @@ export default function Route() {
   };
 
   const onSubmit = (values: typeof form.values) => {
-    saveDigest(values);
+    if (capture === "name") {
+      return validateNameStep();
+    } else if (capture === "phone") {
+      return validatePhoneStep();
+    } else {
+      if (!validateTime()) {
+        return;
+      }
+    }
+
+    saveDigest(values, true);
   };
 
   const onDone = () => {
@@ -145,7 +190,12 @@ export default function Route() {
               />
 
               <div className="flex items-center gap-x-3">
-                <Button type="button" onClick={() => setCapture("phone")}>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    validateNameStep();
+                  }}
+                >
                   Next
                 </Button>
                 <Button className="ml-auto" variant="ghost" asChild>
@@ -176,7 +226,12 @@ export default function Route() {
                 >
                   Back
                 </Button>
-                <Button type="button" onClick={() => setCapture("notify")}>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    validatePhoneStep();
+                  }}
+                >
                   Next
                 </Button>
               </div>
@@ -214,9 +269,9 @@ export default function Route() {
                 >
                   Back
                 </Button>
-                <Button type="submit" variant="outline">
+                {/* <Button type="submit" variant="outline">
                   Add Another
-                </Button>
+                </Button> */}
                 <Button type="button" onClick={() => onDone()}>
                   Done
                 </Button>

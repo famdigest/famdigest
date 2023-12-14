@@ -5,7 +5,7 @@ import { useLoaderData, useNavigate, useSubmit } from "@remix-run/react";
 import { IconLoader } from "@tabler/icons-react";
 import { z } from "zod";
 import { Logo } from "~/components/Logo";
-import { Button, FormField, Input, slugify } from "@repo/ui";
+import { Button, FormField, Input, cn, slugify } from "@repo/ui";
 import {
   commitSession,
   getSession,
@@ -14,6 +14,7 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { useSupabase } from "~/components/SupabaseProvider";
 import { SESSION_KEYS } from "~/constants";
+import noise from "~/assets/noise.svg";
 
 export const meta = () => {
   return [
@@ -53,7 +54,7 @@ export async function action({ request }: ActionFunctionArgs) {
   session.set(SESSION_KEYS.workspace, formData.workspace);
   response.headers.append("set-cookie", await commitSession(session));
 
-  return redirect("/", {
+  return redirect("/setup", {
     headers: response.headers,
   });
 }
@@ -115,6 +116,60 @@ export default function OnboardingRoute() {
   };
 
   return (
+    <div className="flex min-h-screen flex-col bg-gradient-to-r from-rose-100 to-teal-100">
+      <div
+        className={cn(
+          "absolute inset-0 brightness-100 opacity-50 contrast-150 z-0 pointer-events-none"
+        )}
+        style={{
+          backgroundImage: `url(${noise})`,
+        }}
+      />
+      <header>
+        <div className="container flex items-center justify-between py-4">
+          <p className="text-2xl font-medium font-serif">FamDigest</p>
+        </div>
+      </header>
+      <main id="main" className="flex-1 flex flex-col relative z-10">
+        <form
+          className="flex-1 flex flex-col py-20 overflow-hidden"
+          onSubmit={form.onSubmit(onSubmit)}
+        >
+          <div className="container max-w-screen-md">
+            <div className="grid grid-cols-4 gap-x-3 mb-12">
+              <div className="h-3 rounded-full bg-foreground" />
+              <div className="h-3 rounded-full bg-slate-300" />
+              <div className="h-3 rounded-full bg-slate-300" />
+              <div className="h-3 rounded-full bg-slate-300" />
+            </div>
+
+            <div className="animate-in duration-500 fade-in-0 slide-in-from-bottom-4">
+              <p className="text-xl md:text-2xl">
+                Let's set up your workspace.
+              </p>
+              <Input
+                className="px-0 text-4xl h-20 mt-2 md:mt-4 mb-6 font-serif bg-transparent border-none ring-offset-transparent shadow-none focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+                placeholder="Valdes Family"
+                {...form.getInputProps("name")}
+                onChange={(e) => {
+                  form.setFieldValue("name", e.target.value);
+                  form.setFieldValue("slug", slugify(e.target.value));
+                }}
+              />
+              <Button type="submit" disabled={createWorkspace.isLoading}>
+                {createWorkspace.isLoading && (
+                  <IconLoader className="animate-spin mr-2" />
+                )}
+                Next
+              </Button>
+            </div>
+          </div>
+        </form>
+      </main>
+    </div>
+  );
+
+  return (
     <div className="flex min-h-screen flex-col">
       <main
         id="main"
@@ -126,10 +181,10 @@ export default function OnboardingRoute() {
           </div>
 
           <div className="my-8 space-y-1.5">
-            <p className="text-4xl text-primary">
+            <p className="text-4xl text-primary font-serif">
               Hi, {user.full_name ?? user.email}!
             </p>
-            <p className="text-lg">Let's create your first workspace.</p>
+            <p className="text-lg">Let's set up your account.</p>
           </div>
           <form
             onSubmit={form.onSubmit(onSubmit)}
@@ -138,7 +193,7 @@ export default function OnboardingRoute() {
             <FormField
               type="text"
               label="Workspace Name"
-              placeholder="ACME Company"
+              placeholder="Valdes Family"
               {...form.getInputProps("name")}
               render={(field) => (
                 <Input
@@ -156,9 +211,9 @@ export default function OnboardingRoute() {
                 {createWorkspace.isLoading && (
                   <IconLoader className="animate-spin mr-2" />
                 )}
-                Create Workspace
+                Next
               </Button>
-              <Button
+              {/* <Button
                 type="button"
                 variant="link"
                 onClick={() => {
@@ -176,7 +231,7 @@ export default function OnboardingRoute() {
                 }}
               >
                 or continue with personal account
-              </Button>
+              </Button> */}
             </div>
           </form>
         </div>
