@@ -1,14 +1,31 @@
 import { useForm, zodResolver } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { trackPageView } from "@repo/tracking";
 import { Badge, Button, FormField, Input, toast } from "@repo/ui";
 import { IconLoader2 } from "@tabler/icons-react";
 import { z } from "zod";
 import { Explosion } from "~/components/Explosion";
+import { getSession } from "~/lib/session.server";
 import { trpc } from "~/lib/trpc";
 
 const notifySchema = z.object({
   email: z.string().email(),
 });
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "home",
+      user_id: session.get("userId"),
+    },
+  });
+  return null;
+}
+
 export default function Route() {
   const [show, { open, close }] = useDisclosure(false);
   const addToWaitlist = trpc.users.notify.useMutation({

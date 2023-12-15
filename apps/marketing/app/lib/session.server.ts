@@ -3,7 +3,7 @@ import type { Session } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { createServerClient, type UserPreferences } from "@repo/supabase";
 import { createDatabaseSessionStorage } from "./database-session.server";
-import { db, eq, schema } from "@repo/database";
+import { db, eq, schema } from "~/lib/db.server";
 
 export const sessionStorage = createDatabaseSessionStorage({
   cookie: {

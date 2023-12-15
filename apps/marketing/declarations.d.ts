@@ -12,6 +12,8 @@ declare global {
       PUBLIC_STRIPE_KEY: string;
       DATABASE_URL: string;
       HUBSPOT_API_KEY: string;
+      MIXPANEL_TOKEN: string;
+      PRIVATE_SLACK_WEBHOOK: string;
     }
   }
 

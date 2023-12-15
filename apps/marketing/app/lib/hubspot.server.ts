@@ -1,4 +1,5 @@
 import hubspot from "@hubspot/api-client";
+import { sendNotification } from "./slack.server";
 
 const hubspotClient = new hubspot.Client({
   accessToken: process.env.HUBSPOT_API_KEY,
@@ -6,6 +7,36 @@ const hubspotClient = new hubspot.Client({
 
 export async function addToWaitlist(email: string) {
   try {
+    await sendNotification({
+      blocks: [
+        {
+          type: "header",
+          text: {
+            type: "plain_text",
+            text: "β New Beta Sign Up",
+            emoji: true,
+          },
+        },
+        {
+          type: "divider",
+        },
+        {
+          type: "rich_text",
+          elements: [
+            {
+              type: "rich_text_section",
+              elements: [
+                {
+                  type: "text",
+                  text: `${email} just signed up`,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
     const getContactResponse =
       await hubspotClient.crm.contacts.searchApi.doSearch({
         query: email,
@@ -27,6 +58,7 @@ export async function addToWaitlist(email: string) {
         },
         associations: [],
       });
+
     return createContactResponse;
   } catch (error) {
     throw error;
