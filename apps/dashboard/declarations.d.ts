@@ -23,6 +23,11 @@ declare global {
       TWILIO_PHONE: string;
       RESEND_KEY: string;
       MIXPANEL_TOKEN: string;
+      MSFT_CLOUD_INSTANCE: string;
+      MSFT_TENANT_ID: string;
+      MSFT_CLIENT_ID: string;
+      MSFT_CLIENT_SECRET: string;
+      MSFT_GRAPH_API_ENDPOINT: string;
     }
   }
 

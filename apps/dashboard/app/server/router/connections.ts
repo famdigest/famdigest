@@ -1,12 +1,7 @@
-import {
-  Table,
-  connectionsRowSchema,
-  connectionsUpdateSchema,
-} from "@repo/supabase";
+import { Table, connectionsUpdateSchema } from "@repo/supabase";
 import { protectedProcedure, router } from "../trpc.server";
 import { db, desc, eq, schema } from "~/lib/db.server";
 import { z } from "zod";
-import { getCalendarList } from "~/lib/google.server";
 
 export const connectionsRouter = router({
   all: protectedProcedure.query(async ({ ctx }) => {

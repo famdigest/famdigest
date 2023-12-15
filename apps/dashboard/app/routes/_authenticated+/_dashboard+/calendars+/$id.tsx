@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Link, useLoaderData, useRevalidator } from "@remix-run/react";
-import { asc, db, eq, schema } from "~/lib/db.server";
+import { db, desc, eq, schema } from "~/lib/db.server";
 import {
   Card,
   CardHeader,
@@ -11,7 +11,6 @@ import {
 } from "@repo/ui";
 import { IconArrowLeft } from "@tabler/icons-react";
 import { ConnectionProviderIcon } from "~/components/Connections/ConnectionProviderIcon";
-import { RemoteCalendarService } from "~/lib/calendars";
 import { trpc } from "~/lib/trpc";
 import { getSessionWorkspace } from "~/lib/workspace.server";
 import { getSession } from "~/lib/session.server";
@@ -41,26 +40,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     .select()
     .from(schema.calendars)
     .where(eq(schema.calendars.connection_id, connection.id))
-    .orderBy(asc(schema.calendars.created_at));
-
-  if (calendars.length === 0) {
-    //
-    const service = RemoteCalendarService.getProviderClass(connection);
-    const list = await service.listCalendars();
-
-    for (const cal of list) {
-      const [newCal] = await db
-        .insert(schema.calendars)
-        .values({
-          connection_id: connection.id,
-          owner_id: user.id,
-          ...cal,
-        })
-        .returning();
-
-      calendars.push(newCal);
-    }
-  }
+    .orderBy(desc(schema.calendars.enabled));
 
   const session = await getSession(request);
   trackPageView({

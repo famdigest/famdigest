@@ -7,6 +7,7 @@ import { humanloop } from "~/lib/humanloop.server";
 import dedent from "dedent";
 import { sendMessage } from "~/lib/twilio.server";
 import { sendNotification } from "~/lib/slack.server";
+import { getCalendarProviderClass } from "~/services/calendar";
 
 dayjs.extend(utc);
 
@@ -39,9 +40,7 @@ export async function action() {
     //
     const allEvents = [];
     for (const calendar of calendars) {
-      const service = RemoteCalendarService.getProviderClass(
-        calendar.connection
-      );
+      const service = getCalendarProviderClass(calendar.connection);
       const events = await service.getTodayEvents(calendar.external_id);
       allEvents.push(...events);
     }

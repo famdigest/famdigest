@@ -1,9 +1,9 @@
 import { google } from "googleapis";
 import { protectedProcedure, router } from "../trpc.server";
-import { generateAuthUrl } from "~/lib/google.server";
 import { and, db, eq, schema } from "~/lib/db.server";
 import { z } from "zod";
 import { commitSession } from "~/lib/session.server";
+import { generateAuthUrl } from "~/services/google/api";
 
 export const googleRouter = router({
   authorize: protectedProcedure

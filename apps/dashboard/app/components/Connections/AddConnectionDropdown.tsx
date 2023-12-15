@@ -7,7 +7,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui";
-import { IconBrandGoogle, IconCirclePlus } from "@tabler/icons-react";
+import {
+  IconBrandAzure,
+  IconBrandGoogle,
+  IconCirclePlus,
+} from "@tabler/icons-react";
 import { trpc } from "~/lib/trpc";
 
 export function AddConnectionDropdown() {
@@ -35,6 +39,13 @@ export function AddConnectionDropdown() {
           <IconBrandGoogle size={14} className="mr-2" />
           Google
         </DropdownMenuItem>
+        {/* <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => addMsft.mutate()}
+        >
+          <IconBrandAzure size={14} className="mr-2" />
+          Outlook
+        </DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );

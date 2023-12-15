@@ -3,10 +3,8 @@ import { trpc } from "~/lib/trpc";
 import { Link, useLoaderData } from "@remix-run/react";
 import { IconBrandGoogle } from "@tabler/icons-react";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { db, schema, eq, desc, asc } from "~/lib/db.server";
+import { db, schema, eq, asc } from "~/lib/db.server";
 import { getSession, requireAuthSession } from "~/lib/session.server";
-import { Table, Calendar } from "@repo/supabase";
-import { RemoteCalendarService } from "~/lib/calendars";
 import { Button } from "@repo/ui";
 import { ConnectionCard } from "~/components/Connections/ConnectionCard";
 import { trackPageView } from "@repo/tracking";
@@ -21,34 +19,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: eq(schema.calendars.owner_id, user.id),
     orderBy: asc(schema.calendars.created_at),
   });
-
-  if (connections.length) {
-    for (const connection of connections) {
-      const service = RemoteCalendarService.getProviderClass(connection);
-      const list = await service.listCalendars();
-
-      for (const cal of list) {
-        if (
-          !!connection.calendars.find(
-            (calendar) => calendar.external_id === cal.external_id
-          )
-        ) {
-          continue;
-        }
-
-        const [newCal] = await db
-          .insert(schema.calendars)
-          .values({
-            connection_id: connection.id,
-            owner_id: user.id,
-            ...cal,
-          })
-          .returning();
-
-        connection.calendars.push(newCal);
-      }
-    }
-  }
 
   const session = await getSession(request);
   trackPageView({
