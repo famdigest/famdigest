@@ -1,5 +1,5 @@
 import { useNavigate, useRevalidator } from "@remix-run/react";
-import { Session, TypesafeClient, createBrowserClient } from "@repo/supabase";
+import { Session, TypesafeClient } from "@repo/supabase";
 import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SupabaseProvider } from "./SupabaseProvider";
@@ -18,7 +18,6 @@ export function AppProviders({
 }) {
   const { revalidate } = useRevalidator();
   const navigate = useNavigate();
-
   const serverAccessToken = session?.access_token;
 
   useEffect(() => {

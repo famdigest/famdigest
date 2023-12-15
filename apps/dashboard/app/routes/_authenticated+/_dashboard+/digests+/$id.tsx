@@ -19,6 +19,8 @@ import { convertToLocal } from "~/lib/dates";
 import { DigestFormModal } from "~/components/Digests/DigestFormModal";
 import { useDisclosure } from "@mantine/hooks";
 import { DisgestMessages } from "~/components/Digests/DigestMessages";
+import { getSession } from "~/lib/session.server";
+import { trackPageView } from "@repo/tracking";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [{ title: `Digests: ${data?.digest.full_name} - FamDigest` }];
@@ -39,6 +41,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       statusText: "Digest not found",
     });
   }
+
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "digests:id",
+      user_id: session.get("userId"),
+    },
+  });
 
   return json(
     {

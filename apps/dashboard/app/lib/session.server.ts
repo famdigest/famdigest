@@ -85,19 +85,19 @@ export async function requireAuthSession(request: Request) {
   };
 }
 
-export const getVisitorId = (session: Session, userId?: string): string => {
-  const existingId = session.get("visitorId") as string;
+export const getDeviceId = (session: Session, userId?: string): string => {
+  const existingId = session.get("device_id") as string;
   if (existingId) {
     return existingId;
   }
   const newId = userId ?? uuid();
-  session.set("visitorId", newId);
+  session.set("device_id", newId);
   return newId;
 };
 
 export const createUserSession = async (request: Request, userId?: string) => {
   const session = await getSession(request);
-  const id = getVisitorId(session, userId);
+  const id = getDeviceId(session, userId);
   const cookie = await sessionStorage.commitSession(session);
-  return { cookie: cookie, visitorId: id, session: session };
+  return { cookie: cookie, deviceId: id, session: session };
 };

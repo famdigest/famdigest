@@ -8,6 +8,9 @@ import {
   Separator,
 } from "@repo/ui";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { getSession } from "~/lib/session.server";
+import { trackPageView } from "@repo/tracking";
 
 export const meta = () => {
   return [
@@ -18,6 +21,19 @@ export const meta = () => {
     },
   ];
 };
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "settings",
+      user_id: session.get("userId"),
+    },
+  });
+  return null;
+}
 
 export default function WorkspaceDashboardSettingsRoute() {
   const { workspace } = useWorkspaceLoader();

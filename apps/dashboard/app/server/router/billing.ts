@@ -10,6 +10,8 @@ import {
   protectedProcedure,
 } from "~/server/trpc.server";
 import { WORKSPACE_ROLES, type WorkspaceBillingStatus } from "@repo/supabase";
+import { people, track } from "@repo/tracking";
+import { db, eq, schema } from "~/lib/db.server";
 
 export const billingRouter = router({
   status: workspaceProcedure.query(async ({ ctx }) => {
@@ -80,7 +82,14 @@ export const billingRouter = router({
         email: ctx.user.email || "",
       });
       if (!customer) throw Error("Could not get or create customer");
-      const { origin } = new URL(ctx.req.url);
+
+      const price = await db.query.billing_prices.findFirst({
+        where: eq(schema.billing_prices.id, input.price_id),
+        with: {
+          billing_product: true,
+        },
+      });
+
       const res = await stripe.subscriptions.create({
         customer,
         items: [
@@ -98,7 +107,17 @@ export const billingRouter = router({
         },
       });
       if (res) {
-        await upsertSubscriptionRecord(res, ctx.workspace.id);
+        await upsertSubscriptionRecord(res, ctx.workspace.id, ctx.req);
+        track({
+          request: ctx.req,
+          properties: {
+            event_name: "Subscription Created",
+            device_id: ctx.session.id,
+            user_id: ctx.user.id,
+            product: price?.billing_product?.name,
+            inteval: price?.interval,
+          },
+        });
       }
       return res;
     }),
@@ -152,6 +171,15 @@ export const billingRouter = router({
               },
               allow_promotion_codes: true,
             }),
+      });
+
+      track({
+        request: ctx.req,
+        properties: {
+          event_name: "PortalLink Created",
+          device_id: ctx.session.id,
+          user_id: ctx.user.id,
+        },
       });
       return { url };
     }),

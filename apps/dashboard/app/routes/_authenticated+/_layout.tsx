@@ -42,7 +42,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function WorkspaceLayout() {
-  const { user, workspace, billing_status } = useLoaderData<typeof loader>();
+  const { billing_status } = useLoaderData<typeof loader>();
   const location = useLocation();
   const navigate = useNavigate();
 

@@ -8,6 +8,7 @@ import { db, desc, eq, schema } from "~/lib/db.server";
 import { z } from "zod";
 import { sendMessage } from "~/lib/twilio.server";
 import dedent from "dedent";
+import { track } from "@repo/tracking";
 
 export const digestsRouter = router({
   all: protectedProcedure.query(async ({ ctx }) => {
@@ -56,6 +57,15 @@ export const digestsRouter = router({
         segments: Number(response.numSegments),
         data: response,
         owner_id: ctx.user.id,
+      });
+
+      track({
+        request: ctx.req,
+        properties: {
+          event_name: "Digest Created",
+          device_id: ctx.session.id,
+          user_id: ctx.user.id,
+        },
       });
 
       return digest;
@@ -123,7 +133,17 @@ export const digestsRouter = router({
       }
       return saved;
     }),
-  remove: protectedProcedure.input(z.string()).mutation(async ({ input }) => {
-    await db.delete(schema.digests).where(eq(schema.digests.id, input));
-  }),
+  remove: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      await db.delete(schema.digests).where(eq(schema.digests.id, input));
+      track({
+        request: ctx.req,
+        properties: {
+          event_name: "Digest Deleted",
+          device_id: ctx.session.id,
+          user_id: ctx.user.id,
+        },
+      });
+    }),
 });

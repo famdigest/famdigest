@@ -68,7 +68,8 @@ export async function action({ request }: ActionFunctionArgs) {
           const subscription = event.data.object as Stripe.Subscription;
           await manageSubscriptionStatusChange(
             subscription.id,
-            subscription.customer as string
+            subscription.customer as string,
+            request
           );
           break;
         case "customer.subscription.trial_will_end":
@@ -79,7 +80,8 @@ export async function action({ request }: ActionFunctionArgs) {
             const subscriptionId = checkoutSession.subscription;
             await manageSubscriptionStatusChange(
               subscriptionId as string,
-              checkoutSession.customer as string
+              checkoutSession.customer as string,
+              request
             );
           }
           break;

@@ -1,4 +1,5 @@
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
+import { track } from "@repo/tracking";
 import jwt from "jsonwebtoken";
 import { and, db, eq, schema } from "~/lib/db.server";
 import { getCalendarList, getToken } from "~/lib/google.server";
@@ -76,6 +77,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
         headers: response.headers,
       });
     }
+
+    track({
+      request,
+      properties: {
+        event_name: "Calendar Created",
+        device_id: session.id,
+        user_id: user.id,
+        provider: "Google",
+      },
+    });
 
     return redirect(`/calendars/${existingConnection.id}`, {
       headers: response.headers,

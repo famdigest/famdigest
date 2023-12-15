@@ -5,6 +5,7 @@ import {
   createServerClient,
   type EmailOtpType,
 } from "@repo/supabase";
+import { identify, track, people } from "@repo/tracking";
 import { SESSION_KEYS } from "~/constants";
 import { commitSession, getSession } from "~/lib/session.server";
 
@@ -43,6 +44,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           });
         }
 
+        track({
+          request,
+          properties: {
+            event_name: "Invite Opened",
+            device_id: session.id,
+            user_id: data.user.id,
+          },
+        });
+
         return redirect(`/accept-invite/${invitation.token}`, {
           headers: response.headers,
         });
@@ -57,21 +67,75 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
       if (type === "email") {
         //
+        track({
+          request,
+          properties: {
+            event_name: "Signed Up",
+            device_id: session.id,
+            user_id: data.user.id,
+          },
+        });
       }
 
       if (type === "magiclink") {
         //
+        track({
+          request,
+          properties: {
+            event_name: "Signed In",
+            device_id: session.id,
+            user_id: data.user.id,
+          },
+        });
       }
 
       const { data: workspaces } = await supabase.from("workspaces").select();
-      if (workspaces?.length) {
-        session.set(SESSION_KEYS.workspace, workspaces[0].id);
-        response.headers.append("Set-cookie", await commitSession(session));
-      } else {
+      if (!workspaces?.length) {
+        identify({
+          request,
+          properties: {
+            device_id: session.id,
+            user_id: data.user.id,
+          },
+        });
+
+        people({
+          id: data.user.id,
+          request,
+          properties: {
+            name: data.user.user_metadata?.full_name,
+            email: data.user.email!,
+            created: data.user.created_at,
+            avatar: data.user.user_metadata?.avatar_url,
+          },
+        });
+
         return redirect("/onboarding", {
           headers: response.headers,
         });
       }
+
+      session.set(SESSION_KEYS.workspace, workspaces[0].id);
+      response.headers.append("Set-cookie", await commitSession(session));
+
+      identify({
+        request,
+        properties: {
+          device_id: session.id,
+          user_id: data.user.id,
+        },
+      });
+
+      people({
+        id: data.user.id,
+        request,
+        properties: {
+          name: data.user.user_metadata?.full_name,
+          email: data.user.email!,
+          created: data.user.created_at,
+          avatar: data.user.user_metadata?.avatar_url,
+        },
+      });
 
       return redirect(next, {
         headers: response.headers,

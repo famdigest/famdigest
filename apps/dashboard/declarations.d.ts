@@ -22,6 +22,7 @@ declare global {
       TWILIO_TOKEN: string;
       TWILIO_PHONE: string;
       RESEND_KEY: string;
+      MIXPANEL_TOKEN: string;
     }
   }
 
@@ -35,6 +36,7 @@ declare global {
       GTM_TRACKING_ID: string | undefined;
       FACEBOOK_PIXEL_ID: string | undefined;
       ENABLE_TRACKING: boolean;
+      MIXPANEL_TOKEN: string;
     };
     // tracking
     fbq?: any;

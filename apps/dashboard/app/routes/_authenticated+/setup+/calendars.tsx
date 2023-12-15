@@ -4,11 +4,12 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { IconBrandGoogle } from "@tabler/icons-react";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { db, schema, eq, desc, asc } from "~/lib/db.server";
-import { requireAuthSession } from "~/lib/session.server";
+import { getSession, requireAuthSession } from "~/lib/session.server";
 import { Table, Calendar } from "@repo/supabase";
 import { RemoteCalendarService } from "~/lib/calendars";
 import { Button } from "@repo/ui";
 import { ConnectionCard } from "~/components/Connections/ConnectionCard";
+import { trackPageView } from "@repo/tracking";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { user, response } = await requireAuthSession(request);
@@ -48,6 +49,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }
     }
   }
+
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "setup:calendars",
+      user_id: session.get("userId"),
+    },
+  });
 
   return json(
     {

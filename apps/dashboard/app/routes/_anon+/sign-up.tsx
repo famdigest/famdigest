@@ -6,6 +6,9 @@ import { z } from "zod";
 import GoogleIcon from "~/components/GoogleIcon";
 import { Button, FormField, Input, useToast } from "@repo/ui";
 import { useSupabase } from "~/components/SupabaseProvider";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { trackPageView } from "@repo/tracking";
+import { getSession } from "~/lib/session.server";
 
 const signUpFormSchema = z.object({
   full_name: z.string().min(1, "Name is required"),
@@ -22,6 +25,19 @@ export const meta = () => {
     },
   ];
 };
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "auth:sign-up",
+      user_id: session.get("userId"),
+    },
+  });
+  return null;
+}
 
 export default function AuthSignUpRoute() {
   const supabase = useSupabase();

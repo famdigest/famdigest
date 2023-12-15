@@ -13,6 +13,10 @@ import { z } from "zod";
 import GoogleIcon from "~/components/GoogleIcon";
 import { Button, FormField, Input, useToast } from "@repo/ui";
 import { useSupabase } from "~/components/SupabaseProvider";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { trackPageView } from "@repo/tracking";
+import { getSession } from "~/lib/session.server";
+import { createServerClient } from "@repo/supabase";
 
 const signInFormSchema = z.object({
   email: z.string().email(),
@@ -32,6 +36,19 @@ export const meta = () => {
     },
   ];
 };
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "auth:sign-in",
+      user_id: session.get("userId"),
+    },
+  });
+  return null;
+}
 
 export default function AuthSignInRoute() {
   const supabase = useSupabase();

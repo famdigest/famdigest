@@ -26,6 +26,8 @@ import { db, eq, schema } from "~/lib/db.server";
 import { useLoaderData } from "@remix-run/react";
 import { useDisclosure } from "@mantine/hooks";
 import { getDaysLeft } from "~/lib/dates";
+import { getSession } from "~/lib/session.server";
+import { trackPageView } from "@repo/tracking";
 
 export const meta = () => {
   return [{ title: "Billing | FamDigest" }];
@@ -37,6 +39,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
       billing_prices: true,
     },
     where: eq(schema.billing_products.active, true),
+  });
+
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "settings:billing",
+      user_id: session.get("userId"),
+    },
   });
 
   return json({

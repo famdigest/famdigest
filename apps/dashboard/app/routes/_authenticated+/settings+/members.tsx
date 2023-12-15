@@ -67,6 +67,8 @@ import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { getSessionWorkspace } from "~/lib/workspace.server";
 import { db, eq, schema } from "~/lib/db.server";
+import { getSession } from "~/lib/session.server";
+import { trackPageView } from "@repo/tracking";
 
 export const meta = () => {
   return [{ title: "Members | FamDigest" }];
@@ -74,13 +76,6 @@ export const meta = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { user, workspace } = await getSessionWorkspace(request);
-
-  // const { data, error } = await ctx.supabase
-  //   .from("workspace_users")
-  //   .select(
-  //     "*, user:profiles(full_name, email, avatar_url), workspaces(owner_id)"
-  //   )
-  //   .match({ workspace_id: ctx.workspace.id });
 
   const members = await db.query.workspace_users.findMany({
     with: {
@@ -94,13 +89,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: eq(schema.workspace_users.workspace_id, workspace.id),
   });
 
-  // const { data, error } = await ctx.supabase
-  //   .from("invitations")
-  //   .select("*")
-  //   .match({ workspace_id: ctx.workspace.id });
-
   const invitations = await db.query.invitations.findMany({
     where: eq(schema.invitations.workspace_id, workspace.id),
+  });
+
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "settings:members",
+      user_id: session.get("userId"),
+    },
   });
 
   return json({

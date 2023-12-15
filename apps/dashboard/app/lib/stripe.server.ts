@@ -1,6 +1,8 @@
 import Stripe from "stripe";
 import dayjs from "dayjs";
 import { createAdminClient } from "@repo/supabase";
+import { people, track } from "@repo/tracking";
+import { db, eq, schema } from "~/lib/db.server";
 
 enum BILLING_PROVIDERS {
   stripe = "stripe",
@@ -138,7 +140,8 @@ export const createOrRetrieveCustomer = async ({
  */
 export const upsertSubscriptionRecord = async (
   subscription: Stripe.Subscription,
-  workspace_id: string
+  workspace_id: string,
+  request: Request
 ) => {
   const subscriptionData = {
     id: subscription.id,
@@ -173,6 +176,26 @@ export const upsertSubscriptionRecord = async (
     provider: BILLING_PROVIDERS.stripe,
   };
 
+  const workspace = await db.query.workspaces.findFirst({
+    where: eq(schema.workspaces.id, workspace_id),
+  });
+
+  const price = await db.query.billing_prices.findFirst({
+    where: eq(schema.billing_prices.id, subscriptionData.price_id),
+    with: {
+      billing_product: true,
+    },
+  });
+
+  people({
+    id: workspace!.owner_id,
+    request,
+    properties: {
+      product: price?.billing_product?.name,
+      inteval: price?.interval,
+    },
+  });
+
   const { error } = await supabaseAdmin
     .from("billing_subscriptions")
     .upsert(subscriptionData);
@@ -192,7 +215,8 @@ export const upsertSubscriptionRecord = async (
  */
 export const manageSubscriptionStatusChange = async (
   subscriptionId: string,
-  customerId: string
+  customerId: string,
+  request: Request
 ) => {
   // Get customer's UUID from mapping table.
   const { data: customerData, error: noCustomerError } = await supabaseAdmin
@@ -204,5 +228,9 @@ export const manageSubscriptionStatusChange = async (
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   // Upsert the latest status of the subscription object.
-  await upsertSubscriptionRecord(subscription, customerData.workspace_id);
+  await upsertSubscriptionRecord(
+    subscription,
+    customerData.workspace_id,
+    request
+  );
 };

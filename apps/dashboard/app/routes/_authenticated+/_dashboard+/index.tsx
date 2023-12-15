@@ -21,7 +21,7 @@ import {
   PopoverTrigger,
   Separator,
 } from "@repo/ui";
-import { requireAuthSession } from "~/lib/session.server";
+import { getSession, requireAuthSession } from "~/lib/session.server";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 import {
   IconCalendar,
@@ -33,6 +33,7 @@ import {
 import { AppFab } from "~/components/AppFab";
 import dayjs from "dayjs";
 import { useMemo } from "react";
+import { trackPageView } from "@repo/tracking";
 
 export const meta: MetaFunction = () => {
   return [
@@ -72,6 +73,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
       )
     )
     .orderBy(desc(schema.digests.created_at));
+
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "dashboard",
+      user_id: session.get("userId"),
+    },
+  });
 
   return json(
     {

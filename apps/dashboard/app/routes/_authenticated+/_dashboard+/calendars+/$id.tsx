@@ -14,6 +14,8 @@ import { ConnectionProviderIcon } from "~/components/Connections/ConnectionProvi
 import { RemoteCalendarService } from "~/lib/calendars";
 import { trpc } from "~/lib/trpc";
 import { getSessionWorkspace } from "~/lib/workspace.server";
+import { getSession } from "~/lib/session.server";
+import { trackPageView } from "@repo/tracking";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [{ title: `Calendar: ${data?.connection.email} - FamDigest` }];
@@ -59,6 +61,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       calendars.push(newCal);
     }
   }
+
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "calendars:id",
+      user_id: session.get("userId"),
+    },
+  });
 
   return json(
     {

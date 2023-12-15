@@ -1,5 +1,21 @@
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { Link } from "@remix-run/react";
+import { trackPageView } from "@repo/tracking";
 import { Button } from "@repo/ui";
+import { getSession } from "~/lib/session.server";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "auth:error",
+      user_id: session.get("userId"),
+    },
+  });
+  return null;
+}
 
 export default function Route() {
   return (

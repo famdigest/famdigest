@@ -9,6 +9,8 @@ import { Button, FormField, Input } from "@repo/ui";
 import { useSupabase } from "~/components/SupabaseProvider";
 import { createAdminClient, createServerClient } from "@repo/supabase";
 import { trpc } from "~/lib/trpc";
+import { getSession } from "~/lib/session.server";
+import { trackPageView } from "@repo/tracking";
 
 export const meta = () => {
   return [{ title: "Accept Invite | Carta Maps" }];
@@ -57,6 +59,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const { pathname } = new URL(request.url);
     throw redirect(`${authPath}?redirectTo=${pathname}`, {
       headers: response.headers,
+    });
+  }
+
+  {
+    const session = await getSession(request);
+    trackPageView({
+      request,
+      properties: {
+        device_id: session.id,
+        title: "auth:accept-invite",
+        user_id: session.get("userId"),
+      },
     });
   }
 

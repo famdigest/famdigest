@@ -3,6 +3,7 @@ import { redirect } from "@remix-run/node";
 import { SESSION_KEYS } from "~/constants";
 import { commitSession, getSession } from "~/lib/session.server";
 import { createAdminClient, createServerClient } from "@repo/supabase";
+import { identify, people, track } from "@repo/tracking";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = new Response();
@@ -30,14 +31,42 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       if (workspaces?.length) {
         session.set(SESSION_KEYS.workspace, workspaces[0].workspace_id);
         response.headers.append("Set-cookie", await commitSession(session));
+        track({
+          request,
+          properties: {
+            event_name: "Signed In",
+            device_id: session.id,
+            user_id: data.user.id,
+          },
+        });
       } else {
-        try {
-          const [first_name, ...others] = data.user.user_metadata?.full_name
-            ? data.user.user_metadata.full_name.split(" ")
-            : "";
-        } catch (error) {
-          //
-        }
+        track({
+          request,
+          properties: {
+            event_name: "Signed Up",
+            device_id: session.id,
+            user_id: data.user.id,
+          },
+        });
+
+        identify({
+          request,
+          properties: {
+            device_id: session.id,
+            user_id: data.user.id,
+          },
+        });
+
+        people({
+          id: data.user.id,
+          request,
+          properties: {
+            name: data.user.user_metadata?.full_name,
+            email: data.user.email!,
+            created: data.user.created_at,
+            avatar: data.user.user_metadata?.avatar_url,
+          },
+        });
 
         return redirect("/onboarding", {
           headers: response.headers,

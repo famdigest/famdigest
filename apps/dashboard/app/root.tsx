@@ -18,9 +18,11 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
   useRouteError,
 } from "@remix-run/react";
 import {
+  Session,
   TypesafeClient,
   UserPreferences,
   createBrowserClient,
@@ -86,11 +88,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const {
-    visitorId,
-    session: cookieSession,
-    cookie,
-  } = await createUserSession(request, user?.id);
+  const { session: cookieSession, cookie } = await createUserSession(
+    request,
+    user?.id
+  );
 
   response.headers.append("set-cookie", cookie);
 
@@ -100,7 +101,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     {
       session,
       user,
-      visitorId,
       domain: hostname.split(".").slice(-2).join("."),
       theme: cookieSession.get(SESSION_KEYS.theme) ?? "light",
       url: origin,
@@ -112,6 +112,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         GA_TRACKING_ID: process.env.GA_TRACKING_ID,
         GTM_TRACKING_ID: process.env.GTM_TRACKING_ID,
         FACEBOOK_PIXEL_ID: process.env.FACEBOOK_PIXEL_ID,
+        MIXPANEL_TOKEN: process.env.MIXPANEL_TOKEN,
         ENABLE_TRACKING: process.env.ENABLE_TRACKING === "true",
       },
     },
@@ -122,8 +123,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function App() {
-  const { env, session, visitorId, theme, domain } =
-    useLoaderData<typeof loader>();
+  const { env, session, theme, domain } = useLoaderData<typeof loader>();
 
   const [supabase] = useState<TypesafeClient>(() =>
     createBrowserClient(
@@ -136,7 +136,7 @@ export default function App() {
 
   return (
     <AppProviders supabase={supabase} session={session}>
-      <Document visitorId={visitorId} theme={theme}>
+      <Document theme={theme}>
         <Outlet />
         <script
           dangerouslySetInnerHTML={{
@@ -149,11 +149,9 @@ export default function App() {
 }
 
 function Document({
-  visitorId,
   theme,
   children,
 }: {
-  visitorId: string;
   theme: UserPreferences["theme"];
   children: React.ReactNode;
 }) {

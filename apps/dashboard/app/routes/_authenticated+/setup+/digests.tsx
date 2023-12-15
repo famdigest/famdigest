@@ -8,10 +8,11 @@ import InputMask from "@mona-health/react-input-mask";
 import { Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { IconLoader2 } from "@tabler/icons-react";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { requireAuthSession } from "~/lib/session.server";
+import { getSession, requireAuthSession } from "~/lib/session.server";
 import { db, desc, eq, schema } from "~/lib/db.server";
 import { convertToLocal, convertToUTC, guessTimezone } from "~/lib/dates";
 import { Table, digestsInsertSchema } from "@repo/supabase";
+import { trackPageView } from "@repo/tracking";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { user, response } = await requireAuthSession(request);
@@ -21,6 +22,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
     .from(schema.digests)
     .where(eq(schema.digests.owner_id, user.id))
     .orderBy(desc(schema.digests.created_at));
+
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "setup:digests",
+      user_id: session.get("userId"),
+    },
+  });
 
   return json(
     {

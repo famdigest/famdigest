@@ -6,10 +6,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { trackPageView } from "@repo/tracking";
+import { getSession } from "~/lib/session.server";
 
 export const meta = () => {
   return [{ title: "Change Password | FamDigest" }];
 };
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "settings:password",
+      user_id: session.get("userId"),
+    },
+  });
+  return null;
+}
 
 export default function Route() {
   return (

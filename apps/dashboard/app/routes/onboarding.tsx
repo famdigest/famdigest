@@ -15,6 +15,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useSupabase } from "~/components/SupabaseProvider";
 import { SESSION_KEYS } from "~/constants";
 import noise from "~/assets/noise.svg";
+import { trackPageView } from "@repo/tracking";
 
 export const meta = () => {
   return [
@@ -35,6 +36,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
       headers: response.headers,
     });
   }
+
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "onboarding",
+      user_id: session.get("userId"),
+    },
+  });
 
   return json(
     {

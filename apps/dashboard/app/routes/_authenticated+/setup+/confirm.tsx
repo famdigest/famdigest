@@ -1,6 +1,7 @@
 import { useDisclosure } from "@mantine/hooks";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { Link, useLoaderData, useRevalidator } from "@remix-run/react";
+import { trackPageView } from "@repo/tracking";
 import {
   Button,
   Card,
@@ -22,7 +23,7 @@ import {
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 import { convertToLocal } from "~/lib/dates";
 import { and, asc, db, desc, eq, schema } from "~/lib/db.server";
-import { requireAuthSession } from "~/lib/session.server";
+import { getSession, requireAuthSession } from "~/lib/session.server";
 import { trpc } from "~/lib/trpc";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -46,6 +47,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
       billing_prices: true,
     },
     where: eq(schema.billing_products.active, true),
+  });
+
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "setup:confirm",
+      user_id: session.get("userId"),
+    },
   });
 
   return json(

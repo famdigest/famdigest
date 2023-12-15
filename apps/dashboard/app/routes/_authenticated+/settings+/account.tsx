@@ -1,4 +1,4 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { AccountForm } from "~/components/AccountForm";
 import {
   Card,
@@ -8,10 +8,25 @@ import {
   CardTitle,
 } from "@repo/ui";
 import { trpc } from "~/lib/trpc";
+import { trackPageView } from "@repo/tracking";
+import { getSession } from "~/lib/session.server";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Your Account | FamDigest" }];
 };
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "settings:account",
+      user_id: session.get("userId"),
+    },
+  });
+  return null;
+}
 
 export default function Route() {
   const { data } = trpc.users.me.useQuery();

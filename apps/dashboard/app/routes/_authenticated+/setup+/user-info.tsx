@@ -7,6 +7,22 @@ import { trpc } from "~/lib/trpc";
 import InputMask from "@mona-health/react-input-mask";
 import { useNavigate } from "@remix-run/react";
 import { IconLoader2 } from "@tabler/icons-react";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { trackPageView } from "@repo/tracking";
+import { getSession } from "~/lib/session.server";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request);
+  trackPageView({
+    request,
+    properties: {
+      device_id: session.id,
+      title: "setup:user-info",
+      user_id: session.get("userId"),
+    },
+  });
+  return null;
+}
 
 export default function Route() {
   const { user } = useWorkspaceLoader();
