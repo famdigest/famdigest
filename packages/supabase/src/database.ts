@@ -110,6 +110,7 @@ export interface Database {
           {
             foreignKeyName: "identities_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
@@ -165,6 +166,7 @@ export interface Database {
           {
             foreignKeyName: "mfa_amr_claims_session_id_fkey"
             columns: ["session_id"]
+            isOneToOne: false
             referencedRelation: "sessions"
             referencedColumns: ["id"]
           }
@@ -196,6 +198,7 @@ export interface Database {
           {
             foreignKeyName: "mfa_challenges_auth_factor_id_fkey"
             columns: ["factor_id"]
+            isOneToOne: false
             referencedRelation: "mfa_factors"
             referencedColumns: ["id"]
           }
@@ -236,6 +239,7 @@ export interface Database {
           {
             foreignKeyName: "mfa_factors_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
@@ -279,6 +283,7 @@ export interface Database {
           {
             foreignKeyName: "refresh_tokens_session_id_fkey"
             columns: ["session_id"]
+            isOneToOne: false
             referencedRelation: "sessions"
             referencedColumns: ["id"]
           }
@@ -319,6 +324,7 @@ export interface Database {
           {
             foreignKeyName: "saml_providers_sso_provider_id_fkey"
             columns: ["sso_provider_id"]
+            isOneToOne: false
             referencedRelation: "sso_providers"
             referencedColumns: ["id"]
           }
@@ -362,12 +368,14 @@ export interface Database {
           {
             foreignKeyName: "saml_relay_states_flow_state_id_fkey"
             columns: ["flow_state_id"]
+            isOneToOne: false
             referencedRelation: "flow_state"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "saml_relay_states_sso_provider_id_fkey"
             columns: ["sso_provider_id"]
+            isOneToOne: false
             referencedRelation: "sso_providers"
             referencedColumns: ["id"]
           }
@@ -417,6 +425,7 @@ export interface Database {
           {
             foreignKeyName: "sessions_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
@@ -448,6 +457,7 @@ export interface Database {
           {
             foreignKeyName: "sso_domains_sso_provider_id_fkey"
             columns: ["sso_provider_id"]
+            isOneToOne: false
             referencedRelation: "sso_providers"
             referencedColumns: ["id"]
           }
@@ -645,6 +655,7 @@ export interface Database {
           {
             foreignKeyName: "billing_customers_workspace_id_fkey"
             columns: ["workspace_id"]
+            isOneToOne: true
             referencedRelation: "workspaces"
             referencedColumns: ["id"]
           }
@@ -697,6 +708,7 @@ export interface Database {
           {
             foreignKeyName: "billing_prices_billing_product_id_fkey"
             columns: ["billing_product_id"]
+            isOneToOne: false
             referencedRelation: "billing_products"
             referencedColumns: ["id"]
           }
@@ -791,12 +803,14 @@ export interface Database {
           {
             foreignKeyName: "billing_subscriptions_price_id_fkey"
             columns: ["price_id"]
+            isOneToOne: false
             referencedRelation: "billing_prices"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "billing_subscriptions_workspace_id_fkey"
             columns: ["workspace_id"]
+            isOneToOne: false
             referencedRelation: "workspaces"
             referencedColumns: ["id"]
           }
@@ -810,6 +824,7 @@ export interface Database {
           enabled: boolean
           external_id: string
           id: string
+          name: string | null
           owner_id: string
           updated_at: string | null
         }
@@ -820,6 +835,7 @@ export interface Database {
           enabled?: boolean
           external_id: string
           id?: string
+          name?: string | null
           owner_id: string
           updated_at?: string | null
         }
@@ -830,6 +846,7 @@ export interface Database {
           enabled?: boolean
           external_id?: string
           id?: string
+          name?: string | null
           owner_id?: string
           updated_at?: string | null
         }
@@ -837,12 +854,14 @@ export interface Database {
           {
             foreignKeyName: "calendars_connection_id_fkey"
             columns: ["connection_id"]
+            isOneToOne: false
             referencedRelation: "connections"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "calendars_owner_id_fkey"
             columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
@@ -883,6 +902,7 @@ export interface Database {
           {
             foreignKeyName: "connections_owner_id_fkey"
             columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
@@ -929,6 +949,7 @@ export interface Database {
           {
             foreignKeyName: "digests_owner_id_fkey"
             columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
@@ -982,12 +1003,14 @@ export interface Database {
           {
             foreignKeyName: "invitations_invited_by_user_id_fkey"
             columns: ["invited_by_user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "invitations_workspace_id_fkey"
             columns: ["workspace_id"]
+            isOneToOne: false
             referencedRelation: "workspaces"
             referencedColumns: ["id"]
           }
@@ -1034,12 +1057,14 @@ export interface Database {
           {
             foreignKeyName: "messages_digest_id_fkey"
             columns: ["digest_id"]
+            isOneToOne: false
             referencedRelation: "digests"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "messages_owner_id_fkey"
             columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
@@ -1080,6 +1105,7 @@ export interface Database {
           {
             foreignKeyName: "profiles_id_fkey"
             columns: ["id"]
+            isOneToOne: true
             referencedRelation: "users"
             referencedColumns: ["id"]
           }
@@ -1132,12 +1158,14 @@ export interface Database {
           {
             foreignKeyName: "workspace_users_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workspace_users_workspace_id_fkey"
             columns: ["workspace_id"]
+            isOneToOne: false
             referencedRelation: "workspaces"
             referencedColumns: ["id"]
           }
@@ -1175,6 +1203,7 @@ export interface Database {
           {
             foreignKeyName: "workspaces_owner_id_fkey"
             columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           }
@@ -1226,6 +1255,8 @@ export interface Database {
         | "icloud"
         | "live"
         | "hotmail"
+        | "apple"
+        | "office365"
       subscription_status:
         | "trialing"
         | "active"
@@ -1242,4 +1273,84 @@ export interface Database {
     }
   }
 }
+
+export type Tables<
+  PublicTableNameOrOptions extends
+    | keyof (Database["public"]["Tables"] & Database["public"]["Views"])
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
+      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : PublicTableNameOrOptions extends keyof (Database["public"]["Tables"] &
+      Database["public"]["Views"])
+  ? (Database["public"]["Tables"] &
+      Database["public"]["Views"])[PublicTableNameOrOptions] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : never
+
+export type TablesInsert<
+  PublicTableNameOrOptions extends
+    | keyof Database["public"]["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
+  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : never
+
+export type TablesUpdate<
+  PublicTableNameOrOptions extends
+    | keyof Database["public"]["Tables"]
+    | { schema: keyof Database },
+  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    : never = never
+> = PublicTableNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
+  ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : never
+
+export type Enums<
+  PublicEnumNameOrOptions extends
+    | keyof Database["public"]["Enums"]
+    | { schema: keyof Database },
+  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
+    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    : never = never
+> = PublicEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
+  ? Database["public"]["Enums"][PublicEnumNameOrOptions]
+  : never
 

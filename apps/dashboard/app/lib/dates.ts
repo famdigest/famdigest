@@ -31,6 +31,13 @@ export function convertToUTC(timestring: string) {
   return utcTime.format("HH:mm:ss");
 }
 
+export function convertFromUTC(datetimestring: string, timezone: string) {
+  const now = dayjs.utc(datetimestring);
+  const timezonetime = now.tz(timezone);
+
+  return timezonetime;
+}
+
 export function convertToLocal(timestring: string) {
   const [hour, minute] = timestring.split(":");
   const now = dayjs.utc().hour(Number(hour)).minute(Number(minute)).second(0);

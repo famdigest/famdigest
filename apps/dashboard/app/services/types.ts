@@ -3,9 +3,22 @@ import { Credentials } from "google-auth-library";
 import { z } from "zod";
 
 export type Base = Omit<Table<"connections">, "data">;
-export type Calendar = Pick<Table<"calendars">, "external_id"> & {
+export type Calendar = Pick<
+  Table<"calendars">,
+  "enabled" | "external_id" | "name"
+> & {
   data: Record<string, any>;
 };
+
+export interface AppleConnection extends Base {
+  provider: "apple";
+  data: string;
+}
+
+export interface HotmailConnection extends Base {
+  provider: "hotmail";
+  data: string;
+}
 
 export interface GoogleConnection extends Base {
   provider: "google";
@@ -21,7 +34,11 @@ export interface Office365Connection extends Base {
   };
 }
 
-export type Connection = GoogleConnection | Office365Connection;
+export type Connection =
+  | AppleConnection
+  | GoogleConnection
+  | HotmailConnection
+  | Office365Connection;
 
 export type CalendarEvent = {
   id: string;
@@ -32,7 +49,7 @@ export type CalendarEvent = {
 };
 
 export interface ExternalCalendar {
-  listCalendars(event?: CalendarEvent): Promise<Calendar[]>;
+  listCalendars(): Promise<Calendar[]>;
   getCalendar(id: string | null): Promise<Calendar>;
   getTodayEvents(calendarId: string): Promise<CalendarEvent[]>;
 }

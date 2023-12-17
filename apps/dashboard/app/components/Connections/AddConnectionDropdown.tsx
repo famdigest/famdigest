@@ -8,12 +8,14 @@ import {
   DropdownMenuTrigger,
 } from "@repo/ui";
 import {
+  IconBrandApple,
   IconBrandAzure,
   IconBrandGoogle,
   IconCirclePlus,
 } from "@tabler/icons-react";
 import { trpc } from "~/lib/trpc";
 import GoogleIcon from "../GoogleIcon";
+import { Link } from "@remix-run/react";
 
 export function AddConnectionDropdown() {
   const addGoogle = trpc.google.authorize.useMutation({
@@ -39,6 +41,12 @@ export function AddConnectionDropdown() {
         >
           <GoogleIcon size={14} className="mr-2" />
           Continue with Google
+        </DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" asChild>
+          <Link to="/providers/apple/setup">
+            <IconBrandApple size={14} className="mr-2" />
+            Continue with iCloud
+          </Link>
         </DropdownMenuItem>
         {/* <DropdownMenuItem
           className="cursor-pointer"

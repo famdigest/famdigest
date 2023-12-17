@@ -12,6 +12,8 @@ export default {
     /dedent/,
     /objectorarray/,
     /fast-json-parse/,
+    /ical/,
+    /node-ical/,
   ],
   routes: async (defineRoutes) => {
     return flatRoutes("routes", defineRoutes, {

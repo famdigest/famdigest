@@ -90,6 +90,8 @@ export const provider_type = pgEnum("provider_type", [
   "yahoo",
   "outlook",
   "google",
+  "apple",
+  "office365",
 ]);
 export const message_role = pgEnum("message_role", ["user", "assistant"]);
 
@@ -665,7 +667,7 @@ export const connections = pgTable("connections", {
   email: text("email").notNull(),
   provider: provider_type("provider").notNull(),
   enabled: boolean("enabled").default(true).notNull(),
-  data: jsonb("data").$type<Record<string, any>>(),
+  data: jsonb("data").$type<Record<string, any> | string>(),
   created_at: timestamp("created_at", {
     withTimezone: true,
     mode: "string",
@@ -737,6 +739,7 @@ export const calendars = pgTable("calendars", {
   connection_id: uuid("connection_id")
     .notNull()
     .references(() => connections.id),
+  name: text("name").notNull(),
   external_id: text("external_id").notNull(),
   enabled: boolean("enabled").default(true).notNull(),
   data: jsonb("data").$type<Record<string, any>>(),

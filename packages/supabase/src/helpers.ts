@@ -17,8 +17,8 @@ export type Update<T extends keyof Database["public"]["Tables"]> =
 export type View<T extends keyof Database["public"]["Views"]> =
   Database["public"]["Views"][T]["Row"];
 
-export type Enums<T extends keyof Database["public"]["Enums"]> =
-  Database["public"]["Enums"][T];
+// export type Enums<T extends keyof Database["public"]["Enums"]> =
+//   Database["public"]["Enums"][T];
 
 export type Keyed<T> = {
   [key: string]: T;

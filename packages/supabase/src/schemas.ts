@@ -21,6 +21,7 @@ export const calendarsRowSchema = z.object({
   enabled: z.boolean(),
   external_id: z.string(),
   id: z.string(),
+  name: z.string().nullable(),
   owner_id: z.string(),
   updated_at: z.string().nullable(),
 });
@@ -32,6 +33,7 @@ export const calendarsInsertSchema = z.object({
   enabled: z.boolean().optional(),
   external_id: z.string(),
   id: z.string().optional(),
+  name: z.string().optional().nullable(),
   owner_id: z.string(),
   updated_at: z.string().optional().nullable(),
 });
@@ -43,6 +45,7 @@ export const calendarsUpdateSchema = z.object({
   enabled: z.boolean().optional(),
   external_id: z.string().optional(),
   id: z.string().optional(),
+  name: z.string().optional().nullable(),
   owner_id: z.string().optional(),
   updated_at: z.string().optional().nullable(),
 });
@@ -208,6 +211,8 @@ export const providerTypeSchema = z.union([
   z.literal("icloud"),
   z.literal("live"),
   z.literal("hotmail"),
+  z.literal("apple"),
+  z.literal("office365"),
 ]);
 
 export const subscriptionStatusSchema = z.union([

@@ -54,7 +54,7 @@ export async function handler({
 
   const existingConnection = await db.query.connections.findFirst({
     where: (connection, { and, eq }) =>
-      and(eq(connection.owner_id, user.id), eq(connection.email, "")),
+      and(eq(connection.owner_id, user.id), eq(connection.email, user.email!)),
   });
 
   let connectionId: string = "";
@@ -98,6 +98,7 @@ export async function handler({
           owner_id: user.id,
           enabled: cal.primary === true,
           external_id: cal.id!,
+          name: cal.summary ?? cal.id!,
           data: cal,
         });
       }

@@ -88,6 +88,7 @@ export class GoogleCalendarService implements ExternalCalendar {
     const calendars = items.map((item) => ({
       external_id: item.id!,
       enabled: item.primary === true,
+      name: item.summary ?? item.id ?? "Google",
       data: {
         ...item,
       },

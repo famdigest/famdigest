@@ -28,6 +28,7 @@ declare global {
       MSFT_CLIENT_ID: string;
       MSFT_CLIENT_SECRET: string;
       MSFT_GRAPH_API_ENDPOINT: string;
+      CALENDSO_ENCRYPTION_KEY: string;
     }
   }
 
