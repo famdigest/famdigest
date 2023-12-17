@@ -1,13 +1,37 @@
 import { useForm, zodResolver } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs, json } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import { trackPageView } from "@repo/tracking";
-import { Badge, Button, FormField, Input, toast } from "@repo/ui";
-import { IconLoader2 } from "@tabler/icons-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  Badge,
+  Button,
+  FormField,
+  Input,
+  toast,
+} from "@repo/ui";
+import {
+  IconCalendarPlus,
+  IconLoader2,
+  IconMessage2,
+  IconUserCheck,
+} from "@tabler/icons-react";
 import { z } from "zod";
 import { Explosion } from "~/components/Explosion";
 import { getSession } from "~/lib/session.server";
 import { trpc } from "~/lib/trpc";
+import iphoneMock from "~/assets/iphone-mock.png";
+import womanTexting from "~/assets/woman-texting.png";
+import girlTexting from "~/assets/girl-texting.png";
+import iosNotif from "~/assets/ios-notification.png";
+import calNotif from "~/assets/calendar-notification.png";
+import { Pricing, type ProductWithPricing } from "~/components/Pricing";
+import { db } from "~/lib/db.server";
+import { SocialProof } from "~/components/SocialProof";
 
 const notifySchema = z.object({
   email: z.string().email(),
@@ -23,10 +47,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
       user_id: session.get("userId"),
     },
   });
-  return null;
+
+  const products = await db.query.billing_products.findMany({
+    with: {
+      billing_prices: true,
+    },
+  });
+  return json({
+    products,
+  });
 }
 
 export default function Route() {
+  const { products } = useLoaderData<typeof loader>();
   const [show, { open, close }] = useDisclosure(false);
   const addToWaitlist = trpc.users.notify.useMutation({
     onSuccess() {
@@ -54,19 +87,21 @@ export default function Route() {
   return (
     <>
       {show && <Explosion onConfettiComplete={() => close()} />}
-      <section className="flex-1 flex items-center">
-        <div className="container">
-          <div className="space-y-6 md:space-y-8 max-w-screen-md">
-            <Badge className="text-sm py-1 pr-3">🚀 Launching Soon</Badge>
-            <h1 className="text-5xl md:text-8xl font-medium font-serif">
+      <section id="get-notified" className="min-h-[90svh] flex items-center">
+        <div className="container max-w-screen-xl grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-0 py-16 md:py-0">
+          <div className="flex flex-col justify-center items-start gap-y-6 md:gap-y-8">
+            <Badge className="text-sm py-1 pr-3 bg-slate-800">
+              🚀 Launching Soon
+            </Badge>
+            <h1 className="text-5xl md:text-7xl font-medium font-serif text-slate-800">
               Never use a shared calendar again.
             </h1>
-            <h2 className="text-2xl">
+            <h2 className="text-xl md:text-2xl text-slate-700">
               Send a short daily digest of your day to{" "}
               <span className="underline italic">anyone</span> via text message.
             </h2>
             <form
-              className="flex flex-col md:flex-row md:items-start gap-y-2 md:gap-y-0 md:gap-x-2 max-w-lg pt-6"
+              className="flex flex-col md:flex-row md:items-start gap-y-2 md:gap-y-0 md:gap-x-2 w-full max-w-lg pt-6"
               onSubmit={form.onSubmit(onSubmit)}
             >
               <FormField
@@ -102,7 +137,196 @@ export default function Route() {
               </Button>
             </form>
           </div>
+          <div className="flex items-center justify-center relative p-6 md:p-12">
+            <div className="rounded-xl overflow-hidden">
+              <img src={womanTexting} alt="girl texting" />
+            </div>
+            <img
+              src={iosNotif}
+              alt="notification ui element"
+              aria-hidden={true}
+              className="shadow-lg absolute top-[35%] -right-1/3 md:-right-[10%] transform"
+            />
+            <img
+              src={calNotif}
+              alt="notification ui element"
+              aria-hidden={true}
+              className="absolute top-[70%] -left-[5%] md:left-0 transform"
+            />
+            <img
+              src={calNotif}
+              alt="notification ui element"
+              aria-hidden={true}
+              className="absolute top-[90%] md:top-[87%] left-[25%] transform"
+            />
+          </div>
         </div>
+      </section>
+
+      <section className="pb-12 md:pb-24">
+        <div className="container mb-16 max-w-screen-md text-center">
+          <h2 className="mb-6 font-serif text-5xl font-medium md:text-6xl tracking-tight text-slate-800">
+            Calendar Communication Made Easy
+          </h2>
+          <p className="text-lg text-slate-700">
+            Share your schedule effortlessly with friends, family, and
+            colleagues.
+          </p>
+        </div>
+        <div className="container max-w-screen-md flex flex-col-reverse md:flex-row gap-8 items-center">
+          <div className="px-8">
+            <img src={iphoneMock} alt="iphone mock of a daily digest" />
+          </div>
+          <div className="flex-1 grid grid-cols-1 gap-8 md:gap-12">
+            {/* next */}
+            <div className="flex flex-col gap-y-4 items-center md:items-start">
+              <div className="h-16 w-16 rounded-full bg-background p-1.5">
+                <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
+                  <IconUserCheck />
+                </div>
+              </div>
+              <div className="flex flex-col gap-y-4 items-center text-center md:items-start md:text-left">
+                <h3 className="text-2xl font-medium font-serif">Easy Setup</h3>
+                <p className="text-foreground/75">
+                  Tired of trying to keep a shared calendar organized? ...That
+                  you'll end up never using? We're here to fix that. No more
+                  shared calendars. Text? Yes please!
+                </p>
+              </div>
+            </div>
+
+            {/* next */}
+            <div className="flex flex-col gap-y-4 items-center md:items-start">
+              <div className="h-16 w-16 rounded-full bg-background p-1.5">
+                <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
+                  <IconCalendarPlus />
+                </div>
+              </div>
+              <div className="flex flex-col gap-y-4 items-center text-center md:items-start md:text-left">
+                <h3 className="text-2xl font-medium font-serif">
+                  Unlimited Calendars
+                </h3>
+                <p className="text-foreground/75">
+                  Whether it's work, personal, or a side project, have all your
+                  calendars synced to generate your daily digest text. Easy!
+                </p>
+              </div>
+            </div>
+
+            {/*  */}
+            <div className="flex flex-col gap-y-4 items-center md:items-start">
+              <div className="h-16 w-16 rounded-full bg-background p-1.5">
+                <div className="h-full w-full rounded-full bg-muted flex items-center justify-center">
+                  <IconMessage2 />
+                </div>
+              </div>
+              <div className="flex flex-col gap-y-4 items-center text-center md:items-start md:text-left">
+                <h3 className="text-2xl font-medium font-serif">
+                  Daily Text Digests
+                </h3>
+                <p className="text-foreground/75">
+                  Keep your spouse, nanny, or anyone else in the loop without
+                  the need for them to check a shared calendar - simplicity at
+                  its best.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 md:px-0">
+        <SocialProof />
+      </section>
+
+      <section className="py-12 md:py-24">
+        <div className="container mb-16 max-w-screen-md text-center">
+          <h2 className="mb-6 font-serif text-5xl font-medium md:text-6xl tracking-tight text-slate-800">
+            Frequently asked questions
+          </h2>
+          <p className="text-lg text-slate-700">
+            Everything you need to know about the product and billing.
+          </p>
+        </div>
+        <div className="container max-w-screen-md">
+          <Accordion type="multiple">
+            <AccordionItem value="1">
+              <AccordionTrigger className="font-serif text-xl font-medium text-left">
+                Is there a free trial available?
+              </AccordionTrigger>
+              <AccordionContent className="text-lg">
+                Yes, you can try us for free for 7 days. No credit card
+                required.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="2">
+              <AccordionTrigger className="font-serif text-xl font-medium text-left">
+                Can I add our family Nanny to get my schedule?
+              </AccordionTrigger>
+              <AccordionContent className="text-lg">
+                Absolutely! You can add as many people as you want to your
+                schedule.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="3">
+              <AccordionTrigger className="font-serif text-xl font-medium text-left">
+                Do you offer any discounts?
+              </AccordionTrigger>
+              <AccordionContent className="text-lg">
+                Yes, we do offer discounts for annual subscriptions. Please see
+                pricing for more details.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="4">
+              <AccordionTrigger className="font-serif text-xl font-medium text-left">
+                Can I really add unlimited calendars?
+              </AccordionTrigger>
+              <AccordionContent className="text-lg">
+                Absolutely! You can add as many calendars as you like. The sky's
+                the limit!
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="5">
+              <AccordionTrigger className="font-serif text-xl font-medium text-left">
+                How secure is my data?
+              </AccordionTrigger>
+              <AccordionContent className="text-lg">
+                We take data security very seriously. All your data is encrypted
+                and stored securely. We never share your data with third
+                parties.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="6">
+              <AccordionTrigger className="font-serif text-xl font-medium text-left">
+                Can I cancel my subscription at any time?
+              </AccordionTrigger>
+              <AccordionContent className="text-lg">
+                Yes, you can cancel your subscription at any time from your
+                account settings. No hidden fees or penalties.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </section>
+
+      {/* <section className="">
+        <div className="container max-w-screen-xl bg-background text-foreground rounded-xl shadow-lg flex flex-col gap-y-4 md:gap-y-0 md:flex-row items-start md:items-center md:justify-between p-6 md:p-12">
+          <div className="max-w-screen-sm flex flex-col gap-y-1.5">
+            <h2 className="text-4xl font-semibold font-serif tracking-tight">
+              Start your 7-day free trial
+            </h2>
+            <p className="text-lg">
+              Get up and running in less than 5 minutes.
+            </p>
+          </div>
+          <Button asChild>
+            <Link to="https://app.famdigest.com">Get Started</Link>
+          </Button>
+        </div>
+      </section> */}
+
+      <section className="">
+        <Pricing products={products as ProductWithPricing[]} />
       </section>
     </>
   );

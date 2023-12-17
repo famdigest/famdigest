@@ -250,7 +250,7 @@ function Document({
         <Meta />
         <Links />
       </head>
-      <body className="selection:bg-pink-300/50">
+      <body className="selection:bg-pink-300/50 scroll-smooth">
         {/* <GoogleNoScript /> */}
         {children}
         <Toaster />

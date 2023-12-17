@@ -547,7 +547,7 @@ export const billing_products = pgTable("billing_products", {
   name: text("name"),
   description: text("description"),
   image: text("image"),
-  metadata: jsonb("metadata"),
+  metadata: jsonb("metadata").$type<Record<string, any>>(),
   provider: billing_providers("provider").default("stripe"),
 });
 
