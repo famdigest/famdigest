@@ -1,10 +1,7 @@
 import { Enums } from "@repo/supabase";
 import { cn } from "@repo/ui";
-import {
-  IconBrandApple,
-  IconBrandGoogle,
-  IconCalendar,
-} from "@tabler/icons-react";
+import { IconBrandApple, IconCalendar } from "@tabler/icons-react";
+import { GoogleCalendarIcon } from "../GoogleIcon";
 
 export function ConnectionProviderIcon({
   provider,
@@ -13,7 +10,7 @@ export function ConnectionProviderIcon({
 }) {
   const icon = () => {
     if (provider === "google") {
-      return <IconBrandGoogle className="w-6 h-6 md:w-8 md:h-8" />;
+      return <GoogleCalendarIcon className="w-6 h-6 md:w-8 md:h-8" />;
     }
     if (provider === "apple") {
       return <IconBrandApple className="w-6 h-6 md:w-8 md:h-8" />;

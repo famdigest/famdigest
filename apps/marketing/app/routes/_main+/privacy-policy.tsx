@@ -486,6 +486,15 @@ export default function Route() {
             perform these tasks on our behalf and are obligated not to disclose
             or use it for any other purpose.
           </p>
+          <h4>Google Calendar</h4>
+          <p>
+            FamDigest's use and transfer of information received from Google
+            APIs to any other app will adhere to{" "}
+            <a href="https://developers.google.com/terms/api-services-user-data-policy#additional_requirements_for_specific_api_scopes">
+              Google API Services User Data Policy
+            </a>
+            , including the Limited Use requirements.
+          </p>
           <h2>Analytics</h2>
           <p>
             We may use third-party Service Providers to monitor and analyze the

@@ -14,7 +14,7 @@ import {
   IconCirclePlus,
 } from "@tabler/icons-react";
 import { trpc } from "~/lib/trpc";
-import GoogleIcon from "../GoogleIcon";
+import GoogleIcon, { GoogleCalendarIcon } from "../GoogleIcon";
 import { Link } from "@remix-run/react";
 
 export function AddConnectionDropdown() {
@@ -39,13 +39,13 @@ export function AddConnectionDropdown() {
           className="cursor-pointer"
           onClick={() => addGoogle.mutate()}
         >
-          <GoogleIcon size={14} className="mr-2" />
-          Continue with Google
+          <GoogleCalendarIcon className="h-[14px] w-[14px] mr-2" />
+          Connect with Google
         </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" asChild>
           <Link to="/providers/apple/setup">
             <IconBrandApple size={14} className="mr-2" />
-            Continue with iCloud
+            Connect with iCloud
           </Link>
         </DropdownMenuItem>
         {/* <DropdownMenuItem
