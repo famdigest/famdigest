@@ -28,6 +28,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { getDaysLeft } from "~/lib/dates";
 import { getSession } from "~/lib/session.server";
 import { trackPageView } from "@repo/tracking";
+import { getPlanFeatures } from "~/constants";
 
 export const meta = () => {
   return [{ title: "Billing | FamDigest" }];
@@ -157,6 +158,9 @@ export default function Route() {
             (bp) => bp.interval === "year"
           )!;
           const isSelected = billing_status?.plan_name === product.name;
+          const features = getPlanFeatures(
+            product.metadata as Record<string, any>
+          );
           return (
             <Card className="flex flex-col" key={product.id}>
               <CardHeader className="flex-row gap-x-1.5">
@@ -173,22 +177,12 @@ export default function Route() {
                 </p>
                 <p>{product.description}</p>
                 <ul className="mt-6 space-y-2">
-                  <li className="flex items-center gap-x-2">
-                    <IconCircleCheckFilled />
-                    <p>Unlimited Calendars</p>
-                  </li>
-                  <li className="flex items-center gap-x-2">
-                    <IconCircleCheckFilled />
-                    <p>1 connected contact</p>
-                  </li>
-                  <li className="flex items-center gap-x-2">
-                    <IconCircleCheckFilled />
-                    <p>Daily texts</p>
-                  </li>
-                  <li className="flex items-center gap-x-2">
-                    <IconCircleCheckFilled />
-                    <p>Customizable delivery times</p>
-                  </li>
+                  {features.map((feature, idx) => (
+                    <li className="flex items-center gap-x-2" key={idx}>
+                      <IconCircleCheckFilled />
+                      <p>{feature}</p>
+                    </li>
+                  ))}
                 </ul>
               </CardContent>
               <CardFooter>
