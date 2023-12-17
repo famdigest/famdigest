@@ -15,7 +15,6 @@ import { trpc } from "~/lib/trpc";
 import { getSessionWorkspace } from "~/lib/workspace.server";
 import { getSession } from "~/lib/session.server";
 import { trackPageView } from "@repo/tracking";
-import { getCalendarProviderClass } from "~/services/calendar";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [{ title: `Calendar: ${data?.connection.email} - FamDigest` }];
@@ -53,14 +52,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
   });
 
-  const service = getCalendarProviderClass(connection);
-  const events = await service.getTodayEvents(calendars[0].external_id);
-
   return json(
     {
       connection,
       calendars,
-      events,
     },
     {
       headers: response.headers,
@@ -69,7 +64,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function Route() {
-  const { connection, calendars, events } = useLoaderData<typeof loader>();
+  const { connection, calendars } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
   const update = trpc.calendars.update.useMutation({
     onSuccess() {
@@ -112,8 +107,6 @@ export default function Route() {
           ))}
         </CardContent>
       </Card>
-
-      <pre>{JSON.stringify(events, null, 2)}</pre>
     </div>
   );
 }
