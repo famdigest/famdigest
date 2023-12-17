@@ -15,7 +15,9 @@ import {
   toast,
 } from "@repo/ui";
 import {
+  IconBulb,
   IconCalendarPlus,
+  IconDeviceMobile,
   IconLoader2,
   IconMessage2,
   IconUserCheck,
@@ -242,6 +244,63 @@ export default function Route() {
       <section className="py-12 md:py-24">
         <div className="container mb-16 max-w-screen-md text-center">
           <h2 className="mb-6 font-serif text-5xl font-medium md:text-6xl tracking-tight text-slate-800">
+            How it works
+          </h2>
+          <p className="text-lg text-slate-700">
+            Start now - it only takes less than 30 seconds to get up and
+            running!
+          </p>
+        </div>
+        <div className="container max-w-screen-xl grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex flex-col items-center text-center gap-y-6 p-6">
+            <IconBulb />
+            <h3 className="text-3xl font-serif">
+              Step 1<br />
+              Create an Account
+            </h3>
+            <p className="">
+              Sign up for a FamDigest account. This will give you the ability to
+              manage your calendars, digests and make changes as needed.
+            </p>
+          </div>
+          <div className="flex flex-col items-center text-center gap-y-6 p-6">
+            <IconCalendarPlus />
+            <h3 className="text-3xl font-serif">
+              Step 2<br />
+              Sync Calendars
+            </h3>
+            <p className="">
+              Feel free to connect as many calendars as you wish - whether it's
+              your work, personal, or even your side gig. You can add them all!
+            </p>
+          </div>
+          <div className="flex flex-col items-center text-center gap-y-6 p-6">
+            <IconDeviceMobile />
+            <h3 className="text-3xl font-serif">
+              Step 3<br />
+              Add Phone Number
+            </h3>
+            <p className="">
+              Provide the phone number and delivery time for who you'd like to
+              receive your daily digest. This could be your spouse, family
+              nanny, or any person you wish to share your schedule with.
+            </p>
+          </div>
+        </div>
+        <div className="container mt-8 text-center">
+          <Button asChild>
+            <Link to="#get-notified">Start your free trial</Link>
+          </Button>
+        </div>
+      </section>
+
+      <section className="">
+        <Pricing products={products as ProductWithPricing[]} />
+      </section>
+
+      <section className="py-12 md:py-24">
+        <div className="container mb-16 max-w-screen-md text-center">
+          <h2 className="mb-6 font-serif text-5xl font-medium md:text-6xl tracking-tight text-slate-800">
             Frequently asked questions
           </h2>
           <p className="text-lg text-slate-700">
@@ -255,7 +314,7 @@ export default function Route() {
                 Is there a free trial available?
               </AccordionTrigger>
               <AccordionContent className="text-lg">
-                Yes, you can try us for free for 7 days. No credit card
+                Yes, you can try us for free for 14 days. No credit card
                 required.
               </AccordionContent>
             </AccordionItem>
@@ -307,26 +366,6 @@ export default function Route() {
             </AccordionItem>
           </Accordion>
         </div>
-      </section>
-
-      {/* <section className="">
-        <div className="container max-w-screen-xl bg-background text-foreground rounded-xl shadow-lg flex flex-col gap-y-4 md:gap-y-0 md:flex-row items-start md:items-center md:justify-between p-6 md:p-12">
-          <div className="max-w-screen-sm flex flex-col gap-y-1.5">
-            <h2 className="text-4xl font-semibold font-serif tracking-tight">
-              Start your 7-day free trial
-            </h2>
-            <p className="text-lg">
-              Get up and running in less than 5 minutes.
-            </p>
-          </div>
-          <Button asChild>
-            <Link to="https://app.famdigest.com">Get Started</Link>
-          </Button>
-        </div>
-      </section> */}
-
-      <section className="">
-        <Pricing products={products as ProductWithPricing[]} />
       </section>
     </>
   );

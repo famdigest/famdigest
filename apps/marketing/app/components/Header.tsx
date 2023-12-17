@@ -10,7 +10,7 @@ export function Header() {
           to="/"
           className="text-2xl font-medium font-serif flex items-center gap-x-2 text-slate-800"
         >
-          <Logo className="h-16 w-16" />
+          <Logo className="h-12 w-12" />
           FamDigest
         </Link>
         {/* <nav>

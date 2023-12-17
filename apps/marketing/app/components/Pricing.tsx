@@ -36,7 +36,7 @@ export function Pricing({ products }: { products: ProductWithPricing[] }) {
   });
 
   return (
-    <div className="container max-w-screen-xl">
+    <div id="pricing" className="container max-w-screen-xl">
       <div className="animate-in duration-500 fade-in-0 slide-in-from-bottom-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="flex flex-col justify-end">
