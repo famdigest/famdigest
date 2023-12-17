@@ -6,8 +6,8 @@ import { Button } from "@repo/ui";
 
 export function Footer() {
   return (
-    <footer className="relative z-10 shrink-0 bg-slate-800 text-white mt-12 md:mt-24">
-      <div className="container max-w-screen-xl transform -translate-y-1/2">
+    <footer className="relative z-10 shrink-0 bg-slate-800 text-white mt-24">
+      <div className="container max-w-screen-xl transform -translate-y-1/2 -mb-24 md:mb-0">
         <div className="bg-background text-foreground rounded-xl shadow-lg flex flex-col gap-y-4 md:gap-y-0 md:flex-row items-start md:items-center md:justify-between p-6 md:p-12">
           <div className="max-w-screen-sm flex flex-col gap-y-1.5">
             <h2 className="text-4xl font-semibold font-serif tracking-tight">
@@ -22,7 +22,7 @@ export function Footer() {
           </Button>
         </div>
       </div>
-      <div className="container max-w-screen-xl flex flex-col md:flex-row md:items-center md:justify-between py-6 md:py-12">
+      <div className="container max-w-screen-xl flex flex-col md:flex-row md:items-center md:justify-between pb-6 md:pb-12">
         <div className="flex flex-col gap-y-6">
           <div className="flex items-center gap-x-2 font-serif">
             <Logo className="h-16 w-16" />
