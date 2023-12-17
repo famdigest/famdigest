@@ -13,6 +13,7 @@ import {
   IconCirclePlus,
 } from "@tabler/icons-react";
 import { trpc } from "~/lib/trpc";
+import GoogleIcon from "../GoogleIcon";
 
 export function AddConnectionDropdown() {
   const addGoogle = trpc.google.authorize.useMutation({
@@ -36,8 +37,8 @@ export function AddConnectionDropdown() {
           className="cursor-pointer"
           onClick={() => addGoogle.mutate()}
         >
-          <IconBrandGoogle size={14} className="mr-2" />
-          Google
+          <GoogleIcon size={14} className="mr-2" />
+          Continue with Google
         </DropdownMenuItem>
         {/* <DropdownMenuItem
           className="cursor-pointer"
