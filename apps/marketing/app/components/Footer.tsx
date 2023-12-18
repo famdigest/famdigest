@@ -35,7 +35,7 @@ export function Footer() {
             <Link to="/">Overview</Link>
             <Link to="#pricing">Pricing</Link>
             <Link
-              to={`mailto:contact@famdigest.com?subject=${encodeURIComponent(
+              to={`mailto:support@famdigest.com?subject=${encodeURIComponent(
                 "FamDigest Contact Form"
               )}`}
               target="_blank"

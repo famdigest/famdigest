@@ -5,7 +5,7 @@ import {
   getSession,
   requireAuthSession,
 } from "~/lib/session.server";
-import { handler } from "~/services/google/api";
+import { googleCalendarHandler as handler } from "@repo/plugins";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { user, response } = await requireAuthSession(request);

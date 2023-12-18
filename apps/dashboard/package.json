@@ -23,6 +23,7 @@
     "@remix-run/react": "^2.3.1",
     "@remix-run/serve": "^2.3.1",
     "@repo/database": "*",
+    "@repo/plugins": "*",
     "@repo/supabase": "*",
     "@repo/tracking": "*",
     "@repo/ui": "*",

@@ -22,10 +22,10 @@ export function Header() {
           FamDigest
         </Link>
         <nav className="hidden md:flex items-center gap-x-6 text-sm">
-          <Link to="/">Overview</Link>
+          <Link to="#overview">Overview</Link>
           <Link to="#pricing">Pricing</Link>
           <Link
-            to={`mailto:contact@famdigest.com?subject=${encodeURIComponent(
+            to={`mailto:support@famdigest.com?subject=${encodeURIComponent(
               "FamDigest Contact Form"
             )}`}
             target="_blank"
@@ -54,14 +54,14 @@ export function Header() {
               </Link>
               <nav className="flex flex-col gap-y-6 text-sm my-6">
                 <SheetClose asChild>
-                  <Link to="/">Overview</Link>
+                  <Link to="#overview">Overview</Link>
                 </SheetClose>
                 <SheetClose asChild>
                   <Link to="#pricing">Pricing</Link>
                 </SheetClose>
                 <SheetClose asChild>
                   <Link
-                    to={`mailto:contact@famdigest.com?subject=${encodeURIComponent(
+                    to={`mailto:support@famdigest.com?subject=${encodeURIComponent(
                       "FamDigest Contact Form"
                     )}`}
                     target="_blank"

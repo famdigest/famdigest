@@ -14,6 +14,7 @@ export default {
     /fast-json-parse/,
     /ical/,
     /node-ical/,
+    /\@repo\/plugins/,
   ],
   routes: async (defineRoutes) => {
     return flatRoutes("routes", defineRoutes, {

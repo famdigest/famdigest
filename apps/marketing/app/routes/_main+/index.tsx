@@ -90,7 +90,7 @@ export default function Route() {
   return (
     <>
       {show && <Explosion onConfettiComplete={() => close()} />}
-      <section id="get-notified" className="min-h-[90svh] flex items-center">
+      <section className="min-h-[90svh] flex items-center">
         <div className="container max-w-screen-xl grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-0 py-16 md:py-0">
           <div className="flex flex-col justify-center items-start gap-y-6 md:gap-y-8">
             <Badge className="text-sm py-1 pr-3 bg-slate-800">🚀 Beta</Badge>
@@ -167,7 +167,7 @@ export default function Route() {
         </div>
       </section>
 
-      <section className="pb-12 md:pb-24">
+      <section id="overview" className="pb-12 md:pb-24">
         <div className="container mb-16 max-w-screen-md text-center">
           <h2 className="mb-6 font-serif text-5xl font-medium md:text-6xl tracking-tight text-slate-800">
             Calendar Communication Made Easy

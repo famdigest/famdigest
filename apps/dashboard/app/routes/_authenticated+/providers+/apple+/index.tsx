@@ -6,7 +6,7 @@ import {
   getSession,
   requireAuthSession,
 } from "~/lib/session.server";
-import { handler } from "~/services/applecalendar/api";
+import { appleCalendarHandler as handler } from "@repo/plugins";
 
 const appleCredentialSchema = z.object({
   username: z.string(),

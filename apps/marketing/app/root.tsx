@@ -175,7 +175,7 @@ function Document({
     <html
       lang="en"
       suppressHydrationWarning={true}
-      className={cn("", theme === "dark" && "dark")}
+      className={cn("scroll-smooth", theme === "dark" && "dark")}
     >
       <head>
         <meta charSet="utf-8" />

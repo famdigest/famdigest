@@ -1,0 +1,38 @@
+{
+  "name": "@repo/cron-server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npx vite-node src/index.ts",
+    "dev": "PORT=3001 npx vite-node src/index.ts --watch",
+    "build": "rm -rf dist && mkdir dist && tsc"
+  },
+  "type": "module",
+  "dependencies": {
+    "@fastify/cors": "^8.4.2",
+    "@fastify/multipart": "^8.0.0",
+    "@repo/database": "workspace:*",
+    "@repo/plugins": "workspace:*",
+    "@repo/supabase": "workspace:*",
+    "dayjs": "^1.11.10",
+    "dedent": "^1.5.1",
+    "dotenv": "^16.3.1",
+    "fastify": "^4.25.1",
+    "humanloop": "^0.5.32",
+    "node-fetch": "^3.3.2",
+    "pump": "^3.0.0",
+    "split2": "^4.2.0",
+    "twilio": "^4.19.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^20.10.4",
+    "@types/pump": "^1.1.3",
+    "@types/split2": "^4.2.3",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10",
+    "vite-node": "^1.0.4",
+    "vite-plugin-environment": "^1.1.3"
+  }
+}

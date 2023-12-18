@@ -2,12 +2,11 @@ import { json } from "@remix-run/node";
 import { and, db, eq, schema } from "~/lib/db.server";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
-import { RemoteCalendarService } from "~/lib/calendars";
 import { humanloop } from "~/lib/humanloop.server";
 import dedent from "dedent";
 import { sendMessage } from "~/lib/twilio.server";
 import { sendNotification } from "~/lib/slack.server";
-import { getCalendarProviderClass } from "~/services/calendar";
+import { getCalendarProviderClass } from "@repo/plugins";
 
 dayjs.extend(utc);
 
@@ -47,14 +46,17 @@ export async function action() {
 
     allEvents.sort((a, b) => (dayjs(a.start).isAfter(dayjs(b.start)) ? 1 : -1));
 
-    totalEventsCaptured = totalEventsCaptured + allEvents.length;
-    // ai time
-    const response = await humanloop.chatDeployed({
-      project_id: process.env.HUMANLOOP_PROJECT_ID,
-      messages: [
-        {
-          role: "user",
-          content: dedent`Send my daily digest to ${digest.full_name}.
+    let outboundMessage = "";
+
+    if (allEvents.length === 0) {
+      outboundMessage = dedent`Hey there ${digest.full_name}!\n\nNo events for ${owner.full_name} today.`;
+    } else {
+      const response = await humanloop.chatDeployed({
+        project_id: process.env.HUMANLOOP_PROJECT_ID,
+        messages: [
+          {
+            role: "user",
+            content: dedent`Send my daily digest to ${digest.full_name}.
 
           ## SENDER
           ${owner.full_name}
@@ -62,19 +64,23 @@ export async function action() {
           ## EVENTS
           ${JSON.stringify(allEvents, null, 2)}
         `,
-        },
-      ],
-    });
+          },
+        ],
+      });
+      outboundMessage = response.data.data[0].output;
+    }
+
+    totalEventsCaptured = totalEventsCaptured + allEvents.length;
 
     // twilio
     const sentMessage = await sendMessage({
-      body: response.data.data[0].output,
+      body: outboundMessage,
       to: digest.phone,
     });
 
     await db.insert(schema.messages).values({
       role: "assistant",
-      message: response.data.data[0].output,
+      message: outboundMessage,
       external_id: sentMessage.sid,
       segments: Number(sentMessage.numSegments),
       digest_id: digest.id,
@@ -129,5 +135,6 @@ export async function action() {
 
   return json({
     ok: true,
+    roundedTime: roundedTime.format("HH:mm:ss"),
   });
 }
