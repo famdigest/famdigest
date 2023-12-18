@@ -38,6 +38,9 @@ export type MixpanelDefinedEvent = z.infer<typeof mixpanelPageViewSchema>;
 export type MixpanelPeopleEvent = z.infer<typeof mixpanelPeopleSchema>;
 
 export function trackPageView(args: MixpanelDefinedEvent) {
+  if (!args.properties.device_id) {
+    return null;
+  }
   return track({
     ...args,
     properties: {

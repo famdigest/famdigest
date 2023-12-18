@@ -11,14 +11,14 @@ export function Footer() {
         <div className="bg-background text-foreground rounded-xl shadow-lg flex flex-col gap-y-4 md:gap-y-0 md:flex-row items-start md:items-center md:justify-between p-6 md:p-12">
           <div className="max-w-screen-sm flex flex-col gap-y-1.5">
             <h2 className="text-4xl font-semibold font-serif tracking-tight">
-              Start your 7-day free trial
+              Start your 14-day free trial
             </h2>
             <p className="text-lg">
               Get up and running in less than 5 minutes.
             </p>
           </div>
-          <Button asChild>
-            <Link to="#get-notified">Get Started</Link>
+          <Button asChild shape="pill">
+            <Link to="https://app.famdigest.com/sign-up">Get Started</Link>
           </Button>
         </div>
       </div>
@@ -45,6 +45,11 @@ export function Footer() {
             <Link to="/privacy-policy">Privacy</Link>
             <Link to="/terms">Terms</Link>
           </nav>
+        </div>
+        <div>
+          <Button size="xl" variant="secondary" asChild shape="pill">
+            <Link to="http://app.famdigest.com/sign-in">Sign up for free</Link>
+          </Button>
         </div>
       </div>
       <div className="container max-w-screen-xl py-6 md:py-12 flex flex-col-reverse justify-center md:flex-row items-center md:justify-start gap-y-4 md:gap-y-0 border-t border-muted-foreground">

@@ -11,6 +11,8 @@ import {
   CardDescription,
   CardFooter,
   Button,
+  Badge,
+  cn,
 } from "@repo/ui";
 import { IconCircleCheckFilled } from "@tabler/icons-react";
 import { getPlanFeatures } from "~/constants";
@@ -67,8 +69,21 @@ export function Pricing({ products }: { products: ProductWithPricing[] }) {
             const features = getPlanFeatures(
               product.metadata as Record<string, any>
             );
+            const popular =
+              (product.metadata as Record<string, any>)?.slug === "you-yours";
             return (
-              <Card className="flex flex-col" key={product.id}>
+              <Card
+                className={cn(
+                  "flex flex-col relative",
+                  popular && "border-primary"
+                )}
+                key={product.id}
+              >
+                {popular && (
+                  <Badge className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    Most Popular
+                  </Badge>
+                )}
                 <CardHeader className="flex-row gap-x-1.5">
                   <CardTitle>
                     {!on
@@ -92,8 +107,10 @@ export function Pricing({ products }: { products: ProductWithPricing[] }) {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Button asChild>
-                    <Link to="#get-notified">Get Started</Link>
+                  <Button asChild shape="pill">
+                    <Link to="https://app.famdigest.com/sign-up">
+                      Get Started
+                    </Link>
                   </Button>
                 </CardFooter>
               </Card>

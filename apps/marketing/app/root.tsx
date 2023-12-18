@@ -31,6 +31,7 @@ import { SESSION_KEYS } from "./constants";
 import { useState } from "react";
 import { Button, cn, Toaster } from "@repo/ui";
 import { AppProviders } from "./components/AppProviders";
+import { trackPageView } from "@repo/tracking";
 
 export const links: LinksFunction = () => [
   { rel: "preload", href: serifFontStyleSheet, as: "style" },
@@ -97,15 +98,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
     cookie,
   } = await createUserSession(request, user?.id);
 
-  response.headers.append("set-cookie", cookie);
+  const { hostname, origin, pathname } = new URL(request.url);
+  trackPageView({
+    request,
+    properties: {
+      device_id: cookieSession.id,
+      title: pathname === "/" ? "home" : pathname.substring(1),
+      user_id: user?.id,
+    },
+  });
 
-  const { hostname, origin } = new URL(request.url);
+  response.headers.append("set-cookie", cookie);
 
   return json(
     {
       session,
       user,
-      visitorId,
+      visitorId: cookieSession.id,
       domain: hostname.split(".").slice(-2).join("."),
       theme: cookieSession.get(SESSION_KEYS.theme) ?? "light",
       url: origin,

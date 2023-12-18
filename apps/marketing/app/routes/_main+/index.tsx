@@ -15,6 +15,7 @@ import {
   toast,
 } from "@repo/ui";
 import {
+  IconArrowRight,
   IconBulb,
   IconCalendarPlus,
   IconDeviceMobile,
@@ -28,7 +29,6 @@ import { getSession } from "~/lib/session.server";
 import { trpc } from "~/lib/trpc";
 import iphoneMock from "~/assets/iphone-mock.png";
 import womanTexting from "~/assets/woman-texting.png";
-import girlTexting from "~/assets/girl-texting.png";
 import iosNotif from "~/assets/ios-notification.png";
 import calNotif from "~/assets/calendar-notification.png";
 import { Pricing, type ProductWithPricing } from "~/components/Pricing";
@@ -56,12 +56,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
   });
   return json({
+    id: session.id,
     products,
   });
 }
 
 export default function Route() {
-  const { products } = useLoaderData<typeof loader>();
+  const { id, products } = useLoaderData<typeof loader>();
   const [show, { open, close }] = useDisclosure(false);
   const addToWaitlist = trpc.users.notify.useMutation({
     onSuccess() {
@@ -92,9 +93,7 @@ export default function Route() {
       <section id="get-notified" className="min-h-[90svh] flex items-center">
         <div className="container max-w-screen-xl grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-0 py-16 md:py-0">
           <div className="flex flex-col justify-center items-start gap-y-6 md:gap-y-8">
-            <Badge className="text-sm py-1 pr-3 bg-slate-800">
-              🚀 Launching Soon
-            </Badge>
+            <Badge className="text-sm py-1 pr-3 bg-slate-800">🚀 Beta</Badge>
             <h1 className="text-5xl md:text-7xl font-medium font-serif text-slate-800">
               Never use a shared calendar again.
             </h1>
@@ -102,7 +101,10 @@ export default function Route() {
               Send a short daily digest of your day to{" "}
               <span className="underline italic">anyone</span> via text message.
             </h2>
-            <form
+            <Button className="mt-4" size="xl" shape="pill" asChild>
+              <Link to="https://app.famdigest.com/sign-up">Start Today</Link>
+            </Button>
+            {/* <form
               className="flex flex-col md:flex-row md:items-start gap-y-2 md:gap-y-0 md:gap-x-2 w-full max-w-lg pt-6"
               onSubmit={form.onSubmit(onSubmit)}
             >
@@ -137,7 +139,7 @@ export default function Route() {
                   </>
                 )}
               </Button>
-            </form>
+            </form> */}
           </div>
           <div className="flex items-center justify-center relative p-6 md:p-12">
             <div className="rounded-xl overflow-hidden">
@@ -288,8 +290,10 @@ export default function Route() {
           </div>
         </div>
         <div className="container mt-8 text-center">
-          <Button asChild>
-            <Link to="#get-notified">Start your free trial</Link>
+          <Button asChild shape="pill">
+            <Link to="https://app.famdigest.com/sign-up">
+              Start your free trial
+            </Link>
           </Button>
         </div>
       </section>

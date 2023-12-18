@@ -99,5 +99,6 @@ export const createUserSession = async (request: Request, userId?: string) => {
   const session = await getSession(request);
   const id = getDeviceId(session, userId);
   const cookie = await sessionStorage.commitSession(session);
-  return { cookie: cookie, deviceId: id, session: session };
+  const nextSession = await sessionStorage.getSession(cookie);
+  return { cookie: cookie, deviceId: id, session: nextSession };
 };
