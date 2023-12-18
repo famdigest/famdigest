@@ -77,7 +77,12 @@ export default function AuthSignUpRoute() {
   const signInWithGoogle = async () => {
     const options: any = {
       redirectTo: `${window.location.origin}/auth/callback`,
-      scopes: "https://www.googleapis.com/auth/contacts.readonly",
+      scopes: [
+        "https://www.googleapis.com/auth/calendar.readonly",
+        "email",
+        "profile",
+        "openid",
+      ].join(" "),
     };
     if (searchParams.has("redirectTo")) {
       options.queryParams = {
