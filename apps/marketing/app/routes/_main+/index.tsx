@@ -44,7 +44,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const products = await db.query.billing_products.findMany({
     with: {
-      billing_prices: true,
+      billing_prices: {
+        where: (bp, { eq }) => eq(bp.active, true),
+      },
     },
   });
   return json({
@@ -85,7 +87,14 @@ export default function Route() {
       <section className="min-h-[90svh] flex items-center">
         <div className="container max-w-screen-xl grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-0 py-16 md:py-0">
           <div className="flex flex-col justify-center items-start gap-y-6 md:gap-y-8">
-            <Badge className="text-sm py-1 pr-3 bg-slate-800">🚀 Beta</Badge>
+            <Badge className="text-sm py-1 px-1 pr-4 bg-slate-800">
+              <span className="bg-slate-600 rounded-full h-full aspect-square flex items-center justify-center mr-2 shrink-0 p-1">
+                🚀
+              </span>
+              <span className="whitespace-nowrap text-sm">
+                30% off yearly plans use code LAUNCH
+              </span>
+            </Badge>
             <h1 className="text-5xl md:text-7xl font-medium font-serif text-slate-800">
               Never use a shared calendar again.
             </h1>

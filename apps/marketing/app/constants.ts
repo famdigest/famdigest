@@ -25,8 +25,8 @@ export const PLAN_FEATURES = new Map<string, string[]>([
     "you-crew",
     [
       'Everything in "You & Yours" plan',
-      "3 Connected Contact",
-      "Customizeable Digest Template",
+      "3 Connected Contacts",
+      "Customizable Digest Template*",
     ],
   ],
 ]);

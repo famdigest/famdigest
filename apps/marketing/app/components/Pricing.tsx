@@ -21,7 +21,7 @@ export type ProductWithPricing = Table<"billing_products"> & {
   billing_prices: Table<"billing_prices">[];
 };
 export function Pricing({ products }: { products: ProductWithPricing[] }) {
-  const [on, { toggle }] = useDisclosure(false);
+  const [on, { toggle }] = useDisclosure(true);
 
   const productsSorted = [...products].sort((a, b) => {
     const aPrice = a.billing_prices.reduce(
@@ -42,6 +42,16 @@ export function Pricing({ products }: { products: ProductWithPricing[] }) {
       <div className="animate-in duration-500 fade-in-0 slide-in-from-bottom-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card className="flex flex-col justify-end">
+            <div className="p-6 pb-0">
+              <Badge className="text-sm py-1 px-1 pr-4 bg-slate-800">
+                <span className="bg-slate-600 rounded-full h-full aspect-square flex items-center justify-center mr-2 shrink-0 p-1">
+                  🚀
+                </span>
+                <span className="text-sm">
+                  30% off yearly plans use code LAUNCH
+                </span>
+              </Badge>
+            </div>
             <CardHeader className="flex-row items-center space-y-0 gap-x-2">
               <Switch checked={on} onCheckedChange={toggle} />
               <p className="text-xs">Save with yearly</p>
@@ -84,13 +94,25 @@ export function Pricing({ products }: { products: ProductWithPricing[] }) {
                     Most Popular
                   </Badge>
                 )}
-                <CardHeader className="flex-row gap-x-1.5">
-                  <CardTitle>
-                    {!on
-                      ? displayPrice(monthly?.unit_amount)
-                      : displayPrice(yearly?.unit_amount)}
-                  </CardTitle>
-                  <CardDescription>/ {on ? "year" : "month"}</CardDescription>
+                <CardHeader className="relative">
+                  <div className="flex flex-row items-baseline gap-x-1.5">
+                    <CardTitle className={cn(on && "line-through")}>
+                      {!on
+                        ? displayPrice(monthly?.unit_amount)
+                        : displayPrice(yearly?.unit_amount)}
+                    </CardTitle>
+                    {on && (
+                      <CardTitle>
+                        {displayPrice((yearly?.unit_amount ?? 0) * 0.7)}
+                      </CardTitle>
+                    )}
+                    <CardDescription>/ {on ? "year" : "month"}</CardDescription>
+                  </div>
+                  {on && (
+                    <p className="absolute bottom-0 left-6 text-sm italic">
+                      Get 2 Free Months
+                    </p>
+                  )}
                 </CardHeader>
                 <CardContent className="mt-16 flex-1">
                   <p className="font-serif text-2xl font-semibold mb-2">
