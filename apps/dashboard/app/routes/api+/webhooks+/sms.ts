@@ -24,6 +24,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const digest = await db.query.digests.findFirst({
     where: eq(schema.digests.phone, From),
+    with: {
+      profile: true,
+    },
   });
   if (!digest) {
     // nope
@@ -56,9 +59,20 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   const twiml = new MessagingResponse();
-  twiml.message(
-    `Thanks for reaching out ${digest.full_name}, but we are not accpeting inbound messages at the moment.`
-  );
+
+  if (
+    Body.toLowerCase().startsWith("yes") ||
+    Body.toLowerCase().includes("yes")
+  ) {
+    twiml.message(
+      `Great! You are now opted-in to receive ${digest.profile.full_name}'s daily digest.`
+    );
+  } else {
+    twiml.message(
+      `Thanks for reaching out ${digest.full_name}, but we are not accpeting inbound messages at the moment.`
+    );
+  }
+
   return new Response(twiml.toString(), {
     status: 200,
     headers: {
