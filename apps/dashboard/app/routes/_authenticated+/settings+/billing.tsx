@@ -6,6 +6,7 @@ import {
 } from "@tabler/icons-react";
 // import { PlanCard } from "~/components/PlanCard";
 import {
+  Badge,
   Button,
   Card,
   CardContent,
@@ -15,6 +16,7 @@ import {
   CardTitle,
   Separator,
   Switch,
+  cn,
   displayPrice,
   useToast,
 } from "@repo/ui";
@@ -37,7 +39,9 @@ export const meta = () => {
 export async function loader({ request }: LoaderFunctionArgs) {
   const products = await db.query.billing_products.findMany({
     with: {
-      billing_prices: true,
+      billing_prices: {
+        where: (bp, { eq }) => eq(bp.active, true),
+      },
     },
     where: eq(schema.billing_products.active, true),
   });
@@ -143,8 +147,20 @@ export default function Route() {
         </CardContent>
       </Card>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="md:col-span-2 flex justify-center">
+          <Badge className="text-sm py-1 px-1 pr-4 bg-slate-800">
+            <span className="bg-slate-600 rounded-full h-full aspect-square flex items-center justify-center mr-2 shrink-0 p-1">
+              🚀
+            </span>
+            <span className="whitespace-nowrap text-sm">
+              30% off yearly plans use code LAUNCH
+            </span>
+          </Badge>
+        </div>
         <div className="md:col-span-2 flex items-center">
-          <p className="font-serif">Plans &amp; Pricing</p>
+          <div>
+            <p className="font-serif">Plans &amp; Pricing</p>
+          </div>
           <div className="ml-auto shrink-0 flex items-center gap-x-3">
             <Switch checked={on} onCheckedChange={toggle} />
             <p className="text-xs">Save with yearly plans</p>
@@ -163,13 +179,25 @@ export default function Route() {
           );
           return (
             <Card className="flex flex-col" key={product.id}>
-              <CardHeader className="flex-row gap-x-1.5">
-                <CardTitle>
-                  {!on
-                    ? displayPrice(monthly?.unit_amount)
-                    : displayPrice(yearly?.unit_amount)}
-                </CardTitle>
-                <CardDescription>/ {on ? "year" : "month"}</CardDescription>
+              <CardHeader className="relative">
+                <div className="flex flex-row items-baseline gap-x-1.5">
+                  <CardTitle className={cn(on && "line-through")}>
+                    {!on
+                      ? displayPrice(monthly?.unit_amount)
+                      : displayPrice(yearly?.unit_amount)}
+                  </CardTitle>
+                  {on && (
+                    <CardTitle>
+                      {displayPrice((yearly?.unit_amount ?? 0) * 0.7)}
+                    </CardTitle>
+                  )}
+                  <CardDescription>/ {on ? "year" : "month"}</CardDescription>
+                </div>
+                {on && (
+                  <p className="absolute bottom-0 left-6 text-sm italic">
+                    Get 2 Free Months
+                  </p>
+                )}
               </CardHeader>
               <CardContent className="mt-16 flex-1">
                 <p className="font-serif text-2xl font-semibold mb-2">
