@@ -11,10 +11,11 @@ import { appleCalendarHandler as handler } from "@repo/plugins";
 const appleCredentialSchema = z.object({
   username: z.string(),
   password: z.string(),
+  redirect_uri: z.string().optional(),
 });
 export async function action({ request }: ActionFunctionArgs) {
   const { user, response } = await requireAuthSession(request);
-  const { username, password } = appleCredentialSchema.parse(
+  const { username, password, redirect_uri } = appleCredentialSchema.parse(
     Object.fromEntries(await request.formData())
   );
 
@@ -35,16 +36,15 @@ export async function action({ request }: ActionFunctionArgs) {
     },
   });
 
+  const finalRedirect =
+    redirect_uri ?? session.get("redirect_uri") ?? `/calendars/${connectionId}`;
+
   if (session.has("redirect_uri")) {
-    const redirect_uri = session.get("redirect_uri");
     session.unset("redirect_uri");
-    response.headers.set("set-cookie", await commitSession(session));
-    return redirect(redirect_uri, {
-      headers: response.headers,
-    });
   }
 
-  return redirect(`/calendars/${connectionId}`, {
+  response.headers.set("set-cookie", await commitSession(session));
+  return redirect(finalRedirect, {
     headers: response.headers,
   });
 }

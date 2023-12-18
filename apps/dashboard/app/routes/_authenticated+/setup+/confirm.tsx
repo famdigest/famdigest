@@ -36,6 +36,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       eq(schema.calendars.enabled, true)
     ),
     orderBy: asc(schema.calendars.created_at),
+    with: {
+      connection: true,
+    },
   });
 
   const digests = await db.query.digests.findMany({
@@ -150,9 +153,12 @@ export default function Route() {
                 <div className="space-y-4">
                   {calendars.map((calendar, idx) => (
                     <div key={idx} className="flex items-center">
-                      <div className="space-y-0.5">
-                        <p className="text-base font-medium">
-                          {calendar.external_id}
+                      <div className="space-y-0.5 min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {calendar.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground capitalize">
+                          {calendar.connection.provider}
                         </p>
                       </div>
                     </div>
@@ -172,10 +178,10 @@ export default function Route() {
                   {digests.map((digest, idx) => (
                     <div key={idx} className="flex items-center">
                       <div className="space-y-0.5">
-                        <p className="text-base font-medium">
+                        <p className="text-sm font-medium">
                           {digest.full_name}
                         </p>
-                        <div className="text-sm flex items-center gap-x-1.5">
+                        <div className="text-xs flex items-center gap-x-1.5">
                           {digest.phone} /{" "}
                           {convertToLocal(digest.notify_on).format("h:mm a")}
                         </div>

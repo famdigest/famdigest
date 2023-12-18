@@ -48,7 +48,7 @@ export function ConnectionCard({ connection, calendars }: ConnectionCardProps) {
                 });
               }}
             />
-            <p>{calendar.data?.summary}</p>
+            <p>{calendar.name}</p>
           </div>
         ))}
       </CardContent>

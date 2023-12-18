@@ -1,5 +1,5 @@
 import { useForm, zodResolver } from "@mantine/form";
-import { Link, useSubmit } from "@remix-run/react";
+import { Link, useSearchParams, useSubmit } from "@remix-run/react";
 import {
   Button,
   Card,
@@ -20,6 +20,7 @@ const appleCredentialSchema = z.object({
 
 export default function Route() {
   const submit = useSubmit();
+  const [searchParams] = useSearchParams();
   const form = useForm({
     validate: zodResolver(appleCredentialSchema),
     initialValues: {
@@ -32,6 +33,7 @@ export default function Route() {
     submit(
       {
         ...values,
+        redirect_uri: searchParams.get("redirect_uri"),
       },
       {
         action: "/providers/apple",

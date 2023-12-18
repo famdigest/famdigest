@@ -61,6 +61,7 @@ export default function Route() {
   });
   const create = trpc.digests.create.useMutation({ onSuccess });
   const update = trpc.digests.update.useMutation({ onSuccess });
+  const isLoading = create.isLoading || update.isLoading;
 
   const form = useForm({
     validate: zodResolver(
@@ -280,10 +281,12 @@ export default function Route() {
                 >
                   Back
                 </Button>
-                {/* <Button type="submit" variant="outline">
-                  Add Another
-                </Button> */}
-                <Button type="button" onClick={() => onDone()}>
+                <Button
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => onDone()}
+                >
+                  {isLoading && <IconLoader2 size={20} className="mr-2" />}
                   Done
                 </Button>
               </div>
@@ -291,29 +294,33 @@ export default function Route() {
           )}
         </div>
 
-        <Separator className="bg-foreground my-12" />
-        <div className="space-y-4">
-          {digests.map((digest, idx) => (
-            <div key={idx} className="flex items-center">
-              <div className="space-y-0.5">
-                <p className="text-base font-medium">{digest.full_name}</p>
-                <div className="text-sm flex items-center gap-x-1.5">
-                  {digest.phone} /{" "}
-                  {convertToLocal(digest.notify_on).format("h:mm a")}
+        {digests?.length > 0 && (
+          <>
+            <Separator className="bg-foreground my-12" />
+            <div className="space-y-4">
+              {digests.map((digest, idx) => (
+                <div key={idx} className="flex items-center">
+                  <div className="space-y-0.5">
+                    <p className="text-base font-medium">{digest.full_name}</p>
+                    <div className="text-sm flex items-center gap-x-1.5">
+                      {digest.phone} /{" "}
+                      {convertToLocal(digest.notify_on).format("h:mm a")}
+                    </div>
+                  </div>
+                  <Button
+                    className="ml-auto"
+                    size="sm"
+                    variant="outline"
+                    type="button"
+                    onClick={() => setFormFromDigest(digest)}
+                  >
+                    Edit
+                  </Button>
                 </div>
-              </div>
-              <Button
-                className="ml-auto"
-                size="sm"
-                variant="outline"
-                type="button"
-                onClick={() => setFormFromDigest(digest)}
-              >
-                Edit
-              </Button>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
       </div>
     </form>
   );

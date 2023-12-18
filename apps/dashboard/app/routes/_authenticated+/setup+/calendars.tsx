@@ -1,7 +1,11 @@
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 import { trpc } from "~/lib/trpc";
 import { Link, useLoaderData } from "@remix-run/react";
-import { IconBrandGoogle } from "@tabler/icons-react";
+import {
+  IconBrandApple,
+  IconBrandGoogle,
+  IconCalendarPlus,
+} from "@tabler/icons-react";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { db, schema, eq, asc } from "~/lib/db.server";
 import { getSession, requireAuthSession } from "~/lib/session.server";
@@ -72,23 +76,36 @@ export default function Route() {
               <IconBrandGoogle className="h-5 w-5 md:h-8 md:w-8" />
               Google
             </button>
+            <Link
+              to="/providers/apple/setup?redirect_uri=/setup/calendars"
+              className="bg-background rounded-lg border border-border flex flex-col items-center gap-y-3 justify-center aspect-video"
+            >
+              <IconBrandApple className="h-5 w-5 md:h-8 md:w-8" />
+              iCloud
+            </Link>
+            <div className="bg-background rounded-lg border border-border flex flex-col items-center gap-y-3 justify-center aspect-video">
+              <IconCalendarPlus className="h-5 w-5 md:h-8 md:w-8" />
+              More Coming Soon
+            </div>
           </div>
         </div>
 
-        <div>
-          <p className="text-xl md:text-2xl mb-6">Connected Calendars</p>
-          <div className="space-y-4">
-            {connections.map((connection) => {
-              return (
-                <ConnectionCard
-                  key={connection.id}
-                  connection={connection}
-                  calendars={connection.calendars}
-                />
-              );
-            })}
+        {connections.length > 0 && (
+          <div>
+            <p className="text-xl md:text-2xl mb-6">Connected Calendars</p>
+            <div className="space-y-4">
+              {connections.map((connection) => {
+                return (
+                  <ConnectionCard
+                    key={connection.id}
+                    connection={connection}
+                    calendars={connection.calendars}
+                  />
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         <div>
           <Button asChild>
