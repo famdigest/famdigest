@@ -1,4 +1,4 @@
-import { Connection } from "@repo/plugins/calendars/base";
+import type { Connection } from "..//base";
 
 export type Credentials = {
   refresh_token?: string | null;

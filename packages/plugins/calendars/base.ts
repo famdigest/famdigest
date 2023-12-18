@@ -79,6 +79,10 @@ export default abstract class BaseCalendarService implements ExternalCalendar {
     this.connection = connection;
   }
 
+  get _connection() {
+    return this.connection;
+  }
+
   async listCalendars(): Promise<Calendar[]> {
     try {
       const account = await this.getAccount();
@@ -113,7 +117,7 @@ export default abstract class BaseCalendarService implements ExternalCalendar {
     }
   }
 
-  getCalendar(id: string | null): Promise<Calendar> {
+  getCalendar(_id: string | null): Promise<Calendar> {
     return Promise.resolve({} as Calendar);
   }
 

@@ -17,7 +17,8 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
   },
-  "include": ["src", "declaration.d.ts"]
+  "include": ["src", "declaration.d.ts"],
+  "exclude": ["node_modules"]
 }

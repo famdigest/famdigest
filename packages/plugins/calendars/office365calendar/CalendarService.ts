@@ -81,15 +81,15 @@ export class Office365CalendarService implements ExternalCalendar {
     };
   }
 
-  listCalendars(event?: CalendarEvent): Promise<Calendar[]> {
+  listCalendars(_event?: CalendarEvent): Promise<Calendar[]> {
     return Promise.resolve([]);
   }
 
-  getCalendar(id: string | null): Promise<Calendar> {
+  getCalendar(_id: string | null): Promise<Calendar> {
     return Promise.resolve({} as Calendar);
   }
 
-  getTodayEvents(calendarId: string): Promise<CalendarEvent[]> {
+  getTodayEvents(_calendarId: string): Promise<CalendarEvent[]> {
     return Promise.resolve([]);
   }
 }

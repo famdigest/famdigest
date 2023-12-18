@@ -19,8 +19,8 @@ export class GoogleCalendarService implements ExternalCalendar {
 
     const getGoogleAuth = async () => {
       const myGoogleAuth = new MyGoogleAuth(
-        process.env.GOOGLE_CLIENT_ID,
-        process.env.GOOGLE_SECRET,
+        process.env.GOOGLE_CLIENT_ID!,
+        process.env.GOOGLE_SECRET!,
         `${getBaseUrl()}/providers/google`
       );
       myGoogleAuth.setCredentials(credentials);
@@ -92,7 +92,7 @@ export class GoogleCalendarService implements ExternalCalendar {
     return calendars;
   }
 
-  async getCalendar(id: string | null) {
+  async getCalendar(_id: string | null) {
     return {} as Calendar;
   }
 

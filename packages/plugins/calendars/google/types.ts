@@ -1,4 +1,4 @@
 import { Credentials } from "google-auth-library";
-import { Connection } from "../types";
+import type { Connection } from "../base";
 
 export type GoogleConnection = Connection<"google", Credentials>;
