@@ -82,7 +82,7 @@ export function track(args: MixpanelEvent) {
 
   const { event_name, device_id, user_id, user_agent, ...others } = properties;
 
-  const { searchParams } = new URL(request.url);
+  const { searchParams, pathname } = new URL(request.url);
   const referrer = request.headers.get("referer");
   const { browser, device, os } = UAParser(
     user_agent ?? request.headers.get("user-agent") ?? ""
@@ -97,12 +97,17 @@ export function track(args: MixpanelEvent) {
     $referrer: referrer ?? undefined,
     $referring_domain: referrer ? new URL(referrer).hostname : undefined,
     ip: getClientIPAddress(request.headers),
+    pathname,
     ...Object.fromEntries(searchParams),
     ...others,
   };
 
   if (user_id) {
     finalProperties.$user_id = user_id;
+  }
+
+  if (pathname.includes("healthz")) {
+    return null;
   }
 
   mixpanel.track(event_name!, finalProperties);
