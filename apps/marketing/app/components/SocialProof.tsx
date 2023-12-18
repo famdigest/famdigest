@@ -1,8 +1,6 @@
 import { Link } from "@remix-run/react";
 import { Avatar, AvatarImage, Button } from "@repo/ui";
 import { IconStarFilled } from "@tabler/icons-react";
-import sienna from "~/assets/sienna-avatar.png";
-import imageGrid from "~/assets/image-grid.png";
 
 export function SocialProof() {
   return (
@@ -19,7 +17,10 @@ export function SocialProof() {
         </h2>
         <div className="flex items-center gap-x-4">
           <Avatar>
-            <AvatarImage src={sienna} alt="avatar image" />
+            <AvatarImage
+              src="/assets/images/sienna-avatar.png"
+              alt="avatar image for sienna"
+            />
           </Avatar>
           <div className="space-y-0.5">
             <p className="font-medium">Sienna Hewitt</p>
@@ -30,7 +31,10 @@ export function SocialProof() {
         </div>
       </div>
       <div className="hidden md:block">
-        <img src={imageGrid} alt="" />
+        <img
+          src="/assets/images/image-grid.png"
+          alt="image grid of stock imagery"
+        />
       </div>
     </div>
   );

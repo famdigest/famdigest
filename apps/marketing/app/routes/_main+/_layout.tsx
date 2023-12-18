@@ -1,6 +1,5 @@
 import { Outlet } from "@remix-run/react";
 import { cn } from "@repo/ui";
-import noise from "~/assets/noise.svg";
 import { Footer } from "~/components/Footer";
 import { Header } from "~/components/Header";
 
@@ -13,7 +12,7 @@ export default function Layout() {
           "absolute inset-0 brightness-100 opacity-50 contrast-150 z-0 pointer-events-none"
         )}
         style={{
-          backgroundImage: `url(${noise})`,
+          backgroundImage: `url(/assets/images/noise.svg)`,
         }}
       />
       <Header />

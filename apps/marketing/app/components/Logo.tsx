@@ -1,6 +1,3 @@
-import { IconCalendarCheck } from "@tabler/icons-react";
-import logoSrc from "~/assets/logo.png";
-
 export function Logo(props: React.ComponentPropsWithoutRef<"img">) {
-  return <img src={logoSrc} alt="logo" {...props} />;
+  return <img src="/assets/images/logo.png" alt="logo" {...props} />;
 }

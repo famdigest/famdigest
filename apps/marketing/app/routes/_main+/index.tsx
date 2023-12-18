@@ -10,16 +10,12 @@ import {
   AccordionTrigger,
   Badge,
   Button,
-  FormField,
-  Input,
   toast,
 } from "@repo/ui";
 import {
-  IconArrowRight,
   IconBulb,
   IconCalendarPlus,
   IconDeviceMobile,
-  IconLoader2,
   IconMessage2,
   IconUserCheck,
 } from "@tabler/icons-react";
@@ -27,10 +23,6 @@ import { z } from "zod";
 import { Explosion } from "~/components/Explosion";
 import { getSession } from "~/lib/session.server";
 import { trpc } from "~/lib/trpc";
-import iphoneMock from "~/assets/iphone-mock.png";
-import womanTexting from "~/assets/woman-texting.png";
-import iosNotif from "~/assets/ios-notification.png";
-import calNotif from "~/assets/calendar-notification.png";
 import { Pricing, type ProductWithPricing } from "~/components/Pricing";
 import { db } from "~/lib/db.server";
 import { SocialProof } from "~/components/SocialProof";
@@ -143,22 +135,22 @@ export default function Route() {
           </div>
           <div className="flex items-center justify-center relative p-6 md:p-12">
             <div className="rounded-xl overflow-hidden">
-              <img src={womanTexting} alt="girl texting" />
+              <img src="/assets/images/woman-texting.png" alt="girl texting" />
             </div>
             <img
-              src={iosNotif}
+              src="/assets/images/ios-notification.png"
               alt="notification ui element"
               aria-hidden={true}
               className="shadow-lg absolute top-[35%] -right-1/3 md:-right-[10%] transform"
             />
             <img
-              src={calNotif}
+              src="/assets/images/calendar-notification.png"
               alt="notification ui element"
               aria-hidden={true}
               className="absolute top-[70%] -left-[5%] md:left-0 transform"
             />
             <img
-              src={calNotif}
+              src="/assets/images/calendar-notification.png"
               alt="notification ui element"
               aria-hidden={true}
               className="absolute top-[90%] md:top-[87%] left-[25%] transform"
@@ -179,7 +171,10 @@ export default function Route() {
         </div>
         <div className="container max-w-screen-md flex flex-col-reverse md:flex-row gap-8 items-center">
           <div className="px-8">
-            <img src={iphoneMock} alt="iphone mock of a daily digest" />
+            <img
+              src="/assets/images/iphone-mock.png"
+              alt="iphone mock of a daily digest"
+            />
           </div>
           <div className="flex-1 grid grid-cols-1 gap-8 md:gap-12">
             {/* next */}
