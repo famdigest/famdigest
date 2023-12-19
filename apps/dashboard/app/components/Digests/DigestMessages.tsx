@@ -9,6 +9,7 @@ import { IconCalendar, IconSend } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { z } from "zod";
+import { useHydrated } from "~/hooks/use-hydrated";
 import { trpc } from "~/lib/trpc";
 
 const messageFilters = z.object({
@@ -29,6 +30,7 @@ export function DigestMessages({ digest_id }: { digest_id: string }) {
     ...filters,
     date: filters.date ? dayjs(filters.date).format() : undefined,
   });
+  const hydrated = useHydrated();
 
   return (
     <div>
@@ -82,7 +84,9 @@ export function DigestMessages({ digest_id }: { digest_id: string }) {
             />
             <p className="text-xs mt-4">
               Sent on{" "}
-              {dayjs(message.created_at).format("MM/DD/YYYY [@] hh:mm a")}
+              {hydrated
+                ? dayjs(message.created_at).format("MM/DD/YYYY [@] hh:mm a")
+                : ""}
             </p>
           </div>
         ))}
