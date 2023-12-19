@@ -26,6 +26,9 @@ export const connectionsRouter = router({
         .where(eq(schema.connections.id, input.id));
       return connection;
     }),
+  remove: protectedProcedure.input(z.string()).mutation(async ({ input }) => {
+    await db.delete(schema.connections).where(eq(schema.connections.id, input));
+  }),
   google: protectedProcedure
     .input(z.string().optional())
     .mutation(async ({ ctx, input }) => {

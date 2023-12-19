@@ -1,5 +1,10 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
-import { Link, useLoaderData, useRevalidator } from "@remix-run/react";
+import {
+  Link,
+  useLoaderData,
+  useNavigate,
+  useRevalidator,
+} from "@remix-run/react";
 import { db, desc, eq, schema } from "~/lib/db.server";
 import {
   Card,
@@ -8,13 +13,16 @@ import {
   CardDescription,
   CardContent,
   Switch,
+  Separator,
+  Button,
 } from "@repo/ui";
-import { IconArrowLeft } from "@tabler/icons-react";
+import { IconArrowLeft, IconLoader2 } from "@tabler/icons-react";
 import { ConnectionProviderIcon } from "~/components/Connections/ConnectionProviderIcon";
 import { trpc } from "~/lib/trpc";
 import { getSessionWorkspace } from "~/lib/workspace.server";
 import { getSession } from "~/lib/session.server";
 import { trackPageView } from "@repo/tracking";
+import { ConfirmDeleteButton } from "~/components/ConfirmDeleteButton";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [{ title: `Calendar: ${data?.connection.email} - FamDigest` }];
@@ -66,9 +74,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function Route() {
   const { connection, calendars } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
+  const navigate = useNavigate();
   const update = trpc.calendars.update.useMutation({
     onSuccess() {
       revalidator.revalidate();
+    },
+  });
+
+  const remove = trpc.connections.remove.useMutation({
+    onSuccess() {
+      navigate("/calendars");
     },
   });
 
@@ -106,6 +121,33 @@ export default function Route() {
             </div>
           ))}
         </CardContent>
+      </Card>
+
+      <Separator className="my-6" />
+
+      <Card>
+        <CardHeader className="flex flex-row space-y-0 items-center justify-between">
+          <div className="space-y-1.5">
+            <CardTitle>Danger</CardTitle>
+            <CardDescription>
+              Deleting this integration will delete all connected calendars.
+            </CardDescription>
+          </div>
+          <div>
+            <ConfirmDeleteButton
+              onConfirm={() => {
+                remove.mutate(connection.id);
+              }}
+            >
+              <Button variant="destructive">
+                {remove.isLoading && (
+                  <IconLoader2 size={20} className="animate-spin mr-2" />
+                )}
+                Delete
+              </Button>
+            </ConfirmDeleteButton>
+          </div>
+        </CardHeader>
       </Card>
     </div>
   );

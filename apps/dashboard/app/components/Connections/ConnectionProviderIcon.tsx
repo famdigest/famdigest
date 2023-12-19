@@ -2,6 +2,7 @@ import { Enums } from "@repo/supabase";
 import { cn } from "@repo/ui";
 import { IconBrandApple, IconCalendar } from "@tabler/icons-react";
 import { GoogleCalendarIcon } from "../GoogleIcon";
+import outlookIcon from "~/assets/outlook-icon.svg";
 
 export function ConnectionProviderIcon({
   provider,
@@ -12,8 +13,13 @@ export function ConnectionProviderIcon({
     if (provider === "google") {
       return <GoogleCalendarIcon className="w-6 h-6 md:w-8 md:h-8" />;
     }
+
     if (provider === "apple") {
       return <IconBrandApple className="w-6 h-6 md:w-8 md:h-8" />;
+    }
+
+    if (provider === "office365") {
+      return <img src={outlookIcon} className="w-6 h-6 md:w-8 md:h-8" />;
     }
 
     return <IconCalendar className="w-6 h-6 md:w-8 md:h-8" />;
