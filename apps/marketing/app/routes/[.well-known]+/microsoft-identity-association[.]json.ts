@@ -4,7 +4,7 @@ export function loader() {
   return json({
     associatedApplications: [
       {
-        applicationId: "f1c3e67e-e1d4-4577-9557-78a84e882a3b",
+        applicationId: "7a028b07-61c1-4ea5-88c6-8db5578308ac",
       },
     ],
   });

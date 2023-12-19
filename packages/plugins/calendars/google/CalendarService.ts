@@ -39,7 +39,7 @@ export class GoogleCalendarService implements ExternalCalendar {
           .set({
             data: fetchTokens.tokens,
           })
-          .where(eq(schema.connections, this.connection.id));
+          .where(eq(schema.connections.id, this.connection.id));
 
         myGoogleAuth.setCredentials(fetchTokens.tokens);
       } catch (error) {
@@ -49,7 +49,7 @@ export class GoogleCalendarService implements ExternalCalendar {
           .set({
             data: { invalid: true },
           })
-          .where(eq(schema.connections, this.connection.id));
+          .where(eq(schema.connections.id, this.connection.id));
       }
       return myGoogleAuth;
     };

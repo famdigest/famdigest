@@ -13,6 +13,7 @@ export {
 } from "./google";
 export {
   handler as o365CalendarHandler,
+  generateAuthUrl as o365AuthUrl,
   Office365CalendarService,
   type Office365Connection,
 } from "./office365calendar";

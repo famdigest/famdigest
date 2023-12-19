@@ -444,6 +444,9 @@ importers:
       mixpanel:
         specifier: ^0.18.0
         version: 0.18.0
+      querystring:
+        specifier: ^0.2.1
+        version: 0.2.1
       tsdav:
         specifier: ^2.0.7
         version: 2.0.7
@@ -457,6 +460,9 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
+      '@microsoft/microsoft-graph-types-beta':
+        specifier: 0.42.0-preview
+        version: 0.42.0-preview
       '@repo/typescript-config':
         specifier: '*'
         version: link:../typescript-config
@@ -2323,6 +2329,10 @@ packages:
       vfile: 5.3.7
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /@microsoft/microsoft-graph-types-beta@0.42.0-preview:
+    resolution: {integrity: sha512-XR0wWdXy4KRxWiN9mFtpI4B18JR6jyi2BpSY3gEv0L+c34LkKikd/BKSQ2s4T5Wcv2DPmsyphHHXP1QacDL1WQ==}
     dev: true
 
   /@mona-health/react-input-mask@3.0.1(react-dom@18.2.0)(react@18.2.0):
@@ -9886,6 +9896,12 @@ packages:
     engines: {node: '>=0.6'}
     dependencies:
       side-channel: 1.0.4
+    dev: false
+
+  /querystring@0.2.1:
+    resolution: {integrity: sha512-wkvS7mL/JMugcup3/rMitHmd9ecIGd2lhFhK9N3UUQ450h66d1r3Y9nvXzQAW1Lq+wyx61k/1pfKS5KuKiyEbg==}
+    engines: {node: '>=0.4.x'}
+    deprecated: The querystring API is considered Legacy. new code should use the URLSearchParams API instead.
     dev: false
 
   /querystringify@2.2.0:

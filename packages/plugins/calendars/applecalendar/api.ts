@@ -55,7 +55,7 @@ export async function handler({
 
   try {
     const dav = new AppleCalendarService(connection as AppleConnection);
-    const calendars = await dav?.listCalendars();
+    const calendars = await dav.listCalendars();
 
     const promises = (calendars ?? []).map((cal) => {
       return new Promise(async (resolve) => {

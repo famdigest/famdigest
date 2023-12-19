@@ -24,6 +24,12 @@ export function AddConnectionDropdown() {
     },
   });
 
+  const addMsft = trpc.connections.office365.useMutation({
+    onSuccess(data, variables, context) {
+      window.location.href = data.authorizeUrl;
+    },
+  });
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -53,7 +59,7 @@ export function AddConnectionDropdown() {
           onClick={() => addMsft.mutate()}
         >
           <IconBrandAzure size={14} className="mr-2" />
-          Outlook
+          Office 365
         </DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>

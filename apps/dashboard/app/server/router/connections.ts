@@ -2,6 +2,8 @@ import { Table, connectionsUpdateSchema } from "@repo/supabase";
 import { protectedProcedure, router } from "../trpc.server";
 import { db, desc, eq, schema } from "~/lib/db.server";
 import { z } from "zod";
+import { generateAuthUrl, o365AuthUrl } from "@repo/plugins";
+import { commitSession } from "~/lib/session.server";
 
 export const connectionsRouter = router({
   all: protectedProcedure.query(async ({ ctx }) => {
@@ -23,5 +25,31 @@ export const connectionsRouter = router({
         })
         .where(eq(schema.connections.id, input.id));
       return connection;
+    }),
+  google: protectedProcedure
+    .input(z.string().optional())
+    .mutation(async ({ ctx, input }) => {
+      // const { pathname } = new URL(ctx.req.url);
+      const authorizeUrl = generateAuthUrl();
+      if (input) {
+        ctx.session.set("redirect_uri", input);
+        ctx.res.headers.set("set-cookie", await commitSession(ctx.session));
+      }
+      return {
+        authorizeUrl,
+      };
+    }),
+  office365: protectedProcedure
+    .input(z.string().optional())
+    .mutation(async ({ ctx, input }) => {
+      // const { pathname } = new URL(ctx.req.url);
+      const authorizeUrl = o365AuthUrl(ctx.req);
+      if (input) {
+        ctx.session.set("redirect_uri", input);
+        ctx.res.headers.set("set-cookie", await commitSession(ctx.session));
+      }
+      return {
+        authorizeUrl,
+      };
     }),
 });
