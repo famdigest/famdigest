@@ -5,6 +5,7 @@ import { Table } from "@repo/supabase";
 import { ConnectionsView } from "~/components/Connections/ConnectionsView";
 import { getSession, requireAuthSession } from "~/lib/session.server";
 import { people, trackPageView } from "@repo/tracking";
+import { ConnectionError } from "~/components/Connections/ConnectionError";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Calendars - FamDigest" }];
@@ -12,6 +13,7 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { user, response } = await requireAuthSession(request);
+  const { searchParams } = new URL(request.url);
 
   const connections = await db.query.connections.findMany({
     with: {
@@ -46,6 +48,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json(
     {
       user,
+      error: searchParams.get("error"),
       connections: connections as Table<"connections">[],
     },
     {
@@ -55,10 +58,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Route() {
-  const { connections } = useLoaderData<typeof loader>();
+  const { connections, error } = useLoaderData<typeof loader>();
 
   return (
     <div className="p-6 md:p-12 space-y-12 container max-w-screen-lg">
+      {error && <ConnectionError error={error} />}
       <ConnectionsView initialData={connections} />
     </div>
   );

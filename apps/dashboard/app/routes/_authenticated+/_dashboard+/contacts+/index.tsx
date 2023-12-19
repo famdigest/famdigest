@@ -6,7 +6,7 @@ import { getSession, requireAuthSession } from "~/lib/session.server";
 import { people, trackPageView } from "@repo/tracking";
 
 export const meta: MetaFunction = () => {
-  return [{ title: "Digests - FamDigest" }];
+  return [{ title: "Contacts - FamDigest" }];
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -23,7 +23,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     request,
     properties: {
       device_id: session.id,
-      title: "digests",
+      title: "contacts",
       user_id: session.get("userId"),
     },
   });

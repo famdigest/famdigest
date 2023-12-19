@@ -316,6 +316,7 @@ export const messagesRowSchema = z.object({
   owner_id: z.string(),
   role: messageRoleSchema,
   segments: z.number(),
+  tags: jsonSchema.nullable(),
   updated_at: z.string().nullable(),
 });
 
@@ -329,6 +330,7 @@ export const messagesInsertSchema = z.object({
   owner_id: z.string(),
   role: messageRoleSchema,
   segments: z.number(),
+  tags: jsonSchema.optional().nullable(),
   updated_at: z.string().optional().nullable(),
 });
 
@@ -342,6 +344,7 @@ export const messagesUpdateSchema = z.object({
   owner_id: z.string().optional(),
   role: messageRoleSchema.optional(),
   segments: z.number().optional(),
+  tags: jsonSchema.optional().nullable(),
   updated_at: z.string().optional().nullable(),
 });
 

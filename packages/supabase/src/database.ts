@@ -1027,6 +1027,7 @@ export interface Database {
           owner_id: string
           role: Database["public"]["Enums"]["message_role"]
           segments: number
+          tags: Json | null
           updated_at: string | null
         }
         Insert: {
@@ -1039,6 +1040,7 @@ export interface Database {
           owner_id: string
           role: Database["public"]["Enums"]["message_role"]
           segments: number
+          tags?: Json | null
           updated_at?: string | null
         }
         Update: {
@@ -1051,6 +1053,7 @@ export interface Database {
           owner_id?: string
           role?: Database["public"]["Enums"]["message_role"]
           segments?: number
+          tags?: Json | null
           updated_at?: string | null
         }
         Relationships: [

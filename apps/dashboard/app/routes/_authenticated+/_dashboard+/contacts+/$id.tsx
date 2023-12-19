@@ -11,19 +11,18 @@ import {
   Button,
 } from "@repo/ui";
 import { IconArrowLeft } from "@tabler/icons-react";
-import { ConnectionProviderIcon } from "~/components/Connections/ConnectionProviderIcon";
-import { RemoteCalendarService } from "~/lib/calendars";
 import { trpc } from "~/lib/trpc";
 import { getSessionWorkspace } from "~/lib/workspace.server";
 import { convertToLocal } from "~/lib/dates";
 import { DigestFormModal } from "~/components/Digests/DigestFormModal";
 import { useDisclosure } from "@mantine/hooks";
-import { DisgestMessages } from "~/components/Digests/DigestMessages";
+import { DigestMessages } from "~/components/Digests/DigestMessages";
 import { getSession } from "~/lib/session.server";
 import { trackPageView } from "@repo/tracking";
+import { DigestMissingOptIn } from "~/components/Digests/DigestMissingOptIn";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: `Digests: ${data?.digest.full_name} - FamDigest` }];
+  return [{ title: `Contacts: ${data?.digest.full_name} - FamDigest` }];
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -38,7 +37,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!digest) {
     throw new Response("", {
       status: 404,
-      statusText: "Digest not found",
+      statusText: "Contact not found",
     });
   }
 
@@ -47,7 +46,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     request,
     properties: {
       device_id: session.id,
-      title: "digests:id",
+      title: "contacts:id",
       user_id: session.get("userId"),
     },
   });
@@ -74,10 +73,11 @@ export default function Route() {
 
   return (
     <div className="container max-w-screen-md p-6 md:p-12">
+      {!digest.opt_in && <DigestMissingOptIn digest={digest} />}
       <div className="flex items-center p-4">
-        <Link to="/digests" className="flex items-center gap-x-2 text-sm">
+        <Link to="/contacts" className="flex items-center gap-x-2 text-sm">
           <IconArrowLeft size={14} />
-          <span className="">Back to Digests</span>
+          <span className="">Back to Contacts</span>
         </Link>
       </div>
       <Card>
@@ -87,7 +87,8 @@ export default function Route() {
               {digest.full_name}
             </CardTitle>
             <CardDescription>
-              Every Day @ {convertToLocal(digest.notify_on).format("hh:mm A")}
+              {digest.phone} | Every Day @{" "}
+              {convertToLocal(digest.notify_on).format("hh:mm A")}
             </CardDescription>
           </CardHeader>
           <div className="ml-auto">
@@ -97,7 +98,7 @@ export default function Route() {
           </div>
         </div>
         <CardContent className="p-6 border-t space-y-4">
-          <DisgestMessages digest_id={digest.id} />
+          <DigestMessages digest_id={digest.id} />
         </CardContent>
       </Card>
     </div>

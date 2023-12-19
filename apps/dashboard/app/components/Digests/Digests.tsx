@@ -17,7 +17,7 @@ export function DigestsView({ initialData }: DigestsViewProps) {
     <div className="space-y-6">
       <header className="flex flex-col md:flex-row md:items-center">
         <div className="space-y-0.5">
-          <h2 className="text-2xl font-semibold font-serif">Digests</h2>
+          <h2 className="text-2xl font-semibold font-serif">Contacts</h2>
           <p className="text-muted-foreground">
             Manage who gets your daily digest notifications.
           </p>
@@ -26,7 +26,7 @@ export function DigestsView({ initialData }: DigestsViewProps) {
           <DigestFormModal>
             <Button variant="outline">
               <IconCirclePlus className="mr-2" size={20} />
-              Add Digest
+              Add Contact
             </Button>
           </DigestFormModal>
         </div>

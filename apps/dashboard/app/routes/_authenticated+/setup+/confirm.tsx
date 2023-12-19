@@ -173,7 +173,7 @@ export default function Route() {
             <Card>
               <CardHeader>
                 <CardTitle className="font-serif font-semibold">
-                  Digests
+                  Contacts
                 </CardTitle>
               </CardHeader>
               <Separator />

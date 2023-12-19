@@ -109,7 +109,7 @@ export default function Route() {
 
         <div>
           <Button asChild>
-            <Link to="/setup/digests">Next</Link>
+            <Link to="/setup/contacts">Next</Link>
           </Button>
         </div>
       </div>

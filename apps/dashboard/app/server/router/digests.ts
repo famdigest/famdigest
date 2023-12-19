@@ -9,6 +9,7 @@ import { z } from "zod";
 import { sendMessage } from "~/lib/twilio.server";
 import dedent from "dedent";
 import { track } from "@repo/tracking";
+import dayjs from "dayjs";
 
 export const digestsRouter = router({
   all: protectedProcedure.query(async ({ ctx }) => {
@@ -56,6 +57,7 @@ export const digestsRouter = router({
         digest_id: digest.id,
         segments: Number(response.numSegments),
         data: response,
+        tags: ["opt-in"],
         owner_id: ctx.user.id,
       });
 
@@ -63,6 +65,63 @@ export const digestsRouter = router({
         request: ctx.req,
         properties: {
           event_name: "Digest Created",
+          device_id: ctx.session.id,
+          user_id: ctx.user.id,
+        },
+      });
+
+      return digest;
+    }),
+  resend: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const digest = await db.query.digests.findFirst({
+        where: (digest, { eq }) => eq(digest.id, input),
+      });
+
+      if (!digest) {
+        throw new Error("No digest found");
+      }
+
+      const message = await db.query.messages.findFirst({
+        where: (msg, { eq }) => eq(msg.digest_id, digest.id),
+        orderBy: (msg, { desc }) => desc(msg.created_at),
+      });
+
+      if (message) {
+        const lastSentOn = dayjs(message?.created_at);
+        const now = dayjs();
+
+        console.log(Math.abs(lastSentOn.diff(now, "days")));
+        if (Math.abs(lastSentOn.diff(now, "days")) < 1) {
+          throw new Error(
+            "Can only resend opt-in messages once every 24 hours"
+          );
+        }
+      }
+
+      const body = dedent`Welcome to FamDigest!\n\n${ctx.user.full_name} has invited you to receive their daily digests.\n\nReply YES to opt-in and save the number in your contact!`;
+
+      const response = await sendMessage({
+        to: digest.phone,
+        body,
+      });
+
+      await db.insert(schema.messages).values({
+        message: body,
+        role: "assistant",
+        external_id: response.sid,
+        digest_id: digest.id,
+        segments: Number(response.numSegments),
+        data: response,
+        tags: ["opt-in", "retry"],
+        owner_id: ctx.user.id,
+      });
+
+      track({
+        request: ctx.req,
+        properties: {
+          event_name: "Digest Resend OptIn",
           device_id: ctx.session.id,
           user_id: ctx.user.id,
         },

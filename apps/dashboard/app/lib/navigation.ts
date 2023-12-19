@@ -15,7 +15,7 @@ import {
 export const navigation = [
   { slug: "/", name: "Dashboard", icon: IconLayoutDashboard },
   { slug: "/calendars", name: "Calendars", icon: IconCalendar },
-  { slug: "/digests", name: "Digests", icon: IconMessage },
+  { slug: "/contacts", name: "Contacts", icon: IconMessage },
   { slug: "/settings", name: "Settings", icon: IconSettings },
 ];
 

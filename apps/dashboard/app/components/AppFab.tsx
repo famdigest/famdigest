@@ -33,7 +33,7 @@ export function AppFab() {
         </Link>
 
         <Link
-          to="/digests"
+          to="/contacts"
           className="flex items-center gap-x-4 bg-slate-900 p-2 rounded-[8px]"
         >
           <div className="bg-blue-600 text-white h-8 aspect-square flex items-center justify-center rounded-full">

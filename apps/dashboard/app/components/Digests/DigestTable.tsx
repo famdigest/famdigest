@@ -100,8 +100,10 @@ function DigestTableRow({ digest }: { digest: DbTable<"digests"> }) {
     <>
       <TableRow>
         <TableCell>
-          <p className="font-medium">{digest.full_name}</p>
-          <p className="text-sm">{digest.phone}</p>
+          <Link to={`/contacts/${digest.id}`}>
+            <p className="font-medium">{digest.full_name}</p>
+            <p className="text-sm">{digest.phone}</p>
+          </Link>
         </TableCell>
         <TableCell>
           {convertToLocal(digest.notify_on).format("hh:mm A")}
@@ -122,7 +124,7 @@ function DigestTableRow({ digest }: { digest: DbTable<"digests"> }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem className="cursor-pointer" asChild>
-                <Link to={`/digests/${digest.id}`}>View</Link>
+                <Link to={`/contacts/${digest.id}`}>View</Link>
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"
@@ -200,7 +202,7 @@ function DigestListingRow({ digest }: { digest: DbTable<"digests"> }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem className="cursor-pointer" asChild>
-              <Link to={`/digests/${digest.id}`}>View</Link>
+              <Link to={`/contacts/${digest.id}`}>View</Link>
             </DropdownMenuItem>
             <DropdownMenuItem
               className="cursor-pointer"

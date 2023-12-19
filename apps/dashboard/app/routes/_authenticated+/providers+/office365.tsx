@@ -12,10 +12,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   if (!code) {
-    throw new Response("", {
-      status: 500,
-      statusText: "No code found in callback",
-    });
+    const error = searchParams.get("error");
+    throw redirect(`/calendars?error=office365|${error ?? "failure"}`);
   }
 
   try {

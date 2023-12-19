@@ -718,6 +718,7 @@ export const messages = pgTable("messages", {
   segments: integer("segments").notNull(),
   role: message_role("role").notNull(),
   data: jsonb("data").$type<Record<string, any>>(),
+  tags: jsonb("tags").$type<string[]>(),
   created_at: timestamp("created_at", {
     withTimezone: true,
     mode: "string",

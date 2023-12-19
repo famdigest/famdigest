@@ -12,6 +12,38 @@ import { sendNotification } from "../lib/slack";
 dayjs.extend(utc);
 
 async function routes(fastify: FastifyInstance, _options: any) {
+  fastify.post("/opt-in-reminder", async (_request, reply) => {
+    const digests = await db.query.digests.findMany({
+      with: {
+        profile: true,
+      },
+      where: (table, { and, eq }) =>
+        and(eq(table.opt_in, false), eq(table.enabled, true)),
+    });
+
+    const today = dayjs();
+
+    for (const digest of digests) {
+      const diff = Math.abs(today.diff(dayjs(digest.created_at)));
+      if (diff > 9) {
+        await db
+          .update(schema.digests)
+          .set({
+            enabled: false,
+          })
+          .where(eq(schema.digests.id, digest.id));
+      } else if (diff % 3 == 0) {
+        //resend
+      }
+    }
+
+    reply.send({
+      data: {
+        ok: true,
+      },
+    });
+  });
+
   fastify.post("/digests", async (_request, reply) => {
     const now = dayjs().utc();
     const roundedMinute = Math.floor(now.minute() / 15) * 15;
@@ -21,7 +53,12 @@ async function routes(fastify: FastifyInstance, _options: any) {
       with: {
         profile: true,
       },
-      where: eq(schema.digests.notify_on, roundedTime.format("HH:mm:ss")),
+      where: (table, { and, eq }) =>
+        and(
+          eq(table.notify_on, roundedTime.format("HH:mm:ss")),
+          eq(table.opt_in, true),
+          eq(table.enabled, true)
+        ),
     });
 
     let totalEventsCaptured = 0;

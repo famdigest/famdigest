@@ -68,7 +68,7 @@ export function DigestFormModal({
     await utils.digests.invalidate();
     onOpenChange?.(false);
     toast({
-      title: digest ? "Disgest Updated!" : "Digest Added!",
+      title: digest ? "Contact Updated!" : "Contact Added!",
     });
   };
 
@@ -118,7 +118,7 @@ export function DigestFormModal({
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Digest</DialogTitle>
+          <DialogTitle>Contact</DialogTitle>
           <DialogDescription>
             Add a new subscriber to your daily digest.
           </DialogDescription>

@@ -159,7 +159,7 @@ export default function Index() {
               <IconChevronRight className="ml-auto" />
             </div>
             <div className="border rounded-lg p-4 relative flex items-center gap-x-4">
-              <Link to="/digests" className="absolute inset-0">
+              <Link to="/contacts" className="absolute inset-0">
                 <span className="sr-only">Contacts</span>
               </Link>
               <IconMessage />
