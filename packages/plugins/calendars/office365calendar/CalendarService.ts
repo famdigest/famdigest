@@ -1,7 +1,4 @@
-import type {
-  Calendar as OfficeCalendar,
-  User,
-} from "@microsoft/microsoft-graph-types-beta";
+import type { Calendar as OfficeCalendar } from "@microsoft/microsoft-graph-types-beta";
 
 import { db, eq, schema } from "@repo/database";
 import { Calendar, CalendarEvent, Connection, ExternalCalendar } from "../base";
