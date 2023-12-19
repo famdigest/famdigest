@@ -57,12 +57,14 @@ export function DigestMessages({ digest_id }: { digest_id: string }) {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="p-0">
-              <Calendar
-                mode="single"
-                selected={filters.date}
-                onSelect={(date) => setFilters((prev) => ({ ...prev, date }))}
-                toDate={dayjs().toDate()}
-              />
+              {hydrated && (
+                <Calendar
+                  mode="single"
+                  selected={filters.date}
+                  onSelect={(date) => setFilters((prev) => ({ ...prev, date }))}
+                  toDate={dayjs().toDate()}
+                />
+              )}
             </PopoverContent>
           </Popover>
         </div>
