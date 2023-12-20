@@ -69,6 +69,8 @@ export async function handler({
         email: parsedIdToken.email,
         provider: "google",
         data: tokens,
+        invalid: false,
+        error: null,
       })
       .returning();
     if (connection) {
@@ -79,6 +81,8 @@ export async function handler({
       .update(schema.connections)
       .set({
         data: tokens,
+        invalid: false,
+        error: null,
       })
       .where(eq(schema.connections.id, existingConnection.id));
     connectionId = existingConnection.id;

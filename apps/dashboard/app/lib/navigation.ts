@@ -7,8 +7,6 @@ import {
   IconUsersGroup,
   IconLayoutDashboard,
   IconCalendar,
-  IconHttpConnect,
-  IconLink,
   IconMessage,
 } from "@tabler/icons-react";
 

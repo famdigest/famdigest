@@ -84,7 +84,7 @@ export default function BaseTemplate({
                       color: "#525f7f",
                       fontSize: "12px",
                     }}
-                    href="https://www.facebook.com/famdigest"
+                    href="https://www.facebook.com/usefamdigest"
                     target="_blank"
                   >
                     Facebook

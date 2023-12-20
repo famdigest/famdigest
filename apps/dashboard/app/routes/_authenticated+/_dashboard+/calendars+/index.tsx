@@ -29,7 +29,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     properties: {
       device_id: session.id,
       title: "calendars",
-      user_id: session.get("userId"),
+      user_id: user.id,
     },
   });
 
@@ -38,7 +38,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     totalCalendars += connection.calendars.length;
   });
   people({
-    id: session.get("userId"),
+    id: user.id,
     request,
     properties: {
       calendars: totalCalendars,

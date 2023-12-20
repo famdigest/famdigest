@@ -16,7 +16,7 @@ import {
   Separator,
   Button,
 } from "@repo/ui";
-import { IconArrowLeft, IconLoader2 } from "@tabler/icons-react";
+import { IconArrowLeft, IconCalendar, IconLoader2 } from "@tabler/icons-react";
 import { ConnectionProviderIcon } from "~/components/Connections/ConnectionProviderIcon";
 import { trpc } from "~/lib/trpc";
 import { getSessionWorkspace } from "~/lib/workspace.server";
@@ -25,6 +25,8 @@ import { trackPageView } from "@repo/tracking";
 import { ConfirmDeleteButton } from "~/components/ConfirmDeleteButton";
 import { getCalendarProviderClass } from "@repo/plugins";
 import { ConnectionRefresh } from "~/components/Connections/ConnectionRefresh";
+import dayjs from "dayjs";
+import { IconCalendarOff } from "@tabler/icons-react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
@@ -68,10 +70,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   let ok: boolean = true;
+  let allEvents: any[] = [];
   try {
     const service = getCalendarProviderClass(connection);
-    await service.listCalendars();
+    const activeCalendars = calendars.filter((c) => c.enabled);
+    for (const calendar of activeCalendars) {
+      const events = await service.getTodayEvents(calendar.external_id);
+      allEvents.push(...events);
+    }
   } catch (error) {
+    console.log(error);
     connection = await db.query.connections.findFirst({
       where: (connections, { eq }) => eq(connections.id, id),
     });
@@ -82,6 +90,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     {
       connection,
       calendars,
+      events: allEvents,
       ok,
     },
     {
@@ -91,7 +100,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function Route() {
-  const { connection, calendars } = useLoaderData<typeof loader>();
+  const { connection, calendars, events } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
   const navigate = useNavigate();
   const update = trpc.calendars.update.useMutation({
@@ -107,6 +116,7 @@ export default function Route() {
   });
 
   if (!connection) throw new Error("Connection Not Found");
+  const numActiveCals = calendars.filter((cal) => cal.enabled).length;
 
   return (
     <div className="container max-w-screen-md p-6 md:p-12">
@@ -144,7 +154,50 @@ export default function Route() {
           ))}
         </CardContent>
       </Card>
-
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Today's Events</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 border-t">
+          {events.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-40 bg-muted border gap-y-0.5 rounded-md">
+              <IconCalendarOff />
+              <p className="text-sm">
+                {numActiveCals === 0
+                  ? "No active calendars"
+                  : "No Events Today"}
+              </p>
+            </div>
+          )}
+          <ul className="divide-y">
+            {events.map((event, idx) => (
+              <li
+                className="py-3 flex justify-between items-center gap-x-8"
+                key={event.id ?? idx}
+              >
+                <div className="flex flex-col gap-y-0.5 ">
+                  <p className="font-medium">{event.title ?? "No Title"}</p>
+                  {event.description && (
+                    <p className="text-muted-foreground text-sm line-clamp-2">
+                      {event.description}
+                    </p>
+                  )}
+                </div>
+                <time className="text-sm shrink-0">
+                  {event.allDay ? (
+                    <>All Day</>
+                  ) : (
+                    <>
+                      {dayjs(event.start).format("h:mm A")} -{" "}
+                      {dayjs(event.end).format("h:mm A")}
+                    </>
+                  )}
+                </time>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
       <Separator className="my-6" />
 
       <Card>

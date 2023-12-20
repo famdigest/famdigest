@@ -17,6 +17,10 @@ export function getUtc() {
   return dayjs.utc();
 }
 
+export function getLocalTime(timezone: string) {
+  return dayjs().tz(timezone);
+}
+
 export function getUtcOffset(timezone: string) {
   return dayjs.utc().tz(timezone).utcOffset();
 }

@@ -1,9 +1,19 @@
-import { getUtc } from "../../lib/dates";
+import { getLocalTime, getUtc } from "../../lib/dates";
 import { Calendar, ExternalCalendar, CalendarEvent, Connection } from "../base";
 import { GoogleConnection } from "./types";
 import { google, type calendar_v3 } from "googleapis";
 import { getBaseUrl } from "../../lib/base-url";
 import { db, eq, schema } from "@repo/database";
+import { z } from "zod";
+import dayjs from "dayjs";
+
+export const googleCredentialSchema = z.object({
+  scope: z.string(),
+  token_type: z.literal("Bearer"),
+  expiry_date: z.number(),
+  access_token: z.string(),
+  refresh_token: z.string(),
+});
 
 export class GoogleCalendarService implements ExternalCalendar {
   connection: GoogleConnection;
@@ -34,10 +44,14 @@ export class GoogleCalendarService implements ExternalCalendar {
         const fetchTokens = await myGoogleAuth.refreshToken(
           credentials.refresh_token
         );
+        const parsed = googleCredentialSchema.parse({
+          ...credentials,
+          ...fetchTokens.tokens,
+        });
         await db
           .update(schema.connections)
           .set({
-            data: fetchTokens.tokens,
+            data: parsed,
             invalid: false,
             error: null,
           })
@@ -45,7 +59,6 @@ export class GoogleCalendarService implements ExternalCalendar {
 
         myGoogleAuth.setCredentials(fetchTokens.tokens);
       } catch (error) {
-        // @todo send notification to user
         await db
           .update(schema.connections)
           .set({
@@ -103,6 +116,14 @@ export class GoogleCalendarService implements ExternalCalendar {
     return {} as Calendar;
   }
 
+  async getCalendarTimezone(calendarId: string): Promise<string | null> {
+    const calendar = await this.authedCalendar();
+    const instance = await calendar.calendarList.get({
+      calendarId,
+    });
+    return instance.data?.timeZone ?? null;
+  }
+
   async getEvents(
     calendarId: string,
     filters?: Record<string, any>
@@ -113,29 +134,34 @@ export class GoogleCalendarService implements ExternalCalendar {
       calendarId,
       timeMin: filters?.start,
       timeMax: filters?.end,
+      singleEvents: true,
+      orderBy: "startTime",
     });
     return (events.data.items ?? []).map((event) => this.transformEvent(event));
   }
 
   async getTodayEvents(calendarId: string): Promise<CalendarEvent[]> {
-    const utc = getUtc();
-    const start = utc.startOf("day");
-    const end = utc.endOf("day");
+    const timezone = await this.getCalendarTimezone(calendarId);
+    const calendarTime = getLocalTime(timezone ?? "America/New_York");
+    const start = calendarTime.startOf("day");
+    const end = calendarTime.endOf("day");
 
     const events = await this.getEvents(calendarId, {
-      start: start.format("YYYY-MM-DDTHH:mm:ssZ"),
-      end: end.format("YYYY-MM-DDTHH:mm:ssZ"),
+      start: start.toISOString(),
+      end: end.toISOString(),
     });
     return events;
   }
 
   private transformEvent(event: calendar_v3.Schema$Event): CalendarEvent {
+    const allDay = !!event.start?.date;
     return {
       id: event.id ?? "",
       title: event.summary ?? "",
       description: event.description ?? "",
-      start: event.start?.dateTime ?? "",
-      end: event.end?.dateTime ?? "",
+      start: event.start?.dateTime ?? event.start?.date ?? "",
+      end: event.end?.dateTime ?? event.end?.date ?? "",
+      allDay,
     };
   }
 }

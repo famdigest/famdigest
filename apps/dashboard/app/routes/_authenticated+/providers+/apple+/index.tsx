@@ -36,13 +36,15 @@ export async function action({ request }: ActionFunctionArgs) {
     },
   });
 
-  const finalRedirect =
-    redirect_uri ?? session.get("redirect_uri") ?? `/calendars/${connectionId}`;
-
-  if (session.has("redirect_uri")) {
+  let finalRedirect = `/calendars/${connectionId}`;
+  if (redirect_uri?.length) {
+    finalRedirect = redirect_uri;
+  } else if (session.has("redirect_uri")) {
+    finalRedirect = session.get("redirect_uri") as string;
     session.unset("redirect_uri");
   }
 
+  console.log({ finalRedirect });
   response.headers.set("set-cookie", await commitSession(session));
   return redirect(finalRedirect, {
     headers: response.headers,

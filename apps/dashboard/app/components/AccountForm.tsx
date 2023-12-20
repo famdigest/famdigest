@@ -1,3 +1,5 @@
+// @ts-ignore
+import InputMask from "@mona-health/react-input-mask";
 import { useForm, zodResolver } from "@mantine/form";
 import { IconLoader2 } from "@tabler/icons-react";
 import type { z } from "zod";
@@ -73,6 +75,15 @@ export function AccountForm({ user }: { user: Profile }) {
         type="email"
         {...form.getInputProps("email")}
         render={(field) => <Input {...field} />}
+      />
+      <FormField
+        label="Phone Number"
+        {...form.getInputProps("phone")}
+        render={(field) => (
+          <InputMask mask="+1 999.999.9999" {...field}>
+            <Input />
+          </InputMask>
+        )}
       />
       <FormField<typeof Select>
         label="Theme"

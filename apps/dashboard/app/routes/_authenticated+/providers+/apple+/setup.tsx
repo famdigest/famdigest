@@ -33,7 +33,9 @@ export default function Route() {
     submit(
       {
         ...values,
-        redirect_uri: searchParams.get("redirect_uri"),
+        redirect_uri: searchParams.has("redirect_uri")
+          ? searchParams.get("redirect_uri")
+          : "",
       },
       {
         action: "/providers/apple",

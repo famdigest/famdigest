@@ -24,12 +24,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     properties: {
       device_id: session.id,
       title: "contacts",
-      user_id: session.get("userId"),
+      user_id: user.id,
     },
   });
 
   people({
-    id: session.get("userId"),
+    id: user.id,
     request,
     properties: {
       digests: digests.length,

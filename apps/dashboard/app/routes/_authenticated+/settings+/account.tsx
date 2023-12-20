@@ -10,6 +10,7 @@ import {
 import { trpc } from "~/lib/trpc";
 import { trackPageView } from "@repo/tracking";
 import { getSession } from "~/lib/session.server";
+import { IconLoader2 } from "@tabler/icons-react";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Your Account | FamDigest" }];
@@ -41,7 +42,13 @@ export default function Route() {
           <CardDescription>Manage your profile details.</CardDescription>
         </CardHeader>
         <CardContent className="p-6">
-          {data && <AccountForm key={data.id} user={data} />}
+          {data ? (
+            <AccountForm key={data.id} user={data} />
+          ) : (
+            <div className="flex items-center justify-center h-20 bg-muted border">
+              <IconLoader2 className="animate-spin" />
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

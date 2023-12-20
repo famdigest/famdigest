@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "npx vite-node src/index.ts",
-    "dev": "PORT=3001 npx vite-node src/index.ts --watch src",
+    "dev": "PORT=3001 npx vite-node src/index.ts --watch",
     "build": "rm -rf dist && mkdir dist && tsc"
   },
   "type": "module",

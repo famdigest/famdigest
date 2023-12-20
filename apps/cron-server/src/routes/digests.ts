@@ -68,6 +68,74 @@ async function routes(fastify: FastifyInstance, _options: any) {
     });
   });
 
+  fastify.get("/digests/:id", async (request, reply) => {
+    // if (process.env.NODE_ENV === "production") {
+    //   return reply.send({
+    //     error: {
+    //       message: "Nice Try",
+    //     },
+    //   });
+    // }
+    const { id } = request.params as { id: string };
+    const digest = await db.query.digests.findFirst({
+      with: {
+        profile: true,
+      },
+      where: (table, { and, eq }) => and(eq(table.id, id)),
+    });
+    if (!digest) {
+      return reply.send({
+        error: {
+          message: "No Digest Found",
+        },
+      });
+    }
+
+    const calendars = await db.query.calendars.findMany({
+      with: {
+        connection: true,
+      },
+      where: and(
+        eq(schema.calendars.owner_id, digest.owner_id),
+        eq(schema.calendars.enabled, true)
+      ),
+    });
+
+    const allEvents = [];
+
+    for (const calendar of calendars) {
+      try {
+        const service = getCalendarProviderClass(calendar.connection);
+        const events = await service.getTodayEvents(calendar.external_id);
+        allEvents.push(...events);
+      } catch (error) {
+        // shh
+      }
+    }
+
+    allEvents.sort((a, b) => (dayjs(a.start).isAfter(dayjs(b.start)) ? 1 : -1));
+
+    const eventString = allEvents
+      .map((event) => {
+        if (event.allDay) {
+          return `${event.title ?? "Busy"} - All Day`;
+        }
+        return `${event.title ?? "Busy"} - ${dayjs(event.start).format(
+          "h:mm a"
+        )} - ${dayjs(event.end).format("h:mm a")}`;
+      })
+      .join("\n");
+
+    const utc = dayjs.utc();
+    return reply.send({
+      utc: utc,
+      start: utc.startOf("day").toISOString(),
+      end: utc.endOf("day").toISOString(),
+      message: eventString,
+      data: allEvents,
+    });
+  });
+
   fastify.post("/digests", async (_request, reply) => {
     const now = dayjs().utc();
     const roundedMinute = Math.floor(now.minute() / 15) * 15;
@@ -107,7 +175,6 @@ async function routes(fastify: FastifyInstance, _options: any) {
           const service = getCalendarProviderClass(calendar.connection);
           const events = await service.getTodayEvents(calendar.external_id);
           allEvents.push(...events);
-          throw new Error("wtf");
         } catch (error) {
           //
           NotificationService.send({
@@ -140,18 +207,22 @@ async function routes(fastify: FastifyInstance, _options: any) {
       if (allEvents.length === 0) {
         outboundMessage = dedent`Hey there ${digest.full_name}!\n\nNo events for ${owner.full_name} today.`;
       } else {
+        const eventString = allEvents
+          .map((event) => {
+            if (event.allDay) {
+              return `${event.title ?? "Busy"} - All Day`;
+            }
+            return `${event.title ?? "Busy"} - ${dayjs(event.start).format(
+              "h:mm a"
+            )} - ${dayjs(event.end).format("h:mm a")}`;
+          })
+          .join("\n");
+
         outboundMessage = dedent`Good ${timeOfDay}, ${digest.full_name}!
 
 Here's your daily digest for ${owner.full_name}:
 
-${allEvents
-  .map(
-    (event, idx) =>
-      `${idx + 1}. ${event.title} ${dayjs(event.start).format(
-        "h:mm a"
-      )} - ${dayjs(event.end).format("h:mm a")}`
-  )
-  .join("\n")}
+${eventString}
 
 Best,
 FamDigest Team`;

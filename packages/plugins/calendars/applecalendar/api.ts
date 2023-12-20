@@ -15,7 +15,11 @@ export async function handler({
 }) {
   const existingConnection = await db.query.connections.findFirst({
     where: (connection, { and, eq }) =>
-      and(eq(connection.owner_id, user.id), eq(connection.email, username)),
+      and(
+        eq(connection.owner_id, user.id),
+        eq(connection.email, username),
+        eq(connection.provider, "apple")
+      ),
   });
 
   let connection: InferSelectModel<typeof schema.connections> | undefined;

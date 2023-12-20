@@ -4,7 +4,9 @@ import ICAL from "ical.js";
 import {
   DAVAccount,
   DAVCalendar,
+  DAVNamespace,
   DAVObject,
+  calendarQuery,
   createAccount,
   fetchCalendarObjects,
   fetchCalendars,
@@ -12,7 +14,7 @@ import {
 } from "tsdav";
 import { symmetricDecrypt } from "../lib/crypto";
 import { Enums, Table } from "@repo/supabase";
-import { getUtc } from "../lib/dates";
+import { getLocalTime, getUtc } from "../lib/dates";
 
 const DEFAULT_CALENDAR_TYPE = "caldav";
 
@@ -31,12 +33,14 @@ export type CalendarEvent = {
   description: string;
   start: string;
   end: string;
+  allDay: boolean;
 };
 
 export interface ExternalCalendar {
   listCalendars(): Promise<Calendar[]>;
-  getCalendar(id: string | null): Promise<Calendar>;
+  getCalendar(calendarId: string | null): Promise<Calendar | null>;
   getTodayEvents(calendarId: string): Promise<CalendarEvent[]>;
+  getCalendarTimezone(calendarId: string): Promise<string | null>;
 }
 
 export type Providers = Enums<"provider_type">;
@@ -117,8 +121,35 @@ export default abstract class BaseCalendarService implements ExternalCalendar {
     }
   }
 
-  getCalendar(_id: string | null): Promise<Calendar> {
-    return Promise.resolve({} as Calendar);
+  async getCalendar(calendarId: string): Promise<Calendar | null> {
+    try {
+      const calendars = await this.listCalendars();
+      if (!calendars) return null;
+      return calendars.find((cal) => cal.external_id === calendarId)!;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getCalendarTimezone(calendarId: string): Promise<string | null> {
+    const objects = await fetchCalendarObjects({
+      calendar: { url: calendarId },
+      headers: this.headers,
+    });
+
+    for (const object of objects) {
+      const jcalData = ICAL.parse(object.data);
+      const vcalendar = new ICAL.Component(jcalData);
+      const timezone = vcalendar
+        .getFirstSubcomponent("vtimezone")
+        ?.getFirstPropertyValue<string>("tzid");
+
+      if (timezone) {
+        return timezone;
+      }
+    }
+
+    return null;
   }
 
   async getEvents(
@@ -147,13 +178,14 @@ export default abstract class BaseCalendarService implements ExternalCalendar {
   }
 
   async getTodayEvents(calendarId: string): Promise<CalendarEvent[]> {
-    const utc = getUtc();
-    const start = utc.startOf("day");
-    const end = utc.endOf("day");
+    const timezone = await this.getCalendarTimezone(calendarId);
+    const calendarTime = getLocalTime(timezone ?? "America/New_York");
+    const start = calendarTime.startOf("day");
+    const end = calendarTime.endOf("day");
 
     const events = await this.getEvents(calendarId, {
-      start: start.format("YYYY-MM-DDTHH:mm:ssZ"),
-      end: end.format("YYYY-MM-DDTHH:mm:ssZ"),
+      start: start.toISOString(),
+      end: end.toISOString(),
     });
     return events;
   }
@@ -187,6 +219,7 @@ export default abstract class BaseCalendarService implements ExternalCalendar {
       description: event.description,
       start: event.startDate.toString(),
       end: event.endDate.toString(),
+      allDay: false,
     };
   }
 }
