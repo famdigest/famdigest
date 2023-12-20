@@ -13,7 +13,8 @@ export default function Email({ owner, contact }: TemplateProps) {
       <Text>
         We've sent an opt-in reminder to {contact?.full_name}, the recipient you
         added to your FamDigest account, as they haven't opted-in yet. If you or
-        the recipient need assistance, please contact us at hello@famdigest.com.
+        the recipient need assistance, please contact us at
+        support@famdigest.com.
       </Text>
       <Text>
         Best Regards,
@@ -26,7 +27,7 @@ export default function Email({ owner, contact }: TemplateProps) {
 export const textMessage = ({ owner, contact }: TemplateProps) => {
   return dedent`Hey ${owner.full_name ?? "there"}!
 
-  We've sent an opt-in reminder to ${contact?.full_name}, the recipient you added to your FamDigest account, as they haven't opted-in yet. If you or the recipient need assistance, please contact us at hello@famdigest.com.
+  We've sent an opt-in reminder to ${contact?.full_name}, the recipient you added to your FamDigest account, as they haven't opted-in yet. If you or the recipient need assistance, please contact us at support@famdigest.com.
 
   FamDigest Team
   `;

@@ -4,9 +4,7 @@ import ICAL from "ical.js";
 import {
   DAVAccount,
   DAVCalendar,
-  DAVNamespace,
   DAVObject,
-  calendarQuery,
   createAccount,
   fetchCalendarObjects,
   fetchCalendars,
@@ -14,7 +12,7 @@ import {
 } from "tsdav";
 import { symmetricDecrypt } from "../lib/crypto";
 import { Enums, Table } from "@repo/supabase";
-import { getLocalTime, getUtc } from "../lib/dates";
+import { getLocalTime } from "../lib/dates";
 
 const DEFAULT_CALENDAR_TYPE = "caldav";
 

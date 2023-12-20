@@ -150,7 +150,7 @@ export class Office365CalendarService implements ExternalCalendar {
     return Promise.resolve({} as Calendar);
   }
 
-  async getCalendarTimezone(calendarId: string): Promise<string | null> {
+  async getCalendarTimezone(_calendarId: string): Promise<string | null> {
     return null;
   }
 

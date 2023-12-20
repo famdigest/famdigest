@@ -1,11 +1,10 @@
-import { getLocalTime, getUtc } from "../../lib/dates";
+import { getLocalTime } from "../../lib/dates";
 import { Calendar, ExternalCalendar, CalendarEvent, Connection } from "../base";
 import { GoogleConnection } from "./types";
 import { google, type calendar_v3 } from "googleapis";
 import { getBaseUrl } from "../../lib/base-url";
 import { db, eq, schema } from "@repo/database";
 import { z } from "zod";
-import dayjs from "dayjs";
 
 export const googleCredentialSchema = z.object({
   scope: z.string(),
