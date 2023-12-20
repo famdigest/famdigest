@@ -56,7 +56,8 @@ export async function handler({
     where: (connection, { and, eq }) =>
       and(
         eq(connection.owner_id, user.id),
-        eq(connection.email, parsedIdToken.email!)
+        eq(connection.email, parsedIdToken.email!),
+        eq(connection.provider, "google")
       ),
   });
 
