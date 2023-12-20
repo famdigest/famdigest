@@ -79,7 +79,6 @@ type WorkspaceForm = z.infer<typeof workspaceSchema>;
 
 export default function OnboardingRoute() {
   const supabase = useSupabase();
-  const navigate = useNavigate();
   const { user } = useLoaderData<typeof loader>();
   const submit = useSubmit();
 
@@ -115,6 +114,7 @@ export default function OnboardingRoute() {
         },
         {
           method: "POST",
+          action: "/onboarding",
         }
       );
     },

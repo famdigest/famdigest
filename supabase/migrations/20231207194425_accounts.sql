@@ -12,7 +12,7 @@ create table if not exists public.profiles (
   id uuid references auth.users on delete cascade not null primary key,
   full_name text,
   email text unique,
-  phone text unique,
+  phone text,
   avatar_url text,
   preferences jsonb not null default '{"theme":"light"}',
   created_at timestamp with time zone default timezone('utc'::text, now()),
