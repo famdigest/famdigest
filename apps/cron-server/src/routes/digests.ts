@@ -120,9 +120,11 @@ async function routes(fastify: FastifyInstance, _options: any) {
         if (event.allDay) {
           return `${event.title ?? "Busy"} - All Day`;
         }
-        return `${event.title ?? "Busy"} - ${dayjs(event.start).format(
-          "h:mm a"
-        )} - ${dayjs(event.end).format("h:mm a")}`;
+        return `${event.title ?? "Busy"} - ${dayjs(event.start)
+          .tz(digest.timezone)
+          .format("h:mm a")} - ${dayjs(event.end)
+          .tz(digest.timezone)
+          .format("h:mm a")}`;
       })
       .join("\n");
 
