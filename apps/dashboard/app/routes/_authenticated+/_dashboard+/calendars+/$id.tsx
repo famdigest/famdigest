@@ -23,19 +23,26 @@ import { getSessionWorkspace } from "~/lib/workspace.server";
 import { getSession } from "~/lib/session.server";
 import { trackPageView } from "@repo/tracking";
 import { ConfirmDeleteButton } from "~/components/ConfirmDeleteButton";
+import { getCalendarProviderClass } from "@repo/plugins";
+import { ConnectionRefresh } from "~/components/Connections/ConnectionRefresh";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: `Calendar: ${data?.connection.email} - FamDigest` }];
+  return [
+    {
+      title: `Calendar: ${
+        data?.connection?.email ?? "Not Available"
+      } - FamDigest`,
+    },
+  ];
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { user, response } = await getSessionWorkspace(request);
 
   const { id } = params as { id: string };
-  const [connection] = await db
-    .select()
-    .from(schema.connections)
-    .where(eq(schema.connections.id, id));
+  let connection = await db.query.connections.findFirst({
+    where: (connections, { eq }) => eq(connections.id, id),
+  });
 
   if (!connection) {
     throw new Response("", {
@@ -60,10 +67,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
   });
 
+  let ok: boolean = true;
+  try {
+    const service = getCalendarProviderClass(connection);
+    await service.listCalendars();
+  } catch (error) {
+    connection = await db.query.connections.findFirst({
+      where: (connections, { eq }) => eq(connections.id, id),
+    });
+    ok = false;
+  }
+
   return json(
     {
       connection,
       calendars,
+      ok,
     },
     {
       headers: response.headers,
@@ -87,8 +106,11 @@ export default function Route() {
     },
   });
 
+  if (!connection) throw new Error("Connection Not Found");
+
   return (
     <div className="container max-w-screen-md p-6 md:p-12">
+      {connection.invalid && <ConnectionRefresh connection={connection} />}
       <div className="flex items-center p-4">
         <Link to="/calendars" className="flex items-center gap-x-2 text-sm">
           <IconArrowLeft size={14} />

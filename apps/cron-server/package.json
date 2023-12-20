@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "npx vite-node src/index.ts",
-    "dev": "PORT=3001 npx vite-node src/index.ts --watch",
+    "dev": "PORT=3001 npx vite-node src/index.ts --watch src",
     "build": "rm -rf dist && mkdir dist && tsc"
   },
   "type": "module",
@@ -12,6 +12,7 @@
     "@fastify/cors": "^8.4.2",
     "@fastify/multipart": "^8.0.0",
     "@repo/database": "workspace:*",
+    "@repo/notifications": "workspace:*",
     "@repo/plugins": "workspace:*",
     "@repo/supabase": "workspace:*",
     "dayjs": "^1.11.10",

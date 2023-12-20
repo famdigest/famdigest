@@ -3,13 +3,15 @@ import { and, db, eq, schema } from "@repo/database";
 import { getCalendarProviderClass } from "@repo/plugins";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
+import timezone from "dayjs/plugin/timezone.js";
 import dedent from "dedent";
 
-import { humanloop } from "../lib/humanloop";
 import { sendMessage } from "../lib/twilio";
 import { sendNotification } from "../lib/slack";
+import { NotificationService } from "@repo/notifications";
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
 
 async function routes(fastify: FastifyInstance, _options: any) {
   fastify.post("/opt-in-reminder", async (_request, reply) => {
@@ -24,16 +26,38 @@ async function routes(fastify: FastifyInstance, _options: any) {
     const today = dayjs();
 
     for (const digest of digests) {
-      const diff = Math.abs(today.diff(dayjs(digest.created_at)));
-      if (diff > 9) {
+      const diff = Math.abs(today.diff(dayjs(digest.created_at), "days"));
+      if (diff === 3) {
+        NotificationService.send({
+          owner: digest.profile,
+          contact: digest,
+          recipient: digest.profile,
+          key: "owner.subscriberFailedToOptIn",
+          type: "email",
+        });
+
         await db
           .update(schema.digests)
           .set({
             enabled: false,
           })
           .where(eq(schema.digests.id, digest.id));
-      } else if (diff % 3 == 0) {
-        //resend
+      } else if (diff >= 1 && diff < 3) {
+        NotificationService.send({
+          owner: digest.profile,
+          contact: digest,
+          recipient: digest.profile,
+          key: "owner.subscriberOptInReminder",
+          type: "sms",
+        });
+
+        NotificationService.send({
+          owner: digest.profile,
+          contact: digest,
+          recipient: digest,
+          key: "contact.optInReminder",
+          type: "sms",
+        });
       }
     }
 
@@ -77,38 +101,60 @@ async function routes(fastify: FastifyInstance, _options: any) {
 
       //
       const allEvents = [];
+
       for (const calendar of calendars) {
-        const service = getCalendarProviderClass(calendar.connection);
-        const events = await service.getTodayEvents(calendar.external_id);
-        allEvents.push(...events);
+        try {
+          const service = getCalendarProviderClass(calendar.connection);
+          const events = await service.getTodayEvents(calendar.external_id);
+          allEvents.push(...events);
+          throw new Error("wtf");
+        } catch (error) {
+          //
+          NotificationService.send({
+            key: "owner.connectionFailure",
+            recipient: digest.profile,
+            owner: digest.profile,
+            contact: digest,
+            calendar: calendar,
+            type: "both",
+          });
+        }
       }
 
       allEvents.sort((a, b) =>
         dayjs(a.start).isAfter(dayjs(b.start)) ? 1 : -1
       );
 
+      const local = dayjs(dayjs()).tz(digest.timezone);
+      const hour = local.hour();
       let outboundMessage = "";
+      let timeOfDay = "";
+      if (hour < 12) {
+        timeOfDay = "morning";
+      } else if (hour < 17) {
+        timeOfDay = "afternoon";
+      } else {
+        timeOfDay = "evening";
+      }
 
       if (allEvents.length === 0) {
         outboundMessage = dedent`Hey there ${digest.full_name}!\n\nNo events for ${owner.full_name} today.`;
       } else {
-        const response = await humanloop.chatDeployed({
-          project_id: process.env.HUMANLOOP_PROJECT_ID,
-          messages: [
-            {
-              role: "user",
-              content: dedent`Send my daily digest to ${digest.full_name}.
+        outboundMessage = dedent`Good ${timeOfDay}, ${digest.full_name}!
 
-          ## SENDER
-          ${owner.full_name}
+Here's your daily digest for ${owner.full_name}:
 
-          ## EVENTS
-          ${JSON.stringify(allEvents, null, 2)}
-        `,
-            },
-          ],
-        });
-        outboundMessage = response.data.data[0].output;
+${allEvents
+  .map(
+    (event, idx) =>
+      `${idx + 1}. ${event.title} ${dayjs(event.start).format(
+        "h:mm a"
+      )} - ${dayjs(event.end).format("h:mm a")}`
+  )
+  .join("\n")}
+
+Best,
+FamDigest Team`;
       }
 
       totalEventsCaptured = totalEventsCaptured + allEvents.length;

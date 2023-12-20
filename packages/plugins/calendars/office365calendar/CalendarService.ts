@@ -4,6 +4,7 @@ import { db, eq, schema } from "@repo/database";
 import { Calendar, CalendarEvent, Connection, ExternalCalendar } from "../base";
 import { Office365Connection } from "./types";
 import { z } from "zod";
+import { handleErrorsJson } from "../../lib/errors";
 
 const refreshTokenResponseSchema = z.object({
   access_token: z.string(),
@@ -39,7 +40,7 @@ export class Office365CalendarService implements ExternalCalendar {
       credentials: Office365Connection["data"]
     ) => {
       try {
-        const request = await fetch(
+        const response = await fetch(
           "https://login.microsoftonline.com/common/oauth2/v2.0/token",
           {
             method: "POST",
@@ -53,24 +54,37 @@ export class Office365CalendarService implements ExternalCalendar {
             }),
           }
         );
-        const response = await request.json();
-        console.log("refreshAccessToken", response);
+        const responseJson = await handleErrorsJson(response);
+        const tokenResponse = refreshTokenResponseSchema.parse(responseJson);
         credentials = {
           ...credentials,
-          access_token: response.access_token,
+          ...tokenResponse,
         };
         await db
           .update(schema.connections)
           .set({
-            data: response,
+            data: credentials,
+            invalid: false,
+            error: null,
           })
           .where(eq(schema.connections.id, this.connection.id));
       } catch (error) {
         // @todo send notification to user
+        let errorMsg: string = "Token Refresh Error";
+        if (error instanceof Response) {
+          const errorRes = await error.json();
+          errorMsg = errorRes.error;
+        } else if (error instanceof Error) {
+          errorMsg = error.message;
+        }
+
         await db
           .update(schema.connections)
           .set({
-            data: { invalid: true },
+            invalid: true,
+            error: {
+              message: errorMsg,
+            },
           })
           .where(eq(schema.connections.id, this.connection.id));
       }
@@ -96,8 +110,12 @@ export class Office365CalendarService implements ExternalCalendar {
     let requestLink = `/me/calendars?${calendarFilterParam}`;
 
     while (!finishedParsingCalendars) {
-      const request = await this.fetcher(requestLink);
-      let responseBody = await request.json();
+      const response = await this.fetcher(requestLink);
+      let responseBody = await handleErrorsJson<{
+        value: OfficeCalendar[];
+        "@odata.nextLink"?: string;
+      }>(response);
+
       // If responseBody is valid then parse the JSON text
       if (typeof responseBody === "string") {
         responseBody = JSON.parse(responseBody) as { value: OfficeCalendar[] };

@@ -38,6 +38,8 @@ export class GoogleCalendarService implements ExternalCalendar {
           .update(schema.connections)
           .set({
             data: fetchTokens.tokens,
+            invalid: false,
+            error: null,
           })
           .where(eq(schema.connections.id, this.connection.id));
 
@@ -47,7 +49,10 @@ export class GoogleCalendarService implements ExternalCalendar {
         await db
           .update(schema.connections)
           .set({
-            data: { invalid: true },
+            invalid: true,
+            error: {
+              message: (error as Error)?.message ?? "Token refresh error",
+            },
           })
           .where(eq(schema.connections.id, this.connection.id));
       }
@@ -76,7 +81,9 @@ export class GoogleCalendarService implements ExternalCalendar {
 
   async listCalendars() {
     const calendar = await this.authedCalendar();
-    const list = await calendar.calendarList.list();
+    const list = await calendar.calendarList.list({
+      fields: "items(id,summary,primary,accessRole)",
+    });
     const { items } = list.data;
     if (!items) return [];
 
@@ -101,6 +108,7 @@ export class GoogleCalendarService implements ExternalCalendar {
     filters?: Record<string, any>
   ): Promise<CalendarEvent[]> {
     const calendar = await this.authedCalendar();
+
     const events = await calendar.events.list({
       calendarId,
       timeMin: filters?.start,

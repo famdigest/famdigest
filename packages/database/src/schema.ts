@@ -668,6 +668,8 @@ export const connections = pgTable("connections", {
   provider: provider_type("provider").notNull(),
   enabled: boolean("enabled").default(true).notNull(),
   data: jsonb("data").$type<Record<string, any> | string>(),
+  invalid: boolean("invalid").default(false),
+  error: jsonb("error").$type<Record<string, any>>(),
   created_at: timestamp("created_at", {
     withTimezone: true,
     mode: "string",

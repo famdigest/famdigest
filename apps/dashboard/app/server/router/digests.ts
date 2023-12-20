@@ -6,10 +6,9 @@ import {
 import { protectedProcedure, router } from "../trpc.server";
 import { db, desc, eq, schema } from "~/lib/db.server";
 import { z } from "zod";
-import { sendMessage } from "~/lib/twilio.server";
-import dedent from "dedent";
 import { track } from "@repo/tracking";
 import dayjs from "dayjs";
+import { NotificationService } from "@repo/notifications";
 
 export const digestsRouter = router({
   all: protectedProcedure.query(async ({ ctx }) => {
@@ -41,24 +40,13 @@ export const digestsRouter = router({
         })
         .returning();
 
-      // send opt in sms
-      const body = dedent`Welcome to FamDigest!\n\n${ctx.user.full_name} has invited you to receive their daily digests.\n\nReply YES to opt-in and save the number in your contact!`;
-
-      const response = await sendMessage({
-        to: digest.phone,
-        body,
-        mediaUrl: [`https://www.famdigest.com/assets/vcard.vcf`],
-      });
-
-      await db.insert(schema.messages).values({
-        message: body,
-        role: "assistant",
-        external_id: response.sid,
-        digest_id: digest.id,
-        segments: Number(response.numSegments),
-        data: response,
-        tags: ["opt-in"],
-        owner_id: ctx.user.id,
+      NotificationService.send({
+        key: "contact.welcomeMessage",
+        recipient: digest,
+        owner: ctx.user,
+        contact: digest,
+        type: "sms",
+        includeVCard: true,
       });
 
       track({
@@ -100,22 +88,13 @@ export const digestsRouter = router({
         }
       }
 
-      const body = dedent`Welcome to FamDigest!\n\n${ctx.user.full_name} has invited you to receive their daily digests.\n\nReply YES to opt-in and save the number in your contact!`;
-
-      const response = await sendMessage({
-        to: digest.phone,
-        body,
-      });
-
-      await db.insert(schema.messages).values({
-        message: body,
-        role: "assistant",
-        external_id: response.sid,
-        digest_id: digest.id,
-        segments: Number(response.numSegments),
-        data: response,
-        tags: ["opt-in", "retry"],
-        owner_id: ctx.user.id,
+      NotificationService.send({
+        key: "contact.optInReminder",
+        recipient: digest,
+        owner: ctx.user,
+        contact: digest,
+        type: "sms",
+        includeVCard: true,
       });
 
       track({

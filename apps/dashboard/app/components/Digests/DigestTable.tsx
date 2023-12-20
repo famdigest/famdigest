@@ -12,6 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  toast,
 } from "@repo/ui";
 import type { Table as DbTable } from "@repo/supabase";
 import { IconCheck, IconDotsVertical, IconX } from "@tabler/icons-react";
@@ -96,6 +97,20 @@ function DigestTableRow({ digest }: { digest: DbTable<"digests"> }) {
     },
   });
 
+  const resend = trpc.digests.resend.useMutation({
+    onSuccess() {
+      toast({
+        title: "Opt-in message sent",
+      });
+    },
+    onError(error) {
+      toast({
+        title: "Sorry",
+        description: error.message,
+      });
+    },
+  });
+
   return (
     <>
       <TableRow>
@@ -126,6 +141,14 @@ function DigestTableRow({ digest }: { digest: DbTable<"digests"> }) {
               <DropdownMenuItem className="cursor-pointer" asChild>
                 <Link to={`/contacts/${digest.id}`}>View</Link>
               </DropdownMenuItem>
+              {!digest.opt_in && (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => resend.mutate(digest.id)}
+                >
+                  Resend Opt-In
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 className="cursor-pointer"
                 onClick={() => setOpen(true)}
@@ -168,6 +191,19 @@ function DigestListingRow({ digest }: { digest: DbTable<"digests"> }) {
       utils.digests.all.invalidate();
     },
   });
+  const resend = trpc.digests.resend.useMutation({
+    onSuccess() {
+      toast({
+        title: "Opt-in message sent",
+      });
+    },
+    onError(error) {
+      toast({
+        title: "Sorry",
+        description: error.message,
+      });
+    },
+  });
 
   return (
     <div className="p-4 flex justify-between">
@@ -204,6 +240,14 @@ function DigestListingRow({ digest }: { digest: DbTable<"digests"> }) {
             <DropdownMenuItem className="cursor-pointer" asChild>
               <Link to={`/contacts/${digest.id}`}>View</Link>
             </DropdownMenuItem>
+            {!digest.opt_in && (
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => resend.mutate(digest.id)}
+              >
+                Resend Opt-In
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               className="cursor-pointer"
               onClick={() => setOpen(true)}

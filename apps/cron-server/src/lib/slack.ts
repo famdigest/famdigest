@@ -7,7 +7,6 @@ export async function sendNotification({
   text?: string;
   blocks?: any;
 }) {
-  return Promise.resolve(true);
   try {
     const response = await fetch(process.env.PRIVATE_SLACK_WEBHOOK!, {
       method: "post",

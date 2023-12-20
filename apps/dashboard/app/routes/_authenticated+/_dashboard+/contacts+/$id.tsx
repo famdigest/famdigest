@@ -41,6 +41,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
   }
 
+  const message = await db.query.messages.findFirst({
+    where: (msg, { eq }) => eq(msg.digest_id, digest.id),
+    orderBy: (msg, { desc }) => desc(msg.created_at),
+  });
+
   const session = await getSession(request);
   trackPageView({
     request,
@@ -54,6 +59,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return json(
     {
       digest,
+      lastMessage: message,
     },
     {
       headers: response.headers,
@@ -63,7 +69,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export default function Route() {
   const [open, { toggle }] = useDisclosure(false);
-  const { digest: initialData } = useLoaderData<typeof loader>();
+  const { digest: initialData, lastMessage } = useLoaderData<typeof loader>();
   const { data: digest, isLoading } = trpc.digests.one.useQuery(
     initialData.id,
     {
@@ -73,7 +79,9 @@ export default function Route() {
 
   return (
     <div className="container max-w-screen-md p-6 md:p-12">
-      {!digest.opt_in && <DigestMissingOptIn digest={digest} />}
+      {!digest.opt_in && (
+        <DigestMissingOptIn digest={digest} lastMessage={lastMessage} />
+      )}
       <div className="flex items-center p-4">
         <Link to="/contacts" className="flex items-center gap-x-2 text-sm">
           <IconArrowLeft size={14} />

@@ -118,11 +118,12 @@ export const calendarsRelations = relations(calendars, ({ one }) => ({
   }),
 }));
 
-export const digestsRelations = relations(digests, ({ one }) => ({
+export const digestsRelations = relations(digests, ({ one, many }) => ({
   profile: one(profiles, {
     fields: [digests.owner_id],
     references: [profiles.id],
   }),
+  messages: many(messages),
 }));
 
 export const messagesRelations = relations(messages, ({ one }) => ({

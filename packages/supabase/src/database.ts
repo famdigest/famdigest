@@ -873,7 +873,9 @@ export interface Database {
           data: Json | null
           email: string
           enabled: boolean
+          error: Json | null
           id: string
+          invalid: boolean | null
           owner_id: string
           provider: Database["public"]["Enums"]["provider_type"]
           updated_at: string | null
@@ -883,7 +885,9 @@ export interface Database {
           data?: Json | null
           email: string
           enabled?: boolean
+          error?: Json | null
           id?: string
+          invalid?: boolean | null
           owner_id: string
           provider: Database["public"]["Enums"]["provider_type"]
           updated_at?: string | null
@@ -893,7 +897,9 @@ export interface Database {
           data?: Json | null
           email?: string
           enabled?: boolean
+          error?: Json | null
           id?: string
+          invalid?: boolean | null
           owner_id?: string
           provider?: Database["public"]["Enums"]["provider_type"]
           updated_at?: string | null
