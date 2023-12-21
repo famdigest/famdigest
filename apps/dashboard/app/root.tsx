@@ -21,7 +21,6 @@ import {
   useRouteError,
 } from "@remix-run/react";
 import {
-  Session,
   TypesafeClient,
   UserPreferences,
   createBrowserClient,

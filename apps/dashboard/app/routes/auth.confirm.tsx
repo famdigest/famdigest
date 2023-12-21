@@ -24,6 +24,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     });
 
     const session = await getSession(request);
+    const redirect_uri = session.has("redirect_uri")
+      ? (session.get("redirect_uri") as string)
+      : next;
+    session.unset("redirect_uri");
 
     if (!error && data.user) {
       session.set("userId", data.user.id);
@@ -137,7 +141,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         },
       });
 
-      return redirect(next, {
+      return redirect(redirect_uri, {
         headers: response.headers,
       });
     }

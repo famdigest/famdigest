@@ -11,6 +11,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const code = url.searchParams.get("code");
 
   const session = await getSession(request);
+  const redirect_uri = session.has("redirect_uri")
+    ? (session.get("redirect_uri") as string)
+    : "/";
+  session.unset("redirect_uri");
 
   if (code) {
     const supabase = createServerClient(request, response);
@@ -75,7 +79,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     }
   }
 
-  return redirect("/", {
+  return redirect(redirect_uri, {
     headers: response.headers,
   });
 };

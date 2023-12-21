@@ -52,10 +52,12 @@ export async function requireAuthSession(request: Request) {
 
   const { pathname } = new URL(request.url);
   const redirectTo = [`/sign-in`];
+  const browserSession = await getSession(request);
   if (pathname !== "/" && pathname !== "/sign-in") {
+    browserSession.set("redirect_uri", pathname);
     redirectTo.push(`?redirectTo=${pathname}`);
   }
-
+  response.headers.append("set-cookie", await commitSession(browserSession));
   if (!session) {
     throw redirect(redirectTo.join(""), {
       headers: response.headers,

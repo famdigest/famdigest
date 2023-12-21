@@ -212,13 +212,13 @@ async function routes(fastify: FastifyInstance, _options: any) {
         const eventString = allEvents
           .map((event) => {
             if (event.allDay) {
-              return `${event.title ?? "Busy"} - All Day`;
+              return `All Day - ${event.title ?? "Busy"}`;
             }
-            return `${event.title ?? "Busy"} - ${dayjs(event.start)
+            return `${dayjs(event.start)
               .tz(digest.timezone)
               .format("h:mm a")} - ${dayjs(event.end)
               .tz(digest.timezone)
-              .format("h:mm a")}`;
+              .format("h:mm a")} ${event.title ?? "Busy"}`;
           })
           .join("\n");
 
