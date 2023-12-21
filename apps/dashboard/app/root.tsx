@@ -18,7 +18,6 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useLocation,
   useRouteError,
 } from "@remix-run/react";
 import {
@@ -33,7 +32,6 @@ import { SESSION_KEYS } from "./constants";
 import { useState } from "react";
 import { Button, cn, Toaster } from "@repo/ui";
 import { AppProviders } from "./components/AppProviders";
-import { trackPageView } from "@repo/tracking";
 
 export const links: LinksFunction = () => [
   { rel: "preload", href: serifFontStyleSheet, as: "style" },
@@ -96,15 +94,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   response.headers.append("set-cookie", cookie);
 
-  const { hostname, origin, pathname } = new URL(request.url);
-  trackPageView({
-    request,
-    properties: {
-      device_id: cookieSession.id,
-      title: pathname === "/" ? "home" : pathname.substring(1),
-      user_id: user?.id,
-    },
-  });
+  const { hostname, origin } = new URL(request.url);
 
   return json(
     {
