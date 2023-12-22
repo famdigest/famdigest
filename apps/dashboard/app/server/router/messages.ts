@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../trpc.server";
-import { and, db, eq, schema, sql } from "~/lib/db.server";
+import { and, db, desc, eq, schema, sql } from "~/lib/db.server";
 import dayjs from "dayjs";
 
 const messageFilters = z.object({
@@ -14,7 +14,6 @@ export const messagesRouter = router({
     .input(messageFilters)
     .query(async ({ ctx, input }) => {
       const messagesQuery = db.select().from(schema.messages);
-      let where = eq(schema.messages.digest_id, input.digest_id);
       if (input.date) {
         const date = dayjs(input.date);
         console.log("search for ", date.format());
@@ -33,6 +32,7 @@ export const messagesRouter = router({
 
       messagesQuery.limit(size);
       messagesQuery.offset((page - 1) * size);
+      messagesQuery.orderBy(desc(schema.messages.created_at));
 
       const messages = await messagesQuery;
       return messages;

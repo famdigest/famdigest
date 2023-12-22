@@ -1,7 +1,14 @@
 import { Table } from "@repo/supabase";
-import { Button, Card, CardDescription, CardHeader, CardTitle } from "@repo/ui";
+import {
+  Button,
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  cn,
+} from "@repo/ui";
 import { ConnectionProviderIcon } from "./ConnectionProviderIcon";
-import { IconSettings } from "@tabler/icons-react";
+import { IconAlertTriangleFilled, IconSettings } from "@tabler/icons-react";
 import { Link } from "@remix-run/react";
 import { AddConnectionDropdown } from "./AddConnectionDropdown";
 
@@ -24,21 +31,32 @@ export function ConnectionGrid({ connections }: ConnectionGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {connections?.map((connection) => (
-        <Card key={connection.id}>
-          <div className="flex items-start md:items-center p-4 sm:p-6 gap-x-4">
+        <Card
+          key={connection.id}
+          className={cn(connection.invalid && "border-destructive")}
+        >
+          <div className="flex items-start md:items-center p-4 lg:p-6 gap-x-4">
             <ConnectionProviderIcon provider={connection.provider} />
-            <CardHeader className="p-0 space-y-0.5">
+            <CardHeader className="p-0 space-y-0.5 min-w-0">
               <CardTitle className="capitalize text-xl">
                 {connection.provider}
               </CardTitle>
-              <CardDescription className="truncate min-w-0">
+              <CardDescription className="truncate text-xs lg:text-sm">
                 {connection.email}
               </CardDescription>
             </CardHeader>
             <div className="ml-auto shrink-0">
-              <Button size="icon-sm" variant="secondary" asChild>
+              <Button
+                size="icon-sm"
+                variant={connection.invalid ? "destructive" : "secondary"}
+                asChild
+              >
                 <Link to={`/calendars/${connection.id}`}>
-                  <IconSettings size={16} />
+                  {connection.invalid ? (
+                    <IconAlertTriangleFilled size={16} />
+                  ) : (
+                    <IconSettings size={16} />
+                  )}
                 </Link>
               </Button>
             </div>
