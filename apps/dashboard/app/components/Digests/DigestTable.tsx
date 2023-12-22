@@ -149,11 +149,8 @@ function DigestTableRow({ digest }: { digest: DbTable<"digests"> }) {
                   Resend Opt-In
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => setOpen(true)}
-              >
-                Edit
+              <DropdownMenuItem className="cursor-pointer" asChild>
+                <Link to={`/contacts/${digest.id}/edit`}>Edit</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -248,11 +245,8 @@ function DigestListingRow({ digest }: { digest: DbTable<"digests"> }) {
                 Resend Opt-In
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => setOpen(true)}
-            >
-              Edit
+            <DropdownMenuItem className="cursor-pointer" asChild>
+              <Link to={`/contacts/${digest.id}/edit`}>Edit</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

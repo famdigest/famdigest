@@ -4,6 +4,7 @@ import { trpc } from "~/lib/trpc";
 import { DigestListing, DigestTable } from "./DigestTable";
 import { DigestFormModal } from "./DigestFormModal";
 import { IconCirclePlus } from "@tabler/icons-react";
+import { Link } from "@remix-run/react";
 
 type DigestsViewProps = {
   initialData: Table<"digests">[];
@@ -23,12 +24,12 @@ export function DigestsView({ initialData }: DigestsViewProps) {
           </p>
         </div>
         <div className="mt-4 md:mt-0 md:ml-auto">
-          <DigestFormModal>
-            <Button variant="outline">
+          <Button variant="outline" asChild>
+            <Link to="new">
               <IconCirclePlus className="mr-2" size={20} />
               Add Contact
-            </Button>
-          </DigestFormModal>
+            </Link>
+          </Button>
         </div>
       </header>
       <Separator />

@@ -100,9 +100,9 @@ export default function Route() {
             </CardDescription>
           </CardHeader>
           <div className="ml-auto">
-            <DigestFormModal digest={digest} open={open} onOpenChange={toggle}>
-              <Button>Edit</Button>
-            </DigestFormModal>
+            <Button asChild>
+              <Link to="edit">Edit</Link>
+            </Button>
           </div>
         </div>
         <CardContent className="p-6 border-t space-y-4">

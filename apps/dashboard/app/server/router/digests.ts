@@ -40,14 +40,14 @@ export const digestsRouter = router({
         })
         .returning();
 
-      NotificationService.send({
-        key: "contact.welcomeMessage",
-        recipient: digest,
-        owner: ctx.user,
-        contact: digest,
-        type: "sms",
-        includeVCard: true,
-      });
+      // NotificationService.send({
+      //   key: "contact.welcomeMessage",
+      //   recipient: digest,
+      //   owner: ctx.user,
+      //   contact: digest,
+      //   type: "sms",
+      //   includeVCard: true,
+      // });
 
       track({
         request: ctx.req,
