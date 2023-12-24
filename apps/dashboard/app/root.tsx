@@ -31,6 +31,7 @@ import { SESSION_KEYS } from "./constants";
 import { useState } from "react";
 import { Button, cn, Toaster } from "@repo/ui";
 import { AppProviders } from "./components/AppProviders";
+import { withSentry, captureRemixErrorBoundaryError } from "@sentry/remix";
 
 export const links: LinksFunction = () => [
   { rel: "preload", href: serifFontStyleSheet, as: "style" },
@@ -112,6 +113,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         FACEBOOK_PIXEL_ID: process.env.FACEBOOK_PIXEL_ID,
         MIXPANEL_TOKEN: process.env.MIXPANEL_TOKEN,
         ENABLE_TRACKING: process.env.ENABLE_TRACKING === "true",
+        SENTRY_DSN: process.env.SENTRY_DSN,
       },
     },
     {
@@ -120,7 +122,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   );
 }
 
-export default function App() {
+export default withSentry(App);
+function App() {
   const { env, session, theme, domain } = useLoaderData<typeof loader>();
 
   const [supabase] = useState<TypesafeClient>(() =>
@@ -255,6 +258,8 @@ function Document({
 
 export function ErrorBoundary() {
   const error = useRouteError();
+
+  captureRemixErrorBoundaryError(error);
 
   const renderErrorMarkup = () => {
     if (isRouteErrorResponse(error)) {

@@ -29,6 +29,7 @@ declare global {
       MSFT_CLIENT_SECRET: string;
       MSFT_GRAPH_API_ENDPOINT: string;
       CALENDSO_ENCRYPTION_KEY: string;
+      SENTRY_DSN: string;
     }
   }
 
@@ -43,6 +44,7 @@ declare global {
       FACEBOOK_PIXEL_ID: string | undefined;
       ENABLE_TRACKING: boolean;
       MIXPANEL_TOKEN: string;
+      SENTRY_DSN: string;
     };
     // tracking
     fbq?: any;
