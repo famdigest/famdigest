@@ -6,6 +6,7 @@
     "build:dashboard": "turbo build --filter @repo/dashboard...",
     "build:cron": "turbo build --filter @repo/cron-server...",
     "dev": "turbo dev",
+    "dev:marketing": "turbo dev --filter @repo/marketing...",
     "dev:dashboard": "turbo dev --filter @repo/dashboard...",
     "dev:cron": "turbo dev --filter @repo/cron-server...",
     "dev:stack": "turbo dev --filter @repo/dashboard... --filter @repo/cron-server...",
