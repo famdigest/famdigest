@@ -129,16 +129,16 @@ FamDigest Team`;
       if (subscriber.phone) {
         const sentMessage = await sendMessage({
           body: outboundMessage,
-          to: subscriber.phone,
+          to: `+${subscriber.phone}`,
         });
 
         await db.insert(schema.subscription_logs).values({
-          message: outboundMessage,
-          external_id: sentMessage.sid,
-          segments: Number(sentMessage.numSegments),
-          subscription_id: subscriber.id,
-          owner_id: subscriber.id,
+          owner_id: subscriber.owner.id,
           workspace_id: subscriber.workspace.id,
+          subscription_id: subscriber.id,
+          external_id: sentMessage.sid,
+          message: outboundMessage,
+          segments: Number(sentMessage.numSegments),
           data: { msg: sentMessage, events: allEvents },
         });
       }
