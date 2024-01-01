@@ -1,18 +1,9 @@
 import {
-  Link,
   useNavigate,
   useOutletContext,
   useRevalidator,
 } from "@remix-run/react";
 import { ContextType } from "./_layout";
-import { CardDescription, CardHeader, CardTitle, Separator } from "@repo/ui";
-import { SubscriberDropdownMenu } from "~/components/SubscriberDropdownMenu";
-import { Calendar } from "@repo/database";
-import {
-  IconCalendarCog,
-  IconMessage2,
-  IconUserSquareRounded,
-} from "@tabler/icons-react";
 import {
   SubscriberFormActions,
   SubscriberFormFields,

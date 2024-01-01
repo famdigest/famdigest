@@ -15,14 +15,46 @@ export default function Route() {
   });
   const utils = trpc.useUtils();
   const link = trpc.subscribers.link.useMutation({
+    onMutate(variables) {
+      if (!subscriber) return;
+      const calendars: Calendar[] = connections.flatMap(
+        (connection) => connection.calendars
+      );
+      utils.subscribers.one.setData(subscriber.id, {
+        ...subscriber,
+        subscription_calendars: [
+          ...subscriber.subscription_calendars,
+          {
+            ...variables,
+            calendar: calendars.find((c) => c.id === variables.calendar_id)!,
+          },
+        ],
+      });
+    },
     async onSuccess() {
       await utils.subscribers.one.invalidate();
       toast({
         title: "Calendar Added",
       });
     },
+    async onError() {
+      await utils.subscribers.one.invalidate();
+      toast({
+        title: "Error adding calendar",
+        variant: "destructive",
+      });
+    },
   });
   const unlink = trpc.subscribers.unlink.useMutation({
+    onMutate(variables) {
+      if (!subscriber) return;
+      utils.subscribers.one.setData(subscriber.id, {
+        ...subscriber,
+        subscription_calendars: subscriber.subscription_calendars.filter(
+          (sc) => sc.calendar_id !== variables.calendar_id
+        ),
+      });
+    },
     async onSuccess() {
       await utils.subscribers.one.invalidate();
       toast({

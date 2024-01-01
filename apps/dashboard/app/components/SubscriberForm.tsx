@@ -75,7 +75,6 @@ export function useCreateSubscriberForm(subscriber?: SubscriberWithRelations) {
     },
   });
 
-  console.log("useCreateSubscriberForm", form.values);
   useEffect(() => {
     form.setValues((prev) => ({
       ...prev,

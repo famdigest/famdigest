@@ -12,6 +12,7 @@ import {
   IconMessage2,
 } from "@tabler/icons-react";
 import { SubscriberDropdownMenu } from "~/components/SubscriberDropdownMenu";
+import { trpc } from "~/lib/trpc";
 import { getSessionWorkspace } from "~/lib/workspace.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -62,18 +63,23 @@ export type ContextType = {
 };
 
 export default function Layout() {
-  const { subscriber, connections } = useLoaderData<typeof loader>();
+  const { subscriber: initialData, connections } =
+    useLoaderData<typeof loader>();
+  const { data: subscriber } = trpc.subscribers.one.useQuery(initialData.id, {
+    initialData,
+  });
+
   return (
     <div className="py-6 md:py-12 space-y-12 container max-w-screen-lg">
       <div className="space-y-6">
         <header className="flex flex-row items-center">
           <div className="space-y-0.5">
             <h2 className="text-2xl font-semibold font-serif">
-              {subscriber.full_name}
+              {subscriber?.full_name}
             </h2>
           </div>
           <div className="ml-auto">
-            <SubscriberDropdownMenu subscriber={subscriber} />
+            {subscriber && <SubscriberDropdownMenu subscriber={subscriber} />}
           </div>
         </header>
         <Separator />
@@ -81,7 +87,7 @@ export default function Layout() {
           <div className="w-full md:w-40 lg:w-52 p-2 shrink-0">
             <nav className="flex flex-row md:flex-col gap-x-1.5 md:gap-x-0 md:gap-y-1.5">
               <NavLink
-                to={`/subscribers/${subscriber.id}`}
+                to={`/subscribers/${subscriber?.id}`}
                 end={true}
                 className={({ isActive }) =>
                   cn(
@@ -94,7 +100,7 @@ export default function Layout() {
                 Details
               </NavLink>
               <NavLink
-                to={`/subscribers/${subscriber.id}/calendars`}
+                to={`/subscribers/${subscriber?.id}/calendars`}
                 className={({ isActive }) =>
                   cn(
                     "px-2 py-1.5 rounded-md hover:bg-muted flex items-center gap-x-2 text-sm",
@@ -106,7 +112,7 @@ export default function Layout() {
                 Calendars
               </NavLink>
               <NavLink
-                to={`/subscribers/${subscriber.id}/logs`}
+                to={`/subscribers/${subscriber?.id}/logs`}
                 className={({ isActive }) =>
                   cn(
                     "px-2 py-1.5 rounded-md hover:bg-muted flex items-center gap-x-2 text-sm",
