@@ -7,6 +7,8 @@ import {
 import { z } from "zod";
 import { subscription_calendars } from "@repo/database/src/schema";
 import dayjs from "dayjs";
+import { NotificationService } from "@repo/notifications";
+import { track } from "@repo/tracking";
 
 const messageFilters = z.object({
   subscription_id: z.string(),
@@ -159,6 +161,24 @@ export const subscriptionRouter = router({
         .onConflictDoNothing();
 
       // opt-in
+      NotificationService.send({
+        key: "contact.welcomeMessage",
+        recipient: sub,
+        owner: ctx.user,
+        contact: sub,
+        type: "sms",
+        includeVCard: true,
+        workspace: ctx.workspace,
+      });
+
+      track({
+        request: ctx.req,
+        properties: {
+          event_name: "Subscriber Created",
+          device_id: ctx.session.id,
+          user_id: ctx.user.id,
+        },
+      });
 
       return sub;
     }),
@@ -209,6 +229,15 @@ export const subscriptionRouter = router({
       // opt-in
       if (row && row.phone !== input.phone) {
         // opt-in again
+        NotificationService.send({
+          key: "contact.welcomeMessage",
+          recipient: sub,
+          owner: ctx.user,
+          contact: sub,
+          type: "sms",
+          includeVCard: true,
+          workspace: ctx.workspace,
+        });
       }
 
       return sub;

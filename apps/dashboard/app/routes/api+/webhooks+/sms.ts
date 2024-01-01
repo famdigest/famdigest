@@ -60,12 +60,13 @@ export async function action({ request }: ActionFunctionArgs) {
     Body.toLowerCase().includes("yes")
   ) {
     if (!subscriber.opt_in) {
+      // opt-in all instances
       await db
         .update(schema.subscriptions)
         .set({
           opt_in: true,
         })
-        .where(eq(schema.subscriptions.id, subscriber.id));
+        .where(eq(schema.subscriptions.phone, subscriber.phone));
 
       // send message
       NotificationService.send({
