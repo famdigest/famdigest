@@ -5,7 +5,7 @@ import {
   useNavigate,
   useRevalidator,
 } from "@remix-run/react";
-import { db, desc, eq, schema } from "~/lib/db.server";
+import { db, desc, eq, schema } from "@repo/database";
 import {
   Card,
   CardHeader,
@@ -119,7 +119,7 @@ export default function Route() {
   const numActiveCals = calendars.filter((cal) => cal.enabled).length;
 
   return (
-    <div className="container max-w-screen-md p-6 md:p-12">
+    <div className="container max-w-screen-md py-6 md:py-12">
       {connection.invalid && <ConnectionRefresh connection={connection} />}
       <div className="flex items-center p-4">
         <Link to="/calendars" className="flex items-center gap-x-2 text-sm">

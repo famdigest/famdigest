@@ -3,9 +3,10 @@ import { Separator } from "@repo/ui";
 import { trpc } from "~/lib/trpc";
 import { ConnectionGrid } from "./ConnectionGrid";
 import { AddConnectionDropdown } from "./AddConnectionDropdown";
+import { ConnectionWithCalendars } from "@repo/database";
 
 type ConnectionsViewProps = {
-  initialData: Table<"connections">[];
+  initialData: ConnectionWithCalendars[];
 };
 export function ConnectionsView({ initialData }: ConnectionsViewProps) {
   const { data: connections } = trpc.connections.all.useQuery(undefined, {

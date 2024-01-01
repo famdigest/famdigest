@@ -43,13 +43,16 @@ export const userRouter = router({
         });
       }
 
+      if (input.phone && ctx.user.phone !== input.phone) {
+        await ctx.supabase.auth.updateUser({
+          phone: input.phone,
+        });
+      }
+
       const { data, error } = await ctx.supabase
         .from("profiles")
         .update({
-          full_name: input.full_name,
-          email: input.email,
-          phone: input.phone,
-          preferences: input.preferences,
+          ...input,
         })
         .match({
           id: ctx.user.id,

@@ -12,6 +12,9 @@ import {
   billing_products,
   billing_prices,
   billing_subscriptions,
+  subscriptions,
+  subscription_calendars,
+  subscription_logs,
 } from "./schema";
 
 export const profilesRelations = relations(profiles, ({ many, one }) => ({
@@ -26,11 +29,13 @@ export const profilesRelations = relations(profiles, ({ many, one }) => ({
 }));
 
 export const workspacesRelations = relations(workspaces, ({ many, one }) => ({
-  profiles: one(profiles, {
+  owner: one(profiles, {
     fields: [workspaces.owner_id],
     references: [profiles.id],
   }),
   invitations: many(invitations),
+  connections: many(connections),
+  messages: many(messages),
   workspace_users: many(workspace_users),
   billing_customers: many(billing_customers),
   billing_subscriptions: many(billing_subscriptions),
@@ -79,7 +84,7 @@ export const invitationsRelations = relations(invitations, ({ many, one }) => ({
     fields: [invitations.workspace_id],
     references: [workspaces.id],
   }),
-  profiles: one(profiles, {
+  invited_by: one(profiles, {
     fields: [invitations.invited_by_user_id],
     references: [profiles.id],
   }),
@@ -105,9 +110,13 @@ export const connectionsRelations = relations(connections, ({ many, one }) => ({
     fields: [connections.owner_id],
     references: [profiles.id],
   }),
+  workspace: one(workspaces, {
+    fields: [connections.workspace_id],
+    references: [workspaces.id],
+  }),
 }));
 
-export const calendarsRelations = relations(calendars, ({ one }) => ({
+export const calendarsRelations = relations(calendars, ({ one, many }) => ({
   connection: one(connections, {
     fields: [calendars.connection_id],
     references: [connections.id],
@@ -135,4 +144,52 @@ export const messagesRelations = relations(messages, ({ one }) => ({
     fields: [messages.digest_id],
     references: [digests.id],
   }),
+  workspace: one(workspaces, {
+    fields: [messages.workspace_id],
+    references: [workspaces.id],
+  }),
 }));
+
+export const subscriptionRelations = relations(
+  subscriptions,
+  ({ one, many }) => ({
+    owner: one(profiles, {
+      fields: [subscriptions.owner_id],
+      references: [profiles.id],
+    }),
+    subscriber: one(profiles, {
+      fields: [subscriptions.user_id],
+      references: [profiles.id],
+    }),
+    workspace: one(workspaces, {
+      fields: [subscriptions.workspace_id],
+      references: [workspaces.id],
+    }),
+    subscription_calendars: many(subscription_calendars),
+    subscription_logs: many(subscription_logs),
+  })
+);
+
+export const subscriptionCalendarsRelations = relations(
+  subscription_calendars,
+  ({ one }) => ({
+    subscription: one(subscriptions, {
+      fields: [subscription_calendars.subscription_id],
+      references: [subscriptions.id],
+    }),
+    calendar: one(calendars, {
+      fields: [subscription_calendars.calendar_id],
+      references: [calendars.id],
+    }),
+  })
+);
+
+export const subscriptionLogsRelations = relations(
+  subscription_logs,
+  ({ one }) => ({
+    subscription: one(subscriptions, {
+      fields: [subscription_logs.subscription_id],
+      references: [subscriptions.id],
+    }),
+  })
+);

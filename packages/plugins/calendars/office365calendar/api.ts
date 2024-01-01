@@ -32,9 +32,11 @@ export function generateAuthUrl(request: Request) {
 export async function handler({
   code,
   user,
+  workspace,
 }: {
   code: string;
   user: Table<"profiles">;
+  workspace: Table<"workspaces">;
 }) {
   const toUrlEncoded = (payload: Record<string, string>) =>
     Object.keys(payload)
@@ -93,6 +95,7 @@ export async function handler({
     const [result] = await db
       .insert(schema.connections)
       .values({
+        workspace_id: workspace.id,
         owner_id: user.id,
         email: responseBody.email,
         provider: "office365",

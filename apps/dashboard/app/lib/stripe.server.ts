@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import dayjs from "dayjs";
 import { createAdminClient } from "@repo/supabase";
 import { people, track } from "@repo/tracking";
-import { db, eq, schema } from "~/lib/db.server";
+import { db, eq, schema } from "@repo/database";
 
 enum BILLING_PROVIDERS {
   stripe = "stripe",

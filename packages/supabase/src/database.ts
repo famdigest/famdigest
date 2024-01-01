@@ -83,16 +83,18 @@ export interface Database {
           identity_data: Json
           last_sign_in_at: string | null
           provider: string
+          provider_id: string
           updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
           email?: string | null
-          id: string
+          id?: string
           identity_data: Json
           last_sign_in_at?: string | null
           provider: string
+          provider_id: string
           updated_at?: string | null
           user_id: string
         }
@@ -103,6 +105,7 @@ export interface Database {
           identity_data?: Json
           last_sign_in_at?: string | null
           provider?: string
+          provider_id?: string
           updated_at?: string | null
           user_id?: string
         }
@@ -399,8 +402,12 @@ export interface Database {
           created_at: string | null
           factor_id: string | null
           id: string
+          ip: unknown | null
           not_after: string | null
+          refreshed_at: string | null
+          tag: string | null
           updated_at: string | null
+          user_agent: string | null
           user_id: string
         }
         Insert: {
@@ -408,8 +415,12 @@ export interface Database {
           created_at?: string | null
           factor_id?: string | null
           id: string
+          ip?: unknown | null
           not_after?: string | null
+          refreshed_at?: string | null
+          tag?: string | null
           updated_at?: string | null
+          user_agent?: string | null
           user_id: string
         }
         Update: {
@@ -417,8 +428,12 @@ export interface Database {
           created_at?: string | null
           factor_id?: string | null
           id?: string
+          ip?: unknown | null
           not_after?: string | null
+          refreshed_at?: string | null
+          tag?: string | null
           updated_at?: string | null
+          user_agent?: string | null
           user_id?: string
         }
         Relationships: [
@@ -879,6 +894,7 @@ export interface Database {
           owner_id: string
           provider: Database["public"]["Enums"]["provider_type"]
           updated_at: string | null
+          workspace_id: string
         }
         Insert: {
           created_at?: string | null
@@ -891,6 +907,7 @@ export interface Database {
           owner_id: string
           provider: Database["public"]["Enums"]["provider_type"]
           updated_at?: string | null
+          workspace_id: string
         }
         Update: {
           created_at?: string | null
@@ -903,6 +920,7 @@ export interface Database {
           owner_id?: string
           provider?: Database["public"]["Enums"]["provider_type"]
           updated_at?: string | null
+          workspace_id?: string
         }
         Relationships: [
           {
@@ -910,6 +928,13 @@ export interface Database {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           }
         ]
@@ -969,6 +994,7 @@ export interface Database {
           invitation_type: Database["public"]["Enums"]["invitation_type"] | null
           invite_url: string | null
           invited_by_user_id: string
+          request_type: Database["public"]["Enums"]["request_type"] | null
           role: Database["public"]["Enums"]["workspace_role"]
           token: string
           updated_at: string | null
@@ -984,6 +1010,7 @@ export interface Database {
             | null
           invite_url?: string | null
           invited_by_user_id: string
+          request_type?: Database["public"]["Enums"]["request_type"] | null
           role: Database["public"]["Enums"]["workspace_role"]
           token?: string
           updated_at?: string | null
@@ -999,6 +1026,7 @@ export interface Database {
             | null
           invite_url?: string | null
           invited_by_user_id?: string
+          request_type?: Database["public"]["Enums"]["request_type"] | null
           role?: Database["public"]["Enums"]["workspace_role"]
           token?: string
           updated_at?: string | null
@@ -1035,6 +1063,7 @@ export interface Database {
           segments: number
           tags: Json | null
           updated_at: string | null
+          workspace_id: string
         }
         Insert: {
           created_at?: string | null
@@ -1048,6 +1077,7 @@ export interface Database {
           segments: number
           tags?: Json | null
           updated_at?: string | null
+          workspace_id: string
         }
         Update: {
           created_at?: string | null
@@ -1061,6 +1091,7 @@ export interface Database {
           segments?: number
           tags?: Json | null
           updated_at?: string | null
+          workspace_id?: string
         }
         Relationships: [
           {
@@ -1075,6 +1106,13 @@ export interface Database {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           }
         ]
@@ -1141,6 +1179,170 @@ export interface Database {
         }
         Relationships: []
       }
+      subscription_calendars: {
+        Row: {
+          calendar_id: string
+          subscription_id: string
+        }
+        Insert: {
+          calendar_id: string
+          subscription_id: string
+        }
+        Update: {
+          calendar_id?: string
+          subscription_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_calendars_calendar_id_fkey"
+            columns: ["calendar_id"]
+            isOneToOne: false
+            referencedRelation: "calendars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_calendars_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      subscription_logs: {
+        Row: {
+          created_at: string | null
+          data: Json | null
+          external_id: string
+          id: string
+          message: string
+          owner_id: string
+          segments: number
+          subscription_id: string
+          updated_at: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          data?: Json | null
+          external_id: string
+          id?: string
+          message: string
+          owner_id: string
+          segments: number
+          subscription_id: string
+          updated_at?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json | null
+          external_id?: string
+          id?: string
+          message?: string
+          owner_id?: string
+          segments?: number
+          subscription_id?: string
+          updated_at?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_logs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_logs_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_logs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      subscriptions: {
+        Row: {
+          access_code: string
+          created_at: string | null
+          enabled: boolean
+          event_preferences: Database["public"]["Enums"]["event_preference"]
+          full_name: string
+          id: string
+          notify_on: string
+          opt_in: boolean
+          owner_id: string
+          phone: string
+          timezone: string
+          updated_at: string | null
+          user_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          access_code?: string
+          created_at?: string | null
+          enabled?: boolean
+          event_preferences?: Database["public"]["Enums"]["event_preference"]
+          full_name: string
+          id?: string
+          notify_on: string
+          opt_in?: boolean
+          owner_id: string
+          phone: string
+          timezone: string
+          updated_at?: string | null
+          user_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          access_code?: string
+          created_at?: string | null
+          enabled?: boolean
+          event_preferences?: Database["public"]["Enums"]["event_preference"]
+          full_name?: string
+          id?: string
+          notify_on?: string
+          opt_in?: boolean
+          owner_id?: string
+          phone?: string
+          timezone?: string
+          updated_at?: string | null
+          user_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       workspace_users: {
         Row: {
           created_at: string | null
@@ -1182,6 +1384,7 @@ export interface Database {
       }
       workspaces: {
         Row: {
+          access_code: string
           created_at: string | null
           id: string
           name: string
@@ -1191,6 +1394,7 @@ export interface Database {
           updated_at: string | null
         }
         Insert: {
+          access_code?: string
           created_at?: string | null
           id?: string
           name: string
@@ -1200,6 +1404,7 @@ export interface Database {
           updated_at?: string | null
         }
         Update: {
+          access_code?: string
           created_at?: string | null
           id?: string
           name?: string
@@ -1250,6 +1455,7 @@ export interface Database {
     }
     Enums: {
       billing_providers: "stripe"
+      event_preference: "same-day" | "next-day"
       invitation_type: "one-time" | "24-hour"
       message_role: "assistant" | "user"
       pricing_plan_interval: "day" | "week" | "month" | "year"
@@ -1266,6 +1472,7 @@ export interface Database {
         | "hotmail"
         | "apple"
         | "office365"
+      request_type: "digest" | "calendar"
       subscription_status:
         | "trialing"
         | "active"

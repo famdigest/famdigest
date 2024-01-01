@@ -15,7 +15,7 @@ export default function WorkspaceDashboardLayout() {
   return (
     <div className="flex min-h-[100svh] flex-1 relative">
       <AppNavigation />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col max-w-full overflow-x-hidden">
         <SubscriptionBanner />
         <main
           id="main"

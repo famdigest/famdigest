@@ -1,16 +1,15 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { track } from "@repo/tracking";
-import {
-  commitSession,
-  getSession,
-  requireAuthSession,
-} from "~/lib/session.server";
+import { commitSession, getSession } from "~/lib/session.server";
 import { googleCalendarHandler as handler } from "@repo/plugins";
+import { getSessionWorkspace } from "~/lib/workspace.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { user, response } = await requireAuthSession(request);
+  const { user, workspace, response } = await getSessionWorkspace(request);
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
+  const session = await getSession(request);
+
   if (!code) {
     const error = searchParams.get("error");
     throw redirect(`/calendars?error=google|${error ?? "failure"}`);
@@ -19,9 +18,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const connectionId = await handler({
     code,
     user,
+    workspace,
   });
 
-  const session = await getSession(request);
   track({
     request,
     properties: {
@@ -31,6 +30,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       provider: "Google",
     },
   });
+
+  console.log("redirect_uri", session.get("redirect_uri"));
 
   if (session.has("redirect_uri")) {
     const redirect_uri = session.get("redirect_uri");

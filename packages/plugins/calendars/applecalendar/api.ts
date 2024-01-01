@@ -8,10 +8,14 @@ export async function handler({
   username,
   password,
   user,
+  workspace,
+  is_external = false,
 }: {
   username: string;
   password: string;
   user: Table<"profiles">;
+  workspace: Table<"workspaces">;
+  is_external?: boolean;
 }) {
   const existingConnection = await db.query.connections.findFirst({
     where: (connection, { and, eq }) =>
@@ -27,9 +31,11 @@ export async function handler({
     const [result] = await db
       .insert(schema.connections)
       .values({
+        workspace_id: workspace.id,
         owner_id: user.id,
         email: username,
         provider: "apple",
+        is_external,
         data: symmetricEncrypt(
           JSON.stringify({ username, password }),
           process.env.CALENDSO_ENCRYPTION_KEY || ""

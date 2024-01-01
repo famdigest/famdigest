@@ -7,36 +7,34 @@ import { IconEye, IconEyeOff, IconLoader } from "@tabler/icons-react";
 import { z } from "zod";
 import { Button, FormField, Input } from "@repo/ui";
 import { useSupabase } from "~/components/SupabaseProvider";
-import { createAdminClient, createServerClient } from "@repo/supabase";
+import { createServerClient } from "@repo/supabase";
 import { trpc } from "~/lib/trpc";
 import { getSession } from "~/lib/session.server";
 import { trackPageView } from "@repo/tracking";
+import { db } from "@repo/database";
 
 export const meta = () => {
   return [{ title: "Accept Invite | Carta Maps" }];
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const admin = createAdminClient();
-  const { data, error } = await admin
-    .from("invitations")
-    .select()
-    .match({ token: params.token as string })
-    .single();
+  const invitation = await db.query.invitations.findFirst({
+    where: (table, { eq }) => eq(table.token, params.token as string),
+  });
 
-  if (!data || error) {
+  if (!invitation) {
     throw new Response("", {
       status: 500,
-      statusText: error.message ?? "Invitation not found",
+      statusText: "Invitation not found",
     });
   }
 
-  // does this email exist
-  const { data: existingUser } = await admin
-    .from("profiles")
-    .select()
-    .match({ email: data.email })
-    .single();
+  const existingUser = await db.query.profiles.findFirst({
+    where: (table, { eq }) => eq(table.email, invitation.email),
+  });
+  const invitingUser = await db.query.profiles.findFirst({
+    where: (table, { eq }) => eq(table.id, invitation.invited_by_user_id),
+  });
 
   const response = new Response();
   const supabase = createServerClient(request, response);
@@ -77,7 +75,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return json(
     {
       token: params.token as string,
-      invitation: data,
+      invitation,
+      invitingUser,
       existingUser,
     },
     {
@@ -94,20 +93,24 @@ const signUpFormSchema = z.object({
 type SignUpForm = z.infer<typeof signUpFormSchema>;
 
 export default function AcceptInviteRoute() {
-  const { token, invitation, existingUser } = useLoaderData<typeof loader>();
+  const { token, invitation, existingUser, invitingUser } =
+    useLoaderData<typeof loader>();
   const supabase = useSupabase();
   const navigate = useNavigate();
   const [show, { toggle }] = useDisclosure(false);
 
-  const setWorkspace = trpc.workspaces.set.useMutation({
-    onSuccess() {
-      navigate("/setup/user-info");
-    },
-  });
+  const setWorkspace = trpc.workspaces.set.useMutation();
 
   const acceptInvitation = trpc.invites.accept.useMutation({
     onSuccess: (data) => {
-      setWorkspace.mutate(data);
+      setWorkspace.mutate(data.workspace_id, {
+        onSuccess() {
+          if (data.subscription) {
+            return navigate(`/setup/${data.subscription.id}`);
+          }
+          return navigate("/setup/user-info");
+        },
+      });
     },
   });
 
@@ -146,11 +149,9 @@ export default function AcceptInviteRoute() {
       <div className="w-full max-w-md flex flex-col gap-y-6 p-8 md:p-12 bg-white rounded-md shadow-2xl">
         <div className="text-center">
           <h1 className="text-2xl font-semibold tracking-tight">
-            You've been invited!
+            {invitingUser?.full_name} has invited you!
           </h1>
-          <p>
-            Join the <strong>{invitation.workspace_name}</strong> workspace.
-          </p>
+          <p>Join the their FamDigest workspace.</p>
         </div>
         <form
           onSubmit={form.onSubmit(createUserFormSubmit)}
@@ -226,11 +227,9 @@ export default function AcceptInviteRoute() {
     <div className="w-full max-w-md flex flex-col gap-y-6 p-8 md:p-12 bg-white rounded-md shadow-2xl">
       <div className="text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
-          You've been invited!
+          {invitingUser?.full_name} has invited you!
         </h1>
-        <p>
-          Join the <strong>{invitation.workspace_name}</strong> workspace.
-        </p>
+        <p>Join the their FamDigest workspace.</p>
       </div>
       <form onSubmit={onSubmit} className="flex flex-col items-stretch gap-y-4">
         <Button disabled={isLoading}>

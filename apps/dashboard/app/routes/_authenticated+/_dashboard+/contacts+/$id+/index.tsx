@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { Link, useLoaderData, useRevalidator } from "@remix-run/react";
-import { asc, db, eq, schema } from "~/lib/db.server";
+import { asc, db, eq, schema } from "@repo/database";
 import {
   Card,
   CardHeader,
@@ -78,7 +78,7 @@ export default function Route() {
   );
 
   return (
-    <div className="container max-w-screen-md p-6 md:p-12">
+    <div className="container max-w-screen-md py-6 md:py-12">
       {!digest.opt_in && (
         <DigestMissingOptIn digest={digest} lastMessage={lastMessage} />
       )}

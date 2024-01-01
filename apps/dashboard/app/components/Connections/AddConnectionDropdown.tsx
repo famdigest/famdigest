@@ -17,8 +17,12 @@ import { trpc } from "~/lib/trpc";
 import GoogleIcon, { GoogleCalendarIcon } from "../GoogleIcon";
 import { Link } from "@remix-run/react";
 
-export function AddConnectionDropdown() {
-  const addGoogle = trpc.google.authorize.useMutation({
+export function AddConnectionDropdown({
+  redirectUri,
+}: {
+  redirectUri?: string;
+}) {
+  const addGoogle = trpc.connections.google.useMutation({
     onSuccess(data) {
       window.location.href = data.authorizeUrl;
     },
@@ -43,13 +47,13 @@ export function AddConnectionDropdown() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => addGoogle.mutate()}
+          onClick={() => addGoogle.mutate(redirectUri)}
         >
           <GoogleCalendarIcon className="h-[14px] w-[14px] mr-2" />
           Connect with Google
         </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" asChild>
-          <Link to="/providers/apple/setup">
+          <Link to={`/providers/apple/setup?redirect_uri=${redirectUri}`}>
             <IconBrandApple size={14} className="mr-2" />
             Connect with iCloud
           </Link>

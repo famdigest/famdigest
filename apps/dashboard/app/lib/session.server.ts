@@ -3,7 +3,7 @@ import type { Session } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { createServerClient, type UserPreferences } from "@repo/supabase";
 import { createDatabaseSessionStorage } from "./database-session.server";
-import { db, eq, schema } from "~/lib/db.server";
+import { db, eq, schema } from "@repo/database";
 
 export const sessionStorage = createDatabaseSessionStorage({
   cookie: {
@@ -42,6 +42,33 @@ export async function getAuthSession(request: Request) {
   };
 }
 
+export async function getPossibleSession(request: Request) {
+  const response = new Response();
+  const supabase = createServerClient(request, response);
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) return { response, supabase };
+
+  const user = await db.query.profiles.findFirst({
+    where: (table, { eq }) => eq(table.id, session.user.id),
+  });
+  if (!user) return { response, supabase };
+
+  return {
+    session,
+    user: {
+      ...user,
+      ...session.user.user_metadata,
+      preferences: user.preferences as UserPreferences,
+    },
+    response,
+    supabase,
+  };
+}
+
 export async function requireAuthSession(request: Request) {
   const response = new Response();
   const supabase = createServerClient(request, response);
@@ -52,22 +79,21 @@ export async function requireAuthSession(request: Request) {
 
   const { pathname } = new URL(request.url);
   const redirectTo = [`/sign-in`];
-  const browserSession = await getSession(request);
-  if (pathname !== "/" && pathname !== "/sign-in") {
-    browserSession.set("redirect_uri", pathname);
-    redirectTo.push(`?redirectTo=${pathname}`);
-  }
-  response.headers.append("set-cookie", await commitSession(browserSession));
   if (!session) {
+    const browserSession = await getSession(request);
+    if (pathname !== "/" && pathname !== "/sign-in") {
+      browserSession.set("redirect_uri", pathname);
+      redirectTo.push(`?redirectTo=${pathname}`);
+    }
+    response.headers.append("set-cookie", await commitSession(browserSession));
     throw redirect(redirectTo.join(""), {
       headers: response.headers,
     });
   }
 
-  const [user] = await db
-    .select()
-    .from(schema.profiles)
-    .where(eq(schema.profiles.id, session.user.id));
+  const user = await db.query.profiles.findFirst({
+    where: (table, { eq }) => eq(table.id, session.user.id),
+  });
 
   if (!user) {
     throw redirect(redirectTo.join(""), {

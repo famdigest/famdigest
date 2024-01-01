@@ -4,6 +4,9 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:dashboard": "turbo dev --filter @repo/dashboard...",
+    "dev:cron": "turbo dev --filter @repo/cron-server...",
+    "dev:stack": "turbo dev --filter @repo/dashboard... --filter @repo/cron-server...",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },

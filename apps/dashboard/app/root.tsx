@@ -1,6 +1,8 @@
 import serifFontStyleSheet from "./fonts.css";
 import globalStyleSheet from "@repo/ui/styles/global.css";
 import sansFontStyleSheet from "@fontsource-variable/open-sans/index.css";
+import swiperStyleSheet from "swiper/swiper-bundle.css";
+import swiperExtraStyleSheet from "./swiper-extra.css";
 
 import { cssBundleHref } from "@remix-run/css-bundle";
 import {
@@ -36,6 +38,8 @@ import { withSentry, captureRemixErrorBoundaryError } from "@sentry/remix";
 export const links: LinksFunction = () => [
   { rel: "preload", href: serifFontStyleSheet, as: "style" },
   { rel: "preload", href: sansFontStyleSheet, as: "style" },
+  { rel: "preload", href: swiperStyleSheet, as: "style" },
+  { rel: "preload", href: swiperExtraStyleSheet, as: "style" },
   { rel: "preload", href: globalStyleSheet, as: "style" },
   ...(cssBundleHref
     ? [{ rel: "preload", href: cssBundleHref, as: "style" }]
@@ -44,6 +48,8 @@ export const links: LinksFunction = () => [
   //These should match the css preloads above to avoid css as render blocking resource
   { rel: "stylesheet", href: serifFontStyleSheet },
   { rel: "stylesheet", href: sansFontStyleSheet },
+  { rel: "stylesheet", href: swiperStyleSheet },
+  { rel: "stylesheet", href: swiperExtraStyleSheet },
   { rel: "stylesheet", href: globalStyleSheet },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];

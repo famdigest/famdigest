@@ -6,7 +6,11 @@ import {
   type EmailOtpType,
 } from "@repo/supabase";
 import { identify, track, people } from "@repo/tracking";
+import { slugify } from "@repo/ui";
+import { z } from "zod";
 import { SESSION_KEYS } from "~/constants";
+import { autoSubscribe } from "~/lib/auto-subscribe.server";
+import { db, schema } from "@repo/database";
 import { commitSession, getSession } from "~/lib/session.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -93,6 +97,73 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         });
       }
 
+      const identifyPeople = () => {
+        if (!data.user) return;
+        identify({
+          request,
+          properties: {
+            device_id: session.id,
+            user_id: data.user.id,
+          },
+        });
+
+        people({
+          id: data.user.id,
+          request,
+          properties: {
+            name: data.user.user_metadata?.full_name,
+            email: data.user.email!,
+            created: data.user.created_at,
+            avatar: data.user.user_metadata?.avatar_url,
+          },
+        });
+      };
+
+      // join data?
+      if (session.has(SESSION_KEYS.join)) {
+        const joinSchema = z.object({
+          token: z.string(),
+          invited_by: z.string(),
+        });
+        const joinValid = joinSchema.safeParse(
+          JSON.parse(session.get(SESSION_KEYS.join))
+        );
+        if (joinValid.success) {
+          const workspace = await db.query.workspaces.findFirst({
+            where: (table, { eq }) =>
+              eq(table.access_code, joinValid.data.token),
+          });
+          if (workspace) {
+            await db.insert(schema.workspace_users).values({
+              user_id: data.user.id,
+              workspace_id: workspace.id,
+              role: "member",
+            });
+            session.set(SESSION_KEYS.workspace, workspace.id);
+            track({
+              request,
+              properties: {
+                event_name: "Signed Up",
+                device_id: session.id,
+                user_id: data.user.id,
+              },
+            });
+            identifyPeople();
+            const subscriberId = await autoSubscribe({
+              invited_by_id: joinValid.data.invited_by,
+              owner_id: data.user.id,
+              workspace_id: workspace.id,
+            });
+            session.unset(SESSION_KEYS.join);
+            response.headers.append("Set-cookie", await commitSession(session));
+            const finalUrl = subscriberId ? `/setup/${subscriberId}` : "/setup";
+            return redirect(finalUrl, {
+              headers: response.headers,
+            });
+          }
+        }
+      }
+
       const { data: workspaces } = await supabase.from("workspaces").select();
       if (!workspaces?.length) {
         identify({
@@ -114,7 +185,27 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           },
         });
 
-        return redirect("/onboarding", {
+        // auto create a workspace since the workspace
+        // is not really a need here and allows us to
+        // skip a step
+        const name = `${data.user.user_metadata.full_name}'s Workspace`;
+        const [autoWorkspace] = await db
+          .insert(schema.workspaces)
+          .values({
+            owner_id: data.user.id,
+            name: name,
+            slug: slugify(name),
+          })
+          .returning();
+        await db.insert(schema.workspace_users).values({
+          user_id: data.user.id,
+          workspace_id: autoWorkspace.id,
+          role: "owner",
+        });
+        session.set(SESSION_KEYS.workspace, autoWorkspace.id);
+        response.headers.append("Set-cookie", await commitSession(session));
+
+        return redirect("/setup", {
           headers: response.headers,
         });
       }

@@ -21,7 +21,7 @@ import {
   time,
   primaryKey,
 } from "drizzle-orm/pg-core";
-import { relations, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 export const key_status = pgEnum("key_status", [
   "expired",
@@ -81,6 +81,8 @@ export const invitation_type = pgEnum("invitation_type", [
   "one-time",
 ]);
 export const provider_type = pgEnum("provider_type", [
+  "office365",
+  "apple",
   "hotmail",
   "live",
   "icloud",
@@ -90,70 +92,15 @@ export const provider_type = pgEnum("provider_type", [
   "yahoo",
   "outlook",
   "google",
-  "apple",
-  "office365",
 ]);
 export const message_role = pgEnum("message_role", ["user", "assistant"]);
+export const event_preference = pgEnum("event_preference", [
+  "next-day",
+  "same-day",
+]);
+export const request_type = pgEnum("request_type", ["calendar", "digest"]);
 
 export const auth = pgSchema("auth");
-
-export const audit_log_entries = auth.table(
-  "audit_log_entries",
-  {
-    instance_id: uuid("instance_id"),
-    id: uuid("id").primaryKey().notNull(),
-    payload: json("payload"),
-    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
-    ip_address: varchar("ip_address", { length: 64 })
-      .default(sql`''::character varying`)
-      .notNull(),
-  },
-  (table) => {
-    return {
-      audit_logs_instance_id_idx: index("audit_logs_instance_id_idx").on(
-        table.instance_id
-      ),
-    };
-  }
-);
-
-export const refresh_tokens = auth.table(
-  "refresh_tokens",
-  {
-    instance_id: uuid("instance_id"),
-    id: bigserial("id", { mode: "bigint" }).primaryKey().notNull(),
-    token: varchar("token", { length: 255 }),
-    user_id: varchar("user_id", { length: 255 }),
-    revoked: boolean("revoked"),
-    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
-    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" }),
-    parent: varchar("parent", { length: 255 }),
-    session_id: uuid("session_id").references(() => sessions.id, {
-      onDelete: "cascade",
-    }),
-  },
-  (table) => {
-    return {
-      instance_id_idx: index("refresh_tokens_instance_id_idx").on(
-        table.instance_id
-      ),
-      instance_id_user_id_idx: index(
-        "refresh_tokens_instance_id_user_id_idx"
-      ).on(table.instance_id, table.user_id),
-      parent_idx: index("refresh_tokens_parent_idx").on(table.parent),
-      session_id_revoked_idx: index("refresh_tokens_session_id_revoked_idx").on(
-        table.revoked,
-        table.session_id
-      ),
-      updated_at_idx: index("refresh_tokens_updated_at_idx").on(
-        table.updated_at
-      ),
-      refresh_tokens_token_unique: unique("refresh_tokens_token_unique").on(
-        table.token
-      ),
-    };
-  }
-);
 
 export const users = auth.table(
   "users",
@@ -258,18 +205,6 @@ export const users = auth.table(
   }
 );
 
-export const instances = auth.table("instances", {
-  id: uuid("id").primaryKey().notNull(),
-  uuid: uuid("uuid"),
-  raw_base_config: text("raw_base_config"),
-  created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
-  updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" }),
-});
-
-export const schema_migrations = auth.table("schema_migrations", {
-  version: varchar("version", { length: 255 }).primaryKey().notNull(),
-});
-
 export const sessions = pgTable("sessions", {
   id: uuid("id").primaryKey().notNull(),
   data: jsonb("data"),
@@ -279,209 +214,12 @@ export const sessions = pgTable("sessions", {
   created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
 });
 
-export const mfa_factors = auth.table(
-  "mfa_factors",
-  {
-    id: uuid("id").primaryKey().notNull(),
-    user_id: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    friendly_name: text("friendly_name"),
-    // TODO: failed to parse database type 'auth.factor_type'
-    factor_type: factor_type("factor_type").notNull(),
-    // TODO: failed to parse database type 'auth.factor_status'
-    status: factor_status("status").notNull(),
-    created_at: timestamp("created_at", {
-      withTimezone: true,
-      mode: "string",
-    }).notNull(),
-    updated_at: timestamp("updated_at", {
-      withTimezone: true,
-      mode: "string",
-    }).notNull(),
-    secret: text("secret"),
-  },
-  (table) => {
-    return {
-      user_friendly_name_unique: uniqueIndex(
-        "mfa_factors_user_friendly_name_unique"
-      ).on(table.user_id, table.friendly_name),
-      factor_id_created_at_idx: index("factor_id_created_at_idx").on(
-        table.user_id,
-        table.created_at
-      ),
-      user_id_idx: index("mfa_factors_user_id_idx").on(table.user_id),
-    };
-  }
-);
-
-export const mfa_challenges = auth.table(
-  "mfa_challenges",
-  {
-    id: uuid("id").primaryKey().notNull(),
-    factor_id: uuid("factor_id")
-      .notNull()
-      .references(() => mfa_factors.id, { onDelete: "cascade" }),
-    created_at: timestamp("created_at", {
-      withTimezone: true,
-      mode: "string",
-    }).notNull(),
-    verified_at: timestamp("verified_at", {
-      withTimezone: true,
-      mode: "string",
-    }),
-    ip_address: inet("ip_address").notNull(),
-  },
-  (table) => {
-    return {
-      mfa_challenge_created_at_idx: index("mfa_challenge_created_at_idx").on(
-        table.created_at
-      ),
-    };
-  }
-);
-
-export const mfa_amr_claims = auth.table(
-  "mfa_amr_claims",
-  {
-    session_id: uuid("session_id")
-      .notNull()
-      .references(() => sessions.id, { onDelete: "cascade" }),
-    created_at: timestamp("created_at", {
-      withTimezone: true,
-      mode: "string",
-    }).notNull(),
-    updated_at: timestamp("updated_at", {
-      withTimezone: true,
-      mode: "string",
-    }).notNull(),
-    authentication_method: text("authentication_method").notNull(),
-    id: uuid("id").primaryKey().notNull(),
-  },
-  (table) => {
-    return {
-      mfa_amr_claims_session_id_authentication_method_pkey: unique(
-        "mfa_amr_claims_session_id_authentication_method_pkey"
-      ).on(table.session_id, table.authentication_method),
-    };
-  }
-);
-
-export const sso_providers = auth.table("sso_providers", {
-  id: uuid("id").primaryKey().notNull(),
-  resource_id: text("resource_id"),
-  created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
-  updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" }),
-});
-
-export const sso_domains = auth.table(
-  "sso_domains",
-  {
-    id: uuid("id").primaryKey().notNull(),
-    sso_provider_id: uuid("sso_provider_id")
-      .notNull()
-      .references(() => sso_providers.id, { onDelete: "cascade" }),
-    domain: text("domain").notNull(),
-    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
-    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" }),
-  },
-  (table) => {
-    return {
-      sso_provider_id_idx: index("sso_domains_sso_provider_id_idx").on(
-        table.sso_provider_id
-      ),
-    };
-  }
-);
-
-export const saml_providers = auth.table(
-  "saml_providers",
-  {
-    id: uuid("id").primaryKey().notNull(),
-    sso_provider_id: uuid("sso_provider_id")
-      .notNull()
-      .references(() => sso_providers.id, { onDelete: "cascade" }),
-    entity_id: text("entity_id").notNull(),
-    metadata_xml: text("metadata_xml").notNull(),
-    metadata_url: text("metadata_url"),
-    attribute_mapping: jsonb("attribute_mapping"),
-    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
-    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" }),
-  },
-  (table) => {
-    return {
-      sso_provider_id_idx: index("saml_providers_sso_provider_id_idx").on(
-        table.sso_provider_id
-      ),
-      saml_providers_entity_id_key: unique("saml_providers_entity_id_key").on(
-        table.entity_id
-      ),
-    };
-  }
-);
-
-export const saml_relay_states = auth.table(
-  "saml_relay_states",
-  {
-    id: uuid("id").primaryKey().notNull(),
-    sso_provider_id: uuid("sso_provider_id")
-      .notNull()
-      .references(() => sso_providers.id, { onDelete: "cascade" }),
-    request_id: text("request_id").notNull(),
-    for_email: text("for_email"),
-    redirect_to: text("redirect_to"),
-    from_ip_address: inet("from_ip_address"),
-    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
-    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" }),
-    flow_state_id: uuid("flow_state_id").references(() => flow_state.id, {
-      onDelete: "cascade",
-    }),
-  },
-  (table) => {
-    return {
-      sso_provider_id_idx: index("saml_relay_states_sso_provider_id_idx").on(
-        table.sso_provider_id
-      ),
-      for_email_idx: index("saml_relay_states_for_email_idx").on(
-        table.for_email
-      ),
-      created_at_idx: index("saml_relay_states_created_at_idx").on(
-        table.created_at
-      ),
-    };
-  }
-);
-
-export const flow_state = auth.table(
-  "flow_state",
-  {
-    id: uuid("id").primaryKey().notNull(),
-    user_id: uuid("user_id"),
-    auth_code: text("auth_code").notNull(),
-    // TODO: failed to parse database type 'auth.code_challenge_method'
-    code_challenge_method: code_challenge_method(
-      "code_challenge_method"
-    ).notNull(),
-    code_challenge: text("code_challenge").notNull(),
-    provider_type: text("provider_type").notNull(),
-    provider_access_token: text("provider_access_token"),
-    provider_refresh_token: text("provider_refresh_token"),
-    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
-    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" }),
-    authentication_method: text("authentication_method").notNull(),
-  },
-  (table) => {
-    return {
-      idx_auth_code: index("idx_auth_code").on(table.auth_code),
-      idx_user_id_auth_method: index("idx_user_id_auth_method").on(
-        table.user_id,
-        table.authentication_method
-      ),
-      created_at_idx: index("flow_state_created_at_idx").on(table.created_at),
-    };
-  }
-);
-
+type Preferences = {
+  theme: "light" | "dark" | "system";
+  notify_on?: string;
+  timezone?: string;
+  event_preferences?: typeof event_preference;
+};
 export const profiles = pgTable(
   "profiles",
   {
@@ -493,7 +231,7 @@ export const profiles = pgTable(
     preferences: jsonb("preferences")
       .default({ theme: "light" })
       .notNull()
-      .$type<Record<string, any>>(),
+      .$type<Preferences>(),
     created_at: timestamp("created_at", {
       withTimezone: true,
       mode: "string",
@@ -506,7 +244,6 @@ export const profiles = pgTable(
   (table) => {
     return {
       profiles_email_key: unique("profiles_email_key").on(table.email),
-      profiles_phone_key: unique("profiles_phone_key").on(table.phone),
     };
   }
 );
@@ -530,6 +267,9 @@ export const workspaces = pgTable("workspaces", {
     withTimezone: true,
     mode: "string",
   }).default(sql`timezone('utc'::text, now())`),
+  access_code: text("access_code")
+    .default(sql`SUBSTRING((gen_random_uuid())::text FROM 1 FOR 8)`)
+    .notNull(),
 });
 
 export const billing_customers = pgTable("billing_customers", {
@@ -549,46 +289,9 @@ export const billing_products = pgTable("billing_products", {
   name: text("name"),
   description: text("description"),
   image: text("image"),
-  metadata: jsonb("metadata").$type<Record<string, any>>(),
+  metadata: jsonb("metadata"),
   provider: billing_providers("provider").default("stripe"),
 });
-
-export const invitations = pgTable(
-  "invitations",
-  {
-    id: uuid("id")
-      .default(sql`uuid_generate_v4()`)
-      .primaryKey()
-      .notNull(),
-    role: workspace_role("role").notNull(),
-    workspace_id: uuid("workspace_id")
-      .notNull()
-      .references(() => workspaces.id),
-    token: text("token")
-      .default(sql`uuid_generate_v4()`)
-      .notNull(),
-    email: text("email").notNull(),
-    invite_url: text("invite_url"),
-    invited_by_user_id: uuid("invited_by_user_id")
-      .notNull()
-      .references(() => profiles.id),
-    workspace_name: text("workspace_name"),
-    created_at: timestamp("created_at", {
-      withTimezone: true,
-      mode: "string",
-    }).default(sql`timezone('utc'::text, now())`),
-    updated_at: timestamp("updated_at", {
-      withTimezone: true,
-      mode: "string",
-    }).default(sql`timezone('utc'::text, now())`),
-    invitation_type: invitation_type("invitation_type").default("one-time"),
-  },
-  (table) => {
-    return {
-      invitations_token_key: unique("invitations_token_key").on(table.token),
-    };
-  }
-);
 
 export const billing_prices = pgTable("billing_prices", {
   id: text("id").primaryKey().notNull(),
@@ -656,20 +359,58 @@ export const billing_subscriptions = pgTable("billing_subscriptions", {
   provider: billing_providers("provider").default("stripe"),
 });
 
-export const connections = pgTable("connections", {
+export const invitations = pgTable(
+  "invitations",
+  {
+    id: uuid("id")
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey()
+      .notNull(),
+    role: workspace_role("role").notNull(),
+    workspace_id: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id),
+    token: text("token")
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    email: text("email").notNull(),
+    invite_url: text("invite_url"),
+    invited_by_user_id: uuid("invited_by_user_id")
+      .notNull()
+      .references(() => profiles.id),
+    workspace_name: text("workspace_name"),
+    created_at: timestamp("created_at", {
+      withTimezone: true,
+      mode: "string",
+    }).default(sql`timezone('utc'::text, now())`),
+    updated_at: timestamp("updated_at", {
+      withTimezone: true,
+      mode: "string",
+    }).default(sql`timezone('utc'::text, now())`),
+    invitation_type: invitation_type("invitation_type").default("one-time"),
+    request_type: request_type("request_type").default("calendar"),
+  },
+  (table) => {
+    return {
+      invitations_token_key: unique("invitations_token_key").on(table.token),
+    };
+  }
+);
+
+export const digests = pgTable("digests", {
   id: uuid("id")
     .default(sql`uuid_generate_v4()`)
     .primaryKey()
     .notNull(),
   owner_id: uuid("owner_id")
     .notNull()
-    .references(() => profiles.id),
-  email: text("email").notNull(),
-  provider: provider_type("provider").notNull(),
+    .references(() => profiles.id, { onDelete: "cascade" }),
+  full_name: text("full_name").notNull(),
+  phone: text("phone").notNull(),
+  opt_in: boolean("opt_in").default(false).notNull(),
   enabled: boolean("enabled").default(true).notNull(),
-  data: jsonb("data").$type<Record<string, any> | string>(),
-  invalid: boolean("invalid").default(false),
-  error: jsonb("error").$type<Record<string, any>>(),
+  timezone: text("timezone").notNull(),
+  notify_on: time("notify_on", { withTimezone: true }).notNull(),
   created_at: timestamp("created_at", {
     withTimezone: true,
     mode: "string",
@@ -680,18 +421,20 @@ export const connections = pgTable("connections", {
   }).default(sql`timezone('utc'::text, now())`),
 });
 
-export const digests = pgTable("digests", {
+export const calendars = pgTable("calendars", {
   id: uuid("id")
     .default(sql`uuid_generate_v4()`)
     .primaryKey()
     .notNull(),
   owner_id: uuid("owner_id")
     .notNull()
-    .references(() => profiles.id),
-  full_name: text("full_name").notNull(),
-  phone: text("phone").notNull(),
-  opt_in: boolean("opt_in").default(false).notNull(),
+    .references(() => profiles.id, { onDelete: "cascade" }),
+  connection_id: uuid("connection_id")
+    .notNull()
+    .references(() => connections.id, { onDelete: "cascade" }),
+  external_id: text("external_id").notNull(),
   enabled: boolean("enabled").default(true).notNull(),
+  data: jsonb("data").$type<Record<string, any>>(),
   created_at: timestamp("created_at", {
     withTimezone: true,
     mode: "string",
@@ -700,8 +443,98 @@ export const digests = pgTable("digests", {
     withTimezone: true,
     mode: "string",
   }).default(sql`timezone('utc'::text, now())`),
+  name: text("name"),
+});
+
+export const subscriptions = pgTable("subscriptions", {
+  id: uuid("id")
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey()
+    .notNull(),
+  owner_id: uuid("owner_id")
+    .notNull()
+    .references(() => profiles.id, { onDelete: "cascade" }),
+  workspace_id: uuid("workspace_id")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
+  user_id: uuid("user_id").references(() => profiles.id, {
+    onDelete: "set null",
+  }),
+  full_name: text("full_name").notNull(),
+  phone: text("phone").notNull(),
+  opt_in: boolean("opt_in").default(false).notNull(),
+  enabled: boolean("enabled").default(true).notNull(),
   timezone: text("timezone").notNull(),
-  notify_on: time("notify_on").notNull(),
+  notify_on: time("notify_on", { withTimezone: true }).notNull(),
+  event_preferences: event_preference("event_preferences")
+    .default("same-day")
+    .notNull(),
+  access_code: text("access_code")
+    .default(sql`SUBSTRING((gen_random_uuid())::text FROM 1 FOR 8)`)
+    .notNull(),
+  created_at: timestamp("created_at", {
+    withTimezone: true,
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
+  updated_at: timestamp("updated_at", {
+    withTimezone: true,
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
+});
+
+export const subscription_logs = pgTable("subscription_logs", {
+  id: uuid("id")
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey()
+    .notNull(),
+  owner_id: uuid("owner_id")
+    .notNull()
+    .references(() => profiles.id, { onDelete: "cascade" }),
+  workspace_id: uuid("workspace_id")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
+  subscription_id: uuid("subscription_id")
+    .notNull()
+    .references(() => subscriptions.id, { onDelete: "cascade" }),
+  external_id: text("external_id").notNull(),
+  message: text("message").notNull(),
+  segments: integer("segments").notNull(),
+  data: jsonb("data").$type<Record<string, any>>(),
+  created_at: timestamp("created_at", {
+    withTimezone: true,
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
+  updated_at: timestamp("updated_at", {
+    withTimezone: true,
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
+});
+
+export const connections = pgTable("connections", {
+  id: uuid("id")
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey()
+    .notNull(),
+  owner_id: uuid("owner_id")
+    .notNull()
+    .references(() => profiles.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  provider: provider_type("provider").notNull(),
+  enabled: boolean("enabled").default(true).notNull(),
+  data: jsonb("data").$type<Record<string, any>>(),
+  created_at: timestamp("created_at", {
+    withTimezone: true,
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
+  updated_at: timestamp("updated_at", {
+    withTimezone: true,
+    mode: "string",
+  }).default(sql`timezone('utc'::text, now())`),
+  invalid: boolean("invalid").default(false),
+  error: jsonb("error").$type<Record<string, any>>(),
+  workspace_id: uuid("workspace_id")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
 });
 
 export const messages = pgTable("messages", {
@@ -720,7 +553,6 @@ export const messages = pgTable("messages", {
   segments: integer("segments").notNull(),
   role: message_role("role").notNull(),
   data: jsonb("data").$type<Record<string, any>>(),
-  tags: jsonb("tags").$type<string[]>(),
   created_at: timestamp("created_at", {
     withTimezone: true,
     mode: "string",
@@ -729,32 +561,31 @@ export const messages = pgTable("messages", {
     withTimezone: true,
     mode: "string",
   }).default(sql`timezone('utc'::text, now())`),
+  tags: jsonb("tags").default([]),
+  workspace_id: uuid("workspace_id")
+    .notNull()
+    .references(() => workspaces.id, { onDelete: "cascade" }),
 });
 
-export const calendars = pgTable("calendars", {
-  id: uuid("id")
-    .default(sql`uuid_generate_v4()`)
-    .primaryKey()
-    .notNull(),
-  owner_id: uuid("owner_id")
-    .notNull()
-    .references(() => profiles.id),
-  connection_id: uuid("connection_id")
-    .notNull()
-    .references(() => connections.id),
-  name: text("name").notNull(),
-  external_id: text("external_id").notNull(),
-  enabled: boolean("enabled").default(true).notNull(),
-  data: jsonb("data").$type<Record<string, any>>(),
-  created_at: timestamp("created_at", {
-    withTimezone: true,
-    mode: "string",
-  }).default(sql`timezone('utc'::text, now())`),
-  updated_at: timestamp("updated_at", {
-    withTimezone: true,
-    mode: "string",
-  }).default(sql`timezone('utc'::text, now())`),
-});
+export const subscription_calendars = pgTable(
+  "subscription_calendars",
+  {
+    subscription_id: uuid("subscription_id")
+      .notNull()
+      .references(() => subscriptions.id, { onDelete: "cascade" }),
+    calendar_id: uuid("calendar_id")
+      .notNull()
+      .references(() => calendars.id, { onDelete: "cascade" }),
+  },
+  (table) => {
+    return {
+      subscription_calendar_pkey: primaryKey({
+        columns: [table.subscription_id, table.calendar_id],
+        name: "subscription_calendar_pkey",
+      }),
+    };
+  }
+);
 
 export const workspace_users = pgTable(
   "workspace_users",
@@ -780,35 +611,6 @@ export const workspace_users = pgTable(
       workspace_user_pkey: primaryKey({
         columns: [table.user_id, table.workspace_id],
         name: "workspace_user_pkey",
-      }),
-    };
-  }
-);
-
-export const identities = auth.table(
-  "identities",
-  {
-    id: text("id").notNull(),
-    user_id: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    identity_data: jsonb("identity_data").notNull(),
-    provider: text("provider").notNull(),
-    last_sign_in_at: timestamp("last_sign_in_at", {
-      withTimezone: true,
-      mode: "string",
-    }),
-    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }),
-    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" }),
-    email: text("email"),
-  },
-  (table) => {
-    return {
-      user_id_idx: index("identities_user_id_idx").on(table.user_id),
-      email_idx: index("identities_email_idx").on(table.email),
-      identities_pkey: primaryKey({
-        columns: [table.id, table.provider],
-        name: "identities_pkey",
       }),
     };
   }

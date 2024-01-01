@@ -1,7 +1,7 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import { NotificationService } from "@repo/notifications";
 import MessagingResponse from "twilio/lib/twiml/MessagingResponse.js";
-import { db, eq, schema } from "~/lib/db.server";
+import { db, eq, schema } from "@repo/database";
 import { TwilioMessageSchema, sendMessage } from "~/lib/twilio.server";
 
 export async function action({ request }: ActionFunctionArgs) {

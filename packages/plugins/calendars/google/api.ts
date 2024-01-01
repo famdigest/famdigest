@@ -35,9 +35,13 @@ export async function getToken(code: string) {
 export async function handler({
   code,
   user,
+  workspace,
+  is_external = false,
 }: {
   user: Table<"profiles">;
+  workspace: Table<"workspaces">;
   code: string;
+  is_external?: boolean;
 }) {
   const { tokens } = await auth.getToken(code);
   auth.setCredentials(tokens);
@@ -56,6 +60,7 @@ export async function handler({
     where: (connection, { and, eq }) =>
       and(
         eq(connection.owner_id, user.id),
+        eq(connection.workspace_id, workspace.id),
         eq(connection.email, parsedIdToken.email!),
         eq(connection.provider, "google")
       ),
@@ -66,12 +71,14 @@ export async function handler({
     const [connection] = await db
       .insert(schema.connections)
       .values({
+        workspace_id: workspace.id,
         owner_id: user.id,
         email: parsedIdToken.email,
         provider: "google",
         data: tokens,
         invalid: false,
         error: null,
+        is_external,
       })
       .returning();
     if (connection) {

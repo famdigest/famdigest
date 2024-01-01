@@ -1,5 +1,5 @@
 import { protectedProcedure, router } from "../trpc.server";
-import { and, db, eq, schema } from "~/lib/db.server";
+import { and, db, eq, schema } from "@repo/database";
 import { z } from "zod";
 import { commitSession } from "~/lib/session.server";
 import { generateAuthUrl } from "@repo/plugins";

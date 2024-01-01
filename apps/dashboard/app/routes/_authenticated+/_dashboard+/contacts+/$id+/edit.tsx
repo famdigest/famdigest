@@ -16,7 +16,7 @@ import {
   useCreateDigestForm,
   useDigestFormSubmit,
 } from "~/components/Digests/DigestForm";
-import { db } from "~/lib/db.server";
+import { db } from "@repo/database";
 import { getSession } from "~/lib/session.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -56,7 +56,7 @@ export default function Route() {
   });
 
   return (
-    <div className="p-6 md:p-12 space-y-12 container max-w-screen-md">
+    <div className="py-6 md:py-12 space-y-12 container max-w-screen-md">
       <DigestFormProvider form={form}>
         <form onSubmit={form.onSubmit(onSubmit)}>
           <Card>

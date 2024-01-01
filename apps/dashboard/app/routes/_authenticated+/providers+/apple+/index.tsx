@@ -1,12 +1,9 @@
 import { ActionFunctionArgs, redirect } from "@remix-run/node";
 import { track } from "@repo/tracking";
 import { z } from "zod";
-import {
-  commitSession,
-  getSession,
-  requireAuthSession,
-} from "~/lib/session.server";
+import { commitSession, getSession } from "~/lib/session.server";
 import { appleCalendarHandler as handler } from "@repo/plugins";
+import { getSessionWorkspace } from "~/lib/workspace.server";
 
 const appleCredentialSchema = z.object({
   username: z.string(),
@@ -14,7 +11,8 @@ const appleCredentialSchema = z.object({
   redirect_uri: z.string().optional(),
 });
 export async function action({ request }: ActionFunctionArgs) {
-  const { user, response } = await requireAuthSession(request);
+  const { user, workspace, response } = await getSessionWorkspace(request);
+  const session = await getSession(request);
   const { username, password, redirect_uri } = appleCredentialSchema.parse(
     Object.fromEntries(await request.formData())
   );
@@ -23,9 +21,9 @@ export async function action({ request }: ActionFunctionArgs) {
     user,
     username,
     password,
+    workspace,
   });
 
-  const session = await getSession(request);
   track({
     request,
     properties: {
@@ -37,6 +35,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   let finalRedirect = `/calendars/${connectionId}`;
+
   if (redirect_uri?.length) {
     finalRedirect = redirect_uri;
   } else if (session.has("redirect_uri")) {
@@ -44,7 +43,6 @@ export async function action({ request }: ActionFunctionArgs) {
     session.unset("redirect_uri");
   }
 
-  console.log({ finalRedirect });
   response.headers.set("set-cookie", await commitSession(session));
   return redirect(finalRedirect, {
     headers: response.headers,

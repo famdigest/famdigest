@@ -1,14 +1,44 @@
-import { Link, Outlet } from "@remix-run/react";
+import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { Logo } from "~/components/Logo";
-import type { MetaFunction } from "@remix-run/node";
+import {
+  json,
+  type LoaderFunctionArgs,
+  type MetaFunction,
+} from "@remix-run/node";
 import { cn } from "@repo/ui";
 import noise from "~/assets/noise.svg";
+import { getSession } from "~/lib/session.server";
+import { SESSION_KEYS } from "~/constants";
+import { db } from "@repo/database";
+import { IconMailCheck } from "@tabler/icons-react";
 
 export const meta: MetaFunction = () => {
   return [];
 };
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const session = await getSession(request);
+  let joinData: { token: string; invited_by: string } | undefined;
+  if (session.has(SESSION_KEYS.join)) {
+    joinData = JSON.parse(session.get(SESSION_KEYS.join));
+    const invited_by = await db.query.profiles.findFirst({
+      where: (table, { eq }) => eq(table.id, joinData?.invited_by as string),
+    });
+    return json({
+      join: true,
+      invited_by,
+    });
+  }
+
+  return json({
+    join: false,
+    invited_by: undefined,
+  });
+}
+
 export default function AuthLayout() {
+  const { join, invited_by } = useLoaderData<typeof loader>();
+
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-r from-rose-100 to-teal-100">
       <div
@@ -23,6 +53,14 @@ export default function AuthLayout() {
         id="main"
         className="grid grid-cols-1 lg:grid-cols-2 flex-1 relative z-10"
       >
+        {join && invited_by && (
+          <div className="absolute top-6 inset-x-0 flex justify-center">
+            <div className="bg-foreground text-white rounded-lg p-4 w-full max-w-sm flex items-center justify-center gap-x-2 text-sm">
+              <IconMailCheck size={20} />
+              <p>You are joining {invited_by.full_name}'s workspace.</p>
+            </div>
+          </div>
+        )}
         <div className="flex items-center justify-center overflow-hidden relative z-10 px-8">
           <div className="flex flex-col items-center lg:items-start gap-y-2 w-full max-w-lg">
             <p className="text-2xl font-medium font-serif mb-8">FamDigest</p>

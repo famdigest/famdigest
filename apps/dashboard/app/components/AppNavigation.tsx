@@ -29,6 +29,7 @@ import {
 } from "@tabler/icons-react";
 import { trpc } from "~/lib/trpc";
 import { useSupabase } from "./SupabaseProvider";
+import { useMemo } from "react";
 
 export function AppNavigation() {
   return (
@@ -105,6 +106,16 @@ function NavDropdownMenu() {
     await supabase.auth.signOut();
   };
 
+  const userName = useMemo(() => {
+    if (user.full_name) {
+      return user.full_name;
+    }
+    if (user.email) {
+      return user.email.split("@").shift();
+    }
+    return user.id.substring(0, 8);
+  }, [user]);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -122,7 +133,7 @@ function NavDropdownMenu() {
             />
             <AvatarFallback>{user.full_name?.slice(0, 2)}</AvatarFallback>
           </Avatar>
-          <span className="hidden sm:inline">{user.full_name}</span>
+          <span className="hidden sm:inline truncate">{userName}</span>
           <IconSelector className="hidden sm:inline ml-auto h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
@@ -163,12 +174,11 @@ function NavDropdownMenu() {
           </DropdownMenuPortal>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-sm leading-5 rounded-none"
-          onClick={() => signOut()}
-        >
-          <IconLogout2 size={14} className="mr-2" />
-          Sign Out
+        <DropdownMenuItem className="text-sm leading-5 rounded-none" asChild>
+          <Link to="/sign-out">
+            <IconLogout2 size={14} className="mr-2" />
+            Sign Out
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

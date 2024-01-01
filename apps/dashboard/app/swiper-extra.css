@@ -1,0 +1,3 @@
+.swiper-slide-active {
+  @apply bg-muted text-muted-foreground rounded-md font-semibold;
+}

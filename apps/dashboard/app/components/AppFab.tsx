@@ -1,7 +1,12 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Link } from "@remix-run/react";
 import { Popover, PopoverTrigger, Button, PopoverContent } from "@repo/ui";
-import { IconCalendar, IconMessage, IconX } from "@tabler/icons-react";
+import {
+  IconCalendar,
+  IconMessage,
+  IconUser,
+  IconX,
+} from "@tabler/icons-react";
 
 export function AppFab() {
   const [open, { toggle }] = useDisclosure(false);
@@ -33,14 +38,14 @@ export function AppFab() {
         </Link>
 
         <Link
-          to="/contacts/new"
+          to="/subscribers/new"
           className="flex items-center gap-x-4 bg-slate-900 p-2 rounded-[8px]"
         >
           <div className="bg-blue-600 text-white h-8 aspect-square flex items-center justify-center rounded-full">
-            <IconMessage size={20} />
+            <IconUser size={20} />
           </div>
           <div>
-            <p className="font-serif">Add Contact</p>
+            <p className="font-serif">Add Subscriber</p>
             <p className="text-xs text-slate-300">
               Want others to receive your daily digest?
             </p>

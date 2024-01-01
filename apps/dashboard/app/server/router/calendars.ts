@@ -1,6 +1,6 @@
 import { calendarsRowSchema } from "@repo/supabase";
 import { protectedProcedure, router } from "../trpc.server";
-import { db, eq, schema } from "~/lib/db.server";
+import { db, eq, schema } from "@repo/database";
 
 const updateRow = calendarsRowSchema.pick({ id: true, enabled: true });
 

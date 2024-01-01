@@ -143,7 +143,62 @@ export const sessionsUpdateSchema = z.object({
   id: z.string().optional(),
 });
 
+export const subscriptionCalendarsRowSchema = z.object({
+  calendar_id: z.string(),
+  subscription_id: z.string(),
+});
+
+export const subscriptionCalendarsInsertSchema = z.object({
+  calendar_id: z.string(),
+  subscription_id: z.string(),
+});
+
+export const subscriptionCalendarsUpdateSchema = z.object({
+  calendar_id: z.string().optional(),
+  subscription_id: z.string().optional(),
+});
+
+export const subscriptionLogsRowSchema = z.object({
+  created_at: z.string().nullable(),
+  data: jsonSchema.nullable(),
+  external_id: z.string(),
+  id: z.string(),
+  message: z.string(),
+  owner_id: z.string(),
+  segments: z.number(),
+  subscription_id: z.string(),
+  updated_at: z.string().nullable(),
+  workspace_id: z.string(),
+});
+
+export const subscriptionLogsInsertSchema = z.object({
+  created_at: z.string().optional().nullable(),
+  data: jsonSchema.optional().nullable(),
+  external_id: z.string(),
+  id: z.string().optional(),
+  message: z.string(),
+  owner_id: z.string(),
+  segments: z.number(),
+  subscription_id: z.string(),
+  updated_at: z.string().optional().nullable(),
+  workspace_id: z.string(),
+});
+
+export const subscriptionLogsUpdateSchema = z.object({
+  created_at: z.string().optional().nullable(),
+  data: jsonSchema.optional().nullable(),
+  external_id: z.string().optional(),
+  id: z.string().optional(),
+  message: z.string().optional(),
+  owner_id: z.string().optional(),
+  segments: z.number().optional(),
+  subscription_id: z.string().optional(),
+  updated_at: z.string().optional().nullable(),
+  workspace_id: z.string().optional(),
+});
+
 export const workspacesRowSchema = z.object({
+  access_code: z.string(),
   created_at: z.string().nullable(),
   id: z.string(),
   name: z.string(),
@@ -154,6 +209,7 @@ export const workspacesRowSchema = z.object({
 });
 
 export const workspacesInsertSchema = z.object({
+  access_code: z.string().optional(),
   created_at: z.string().optional().nullable(),
   id: z.string().optional(),
   name: z.string(),
@@ -164,6 +220,7 @@ export const workspacesInsertSchema = z.object({
 });
 
 export const workspacesUpdateSchema = z.object({
+  access_code: z.string().optional(),
   created_at: z.string().optional().nullable(),
   id: z.string().optional(),
   name: z.string().optional(),
@@ -178,6 +235,11 @@ export const currentUserAccountRoleReturnsSchema = jsonSchema;
 export const getWorkspaceBillingStatusReturnsSchema = jsonSchema;
 
 export const lookupInvitationReturnsSchema = jsonSchema;
+
+export const eventPreferenceSchema = z.union([
+  z.literal("same-day"),
+  z.literal("next-day"),
+]);
 
 export const invitationTypeSchema = z.union([
   z.literal("one-time"),
@@ -215,6 +277,11 @@ export const providerTypeSchema = z.union([
   z.literal("office365"),
 ]);
 
+export const requestTypeSchema = z.union([
+  z.literal("digest"),
+  z.literal("calendar"),
+]);
+
 export const subscriptionStatusSchema = z.union([
   z.literal("trialing"),
   z.literal("active"),
@@ -242,6 +309,7 @@ export const connectionsRowSchema = z.object({
   owner_id: z.string(),
   provider: providerTypeSchema,
   updated_at: z.string().nullable(),
+  workspace_id: z.string(),
 });
 
 export const connectionsInsertSchema = z.object({
@@ -255,6 +323,7 @@ export const connectionsInsertSchema = z.object({
   owner_id: z.string(),
   provider: providerTypeSchema,
   updated_at: z.string().optional().nullable(),
+  workspace_id: z.string(),
 });
 
 export const connectionsUpdateSchema = z.object({
@@ -268,6 +337,7 @@ export const connectionsUpdateSchema = z.object({
   owner_id: z.string().optional(),
   provider: providerTypeSchema.optional(),
   updated_at: z.string().optional().nullable(),
+  workspace_id: z.string().optional(),
 });
 
 export const invitationsRowSchema = z.object({
@@ -277,6 +347,7 @@ export const invitationsRowSchema = z.object({
   invitation_type: invitationTypeSchema.nullable(),
   invite_url: z.string().nullable(),
   invited_by_user_id: z.string(),
+  request_type: requestTypeSchema.nullable(),
   role: workspaceRoleSchema,
   token: z.string(),
   updated_at: z.string().nullable(),
@@ -291,6 +362,7 @@ export const invitationsInsertSchema = z.object({
   invitation_type: invitationTypeSchema.optional().nullable(),
   invite_url: z.string().optional().nullable(),
   invited_by_user_id: z.string(),
+  request_type: requestTypeSchema.optional().nullable(),
   role: workspaceRoleSchema,
   token: z.string().optional(),
   updated_at: z.string().optional().nullable(),
@@ -305,6 +377,7 @@ export const invitationsUpdateSchema = z.object({
   invitation_type: invitationTypeSchema.optional().nullable(),
   invite_url: z.string().optional().nullable(),
   invited_by_user_id: z.string().optional(),
+  request_type: requestTypeSchema.optional().nullable(),
   role: workspaceRoleSchema.optional(),
   token: z.string().optional(),
   updated_at: z.string().optional().nullable(),
@@ -324,6 +397,7 @@ export const messagesRowSchema = z.object({
   segments: z.number(),
   tags: jsonSchema.nullable(),
   updated_at: z.string().nullable(),
+  workspace_id: z.string(),
 });
 
 export const messagesInsertSchema = z.object({
@@ -338,6 +412,7 @@ export const messagesInsertSchema = z.object({
   segments: z.number(),
   tags: jsonSchema.optional().nullable(),
   updated_at: z.string().optional().nullable(),
+  workspace_id: z.string(),
 });
 
 export const messagesUpdateSchema = z.object({
@@ -352,6 +427,58 @@ export const messagesUpdateSchema = z.object({
   segments: z.number().optional(),
   tags: jsonSchema.optional().nullable(),
   updated_at: z.string().optional().nullable(),
+  workspace_id: z.string().optional(),
+});
+
+export const subscriptionsRowSchema = z.object({
+  access_code: z.string(),
+  created_at: z.string().nullable(),
+  enabled: z.boolean(),
+  event_preferences: eventPreferenceSchema,
+  full_name: z.string(),
+  id: z.string(),
+  notify_on: z.string(),
+  opt_in: z.boolean(),
+  owner_id: z.string(),
+  phone: z.string(),
+  timezone: z.string(),
+  updated_at: z.string().nullable(),
+  user_id: z.string().nullable(),
+  workspace_id: z.string(),
+});
+
+export const subscriptionsInsertSchema = z.object({
+  access_code: z.string().optional(),
+  created_at: z.string().optional().nullable(),
+  enabled: z.boolean().optional(),
+  event_preferences: eventPreferenceSchema.optional(),
+  full_name: z.string(),
+  id: z.string().optional(),
+  notify_on: z.string(),
+  opt_in: z.boolean().optional(),
+  owner_id: z.string(),
+  phone: z.string(),
+  timezone: z.string(),
+  updated_at: z.string().optional().nullable(),
+  user_id: z.string().optional().nullable(),
+  workspace_id: z.string(),
+});
+
+export const subscriptionsUpdateSchema = z.object({
+  access_code: z.string().optional(),
+  created_at: z.string().optional().nullable(),
+  enabled: z.boolean().optional(),
+  event_preferences: eventPreferenceSchema.optional(),
+  full_name: z.string().optional(),
+  id: z.string().optional(),
+  notify_on: z.string().optional(),
+  opt_in: z.boolean().optional(),
+  owner_id: z.string().optional(),
+  phone: z.string().optional(),
+  timezone: z.string().optional(),
+  updated_at: z.string().optional().nullable(),
+  user_id: z.string().optional().nullable(),
+  workspace_id: z.string().optional(),
 });
 
 export const workspaceUsersRowSchema = z.object({

@@ -35,6 +35,12 @@ export function convertToUTC(timestring: string) {
   return utcTime.format("HH:mm:ss");
 }
 
+export function convertTimeToLocalTime(timestring: string, timezone: string) {
+  const [hour, minute] = timestring.split(":");
+  const now = dayjs.utc().hour(Number(hour)).minute(Number(minute)).second(0);
+  return now.tz(timezone);
+}
+
 export function convertToLocal(timestring: string) {
   const [hour, minute] = timestring.split(":");
   const now = dayjs.utc().hour(Number(hour)).minute(Number(minute)).second(0);

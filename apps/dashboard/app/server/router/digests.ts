@@ -4,7 +4,7 @@ import {
   digestsUpdateSchema,
 } from "@repo/supabase";
 import { protectedProcedure, router } from "../trpc.server";
-import { db, desc, eq, schema } from "~/lib/db.server";
+import { db, desc, eq, schema } from "@repo/database";
 import { z } from "zod";
 import { track } from "@repo/tracking";
 import dayjs from "dayjs";
@@ -35,19 +35,19 @@ export const digestsRouter = router({
         .insert(schema.digests)
         .values({
           ...input,
-          phone: `+${input.phone.replace(/\D/g, "")}`,
+          phone: input.phone.replace(/\D/g, ""),
           owner_id: ctx.user.id,
         })
         .returning();
 
-      // NotificationService.send({
-      //   key: "contact.welcomeMessage",
-      //   recipient: digest,
-      //   owner: ctx.user,
-      //   contact: digest,
-      //   type: "sms",
-      //   includeVCard: true,
-      // });
+      NotificationService.send({
+        key: "contact.welcomeMessage",
+        recipient: digest,
+        owner: ctx.user,
+        contact: digest,
+        type: "sms",
+        includeVCard: true,
+      });
 
       track({
         request: ctx.req,
@@ -119,7 +119,7 @@ export const digestsRouter = router({
         .update(schema.digests)
         .set({
           full_name: input.full_name,
-          phone: `+${input.phone?.replace(/\D/g, "")}`,
+          phone: input.phone?.replace(/\D/g, ""),
           opt_in: input.opt_in,
           enabled: input.enabled,
           timezone: input.timezone,

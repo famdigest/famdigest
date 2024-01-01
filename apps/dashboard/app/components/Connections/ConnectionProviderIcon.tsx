@@ -1,34 +1,38 @@
 import { Enums } from "@repo/supabase";
 import { cn } from "@repo/ui";
-import { IconBrandApple, IconCalendar } from "@tabler/icons-react";
+import { IconCalendar } from "@tabler/icons-react";
 import { GoogleCalendarIcon } from "../GoogleIcon";
 import outlookIcon from "~/assets/outlook-icon.svg";
+import appleIcon from "~/assets/apple-icon.svg";
 
 export function ConnectionProviderIcon({
   provider,
+  className,
 }: {
-  provider: Enums<"provider_type">;
+  provider?: Enums<"provider_type">;
+  className?: string;
 }) {
   const icon = () => {
     if (provider === "google") {
-      return <GoogleCalendarIcon className="w-6 h-6 lg:w-8 lg:h-8" />;
+      return <GoogleCalendarIcon className="w-full h-full" />;
     }
 
     if (provider === "apple") {
-      return <IconBrandApple className="w-6 h-6 lg:w-8 lg:h-8" />;
+      return <img src={appleIcon} className="w-full h-full" />;
     }
 
     if (provider === "office365") {
-      return <img src={outlookIcon} className="w-6 h-6 lg:w-8 lg:h-8" />;
+      return <img src={outlookIcon} className="w-full h-full" />;
     }
 
-    return <IconCalendar className="w-6 h-6 lg:w-8 lg:h-8" />;
+    return <IconCalendar className="w-full h-full" />;
   };
 
   return (
     <div
       className={cn(
-        "w-10 lg:w-16 aspect-square rounded-md border flex items-center justify-center shrink-0"
+        "w-10 aspect-square flex items-center justify-center shrink-0",
+        className
       )}
     >
       {icon()}

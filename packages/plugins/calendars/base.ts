@@ -38,6 +38,7 @@ export interface ExternalCalendar {
   listCalendars(): Promise<Calendar[]>;
   getCalendar(calendarId: string | null): Promise<Calendar | null>;
   getTodayEvents(calendarId: string): Promise<CalendarEvent[]>;
+  getTomorrowEvents(calendarId: string): Promise<CalendarEvent[]>;
   getCalendarTimezone(calendarId: string): Promise<string | null>;
 }
 
@@ -180,6 +181,19 @@ export default abstract class BaseCalendarService implements ExternalCalendar {
     const calendarTime = getLocalTime(timezone ?? "America/New_York");
     const start = calendarTime.startOf("day");
     const end = calendarTime.endOf("day");
+
+    const events = await this.getEvents(calendarId, {
+      start: start.toISOString(),
+      end: end.toISOString(),
+    });
+    return events;
+  }
+
+  async getTomorrowEvents(calendarId: string): Promise<CalendarEvent[]> {
+    const timezone = await this.getCalendarTimezone(calendarId);
+    const calendarTime = getLocalTime(timezone ?? "America/New_York");
+    const start = calendarTime.add(1, "day").startOf("day");
+    const end = calendarTime.add(1, "day").endOf("day");
 
     const events = await this.getEvents(calendarId, {
       start: start.toISOString(),
