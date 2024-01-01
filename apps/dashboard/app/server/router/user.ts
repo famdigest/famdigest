@@ -11,22 +11,21 @@ import {
   publicProcedure,
   router,
 } from "~/server/trpc.server";
+import { db } from "@repo/database";
 
 export const userRouter = router({
   me: protectedProcedure.query(async ({ ctx, input }) => {
-    const { data, error } = await ctx.supabase
-      .from("profiles")
-      .select()
-      .match({ id: ctx.user.id })
-      .single();
-    if (error) throw error;
-    return {
-      ...data,
-      preferences: data.preferences as UserPreferences,
-    };
+    const me = await db.query.profiles.findFirst({
+      where: (table, { eq }) => eq(table.id, ctx.user.id),
+    });
+    return me;
   }),
   update: protectedProcedure
-    .input(profilesInsertSchema.omit({ id: true }))
+    .input(
+      profilesInsertSchema
+        .omit({ id: true, preferences: true })
+        .extend({ preferences: z.record(z.any()) })
+    )
     .mutation(async ({ ctx, input }) => {
       if (input.email && ctx.user.email !== input.email) {
         const { error } = await ctx.supabase.auth.updateUser({

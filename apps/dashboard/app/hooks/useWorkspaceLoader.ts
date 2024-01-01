@@ -1,5 +1,6 @@
 import { useMatches } from "@remix-run/react";
-import { Profile, Workspace, WorkspaceBillingStatus } from "@repo/supabase";
+import { Profile, Workspace } from "@repo/database";
+import { WorkspaceBillingStatus } from "@repo/supabase";
 
 export function useWorkspaceLoader() {
   const match = useMatches().find(

@@ -5,29 +5,12 @@ import {
 } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { and, db, desc, eq, schema } from "@repo/database";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  Badge,
-  Button,
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  cn,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Separator,
-  Switch,
-} from "@repo/ui";
-import { getSession, requireAuthSession } from "~/lib/session.server";
+import { Avatar, AvatarFallback, AvatarImage, cn } from "@repo/ui";
+import { getSession } from "~/lib/session.server";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 import {
   IconCalendar,
   IconChevronRight,
-  IconMessage,
   IconSettings,
   IconUserBolt,
   IconWallet,
@@ -36,7 +19,6 @@ import { AppFab } from "~/components/AppFab";
 import dayjs from "dayjs";
 import { useMemo } from "react";
 import { trackPageView } from "@repo/tracking";
-import { EnableDigest } from "~/components/EnableDigest";
 import { trpc } from "~/lib/trpc";
 import { getSessionWorkspace } from "~/lib/workspace.server";
 
@@ -147,17 +129,17 @@ export default function Index() {
         className={cn("flex items-center gap-x-4 container max-w-screen-lg")}
       >
         <Avatar className="">
-          {user.avatar_url ? (
-            <AvatarImage src={user.avatar_url}></AvatarImage>
+          {user?.avatar_url ? (
+            <AvatarImage src={user?.avatar_url}></AvatarImage>
           ) : (
             <AvatarFallback className="uppercase bg-muted border select-none">
-              {user.email?.substring(0, 2)}
+              {user?.email?.substring(0, 2)}
             </AvatarFallback>
           )}
         </Avatar>
         <div>
           <h1 className="text-xl md:text-2xl font-semibold font-serif">
-            Hello, {user.full_name ?? "fam"}!
+            Hello, {user?.full_name ?? "fam"}!
           </h1>
           <p className="text-sm lg:text-base">{workspace.name}</p>
         </div>

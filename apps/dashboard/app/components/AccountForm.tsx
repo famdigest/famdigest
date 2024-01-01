@@ -2,7 +2,6 @@
 import InputMask from "@mona-health/react-input-mask";
 import { useForm, zodResolver } from "@mantine/form";
 import { IconLoader2 } from "@tabler/icons-react";
-import type { z } from "zod";
 import {
   Button,
   FormField,
@@ -15,16 +14,10 @@ import {
   useToast,
 } from "@repo/ui";
 import { trpc } from "~/lib/trpc";
-import {
-  type Table,
-  profilesUpdateSchema,
-  UserPreferences,
-} from "@repo/supabase";
+import { profilesUpdateSchema } from "@repo/supabase";
 import { useRevalidator } from "@remix-run/react";
+import { Profile } from "@repo/database";
 
-type Profile = Omit<Table<"profiles">, "preferences"> & {
-  preferences: UserPreferences;
-};
 export function AccountForm({ user }: { user: Profile }) {
   const { toast } = useToast();
   const utils = trpc.useUtils();
@@ -47,13 +40,13 @@ export function AccountForm({ user }: { user: Profile }) {
     },
   });
 
-  const form = useForm<z.infer<typeof profilesUpdateSchema>>({
+  const form = useForm<Profile>({
     validate: zodResolver(profilesUpdateSchema),
     initialValues: {
       ...user,
       preferences: {
         ...(user.preferences ?? {}),
-        theme: user.preferences?.theme ?? "ligth",
+        theme: user.preferences?.theme ?? "light",
       },
     },
   });

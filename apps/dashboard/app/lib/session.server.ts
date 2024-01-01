@@ -106,7 +106,7 @@ export async function requireAuthSession(request: Request) {
     user: {
       ...user,
       ...session.user.user_metadata,
-      preferences: user.preferences as UserPreferences,
+      // preferences: user.preferences as UserPreferences,
     },
     response,
     supabase,
