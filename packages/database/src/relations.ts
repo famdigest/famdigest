@@ -79,7 +79,7 @@ export const billingSubscriptionsRelations = relations(
   })
 );
 
-export const invitationsRelations = relations(invitations, ({ many, one }) => ({
+export const invitationsRelations = relations(invitations, ({ one }) => ({
   workspaces: one(workspaces, {
     fields: [invitations.workspace_id],
     references: [workspaces.id],
@@ -116,7 +116,7 @@ export const connectionsRelations = relations(connections, ({ many, one }) => ({
   }),
 }));
 
-export const calendarsRelations = relations(calendars, ({ one, many }) => ({
+export const calendarsRelations = relations(calendars, ({ one }) => ({
   connection: one(connections, {
     fields: [calendars.connection_id],
     references: [connections.id],

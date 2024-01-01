@@ -3,7 +3,6 @@ import { sendMessage, sendEmail } from "./lib";
 import { TemplateProps } from "./templates/types";
 import { notificationsMap } from "./templates";
 import { Profile, Subscriber, db, schema } from "@repo/database";
-import { Table } from "@repo/supabase";
 
 export * from "./lib";
 

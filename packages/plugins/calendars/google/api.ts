@@ -1,8 +1,7 @@
 import { google } from "googleapis";
 import jwt from "jsonwebtoken";
 import { getBaseUrl } from "../../lib/base-url";
-import { db, eq, schema } from "@repo/database";
-import { Table } from "@repo/supabase";
+import { Profile, Workspace, db, eq, schema } from "@repo/database";
 
 const scopes = [
   "https://www.googleapis.com/auth/calendar.readonly",
@@ -36,10 +35,9 @@ export async function handler({
   code,
   user,
   workspace,
-  is_external = false,
 }: {
-  user: Table<"profiles">;
-  workspace: Table<"workspaces">;
+  user: Profile;
+  workspace: Workspace;
   code: string;
   is_external?: boolean;
 }) {
@@ -78,7 +76,6 @@ export async function handler({
         data: tokens,
         invalid: false,
         error: null,
-        is_external,
       })
       .returning();
     if (connection) {

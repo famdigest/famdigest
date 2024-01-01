@@ -1,11 +1,17 @@
 import { stringify } from "querystring";
-import { Table } from "@repo/supabase";
 import {
   Office365CalendarService,
   Office365Connection,
   getBaseUrl,
 } from "../..";
-import { InferSelectModel, db, eq, schema } from "@repo/database";
+import {
+  InferSelectModel,
+  Profile,
+  Workspace,
+  db,
+  eq,
+  schema,
+} from "@repo/database";
 
 const scopes = ["User.Read", "Calendars.Read", "offline_access"];
 
@@ -35,8 +41,8 @@ export async function handler({
   workspace,
 }: {
   code: string;
-  user: Table<"profiles">;
-  workspace: Table<"workspaces">;
+  user: Profile;
+  workspace: Workspace;
 }) {
   const toUrlEncoded = (payload: Record<string, string>) =>
     Object.keys(payload)
@@ -100,6 +106,8 @@ export async function handler({
         email: responseBody.email,
         provider: "office365",
         data: responseBody,
+        invalid: false,
+        error: null,
       })
       .returning();
     if (result) {
