@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { and, db, eq, schema } from "@repo/database";
+import { db, schema } from "@repo/database";
 import { getCalendarProviderClass } from "@repo/plugins";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
@@ -66,16 +66,16 @@ async function routes(fastify: FastifyInstance, _options: any) {
           allEvents.push(...events);
         } catch (error) {
           //
-          // NotificationService.send({
-          //   key: "owner.connectionFailure",
-          //   recipient: subscriber,
-          //   owner: subscriber.owner,
-          //   contact: subscriber.owner,
-          //   // @ts-ignore jsonb bullshit
-          //   workspace: workspace,
-          //   calendar: calendar,
-          //   type: "both",
-          // });
+          NotificationService.send({
+            key: "owner.connectionFailure",
+            recipient: subscriber,
+            owner: subscriber.owner,
+            contact: subscriber.owner,
+            // @ts-ignore jsonb bullshit
+            workspace: workspace,
+            calendar: calendar,
+            type: "both",
+          });
         }
       }
 
@@ -125,70 +125,68 @@ FamDigest Team`;
 
       totalEventsCaptured = totalEventsCaptured + allEvents.length;
 
-      console.log("outboundMessage", outboundMessage);
       // twilio
-      // if (subscriber.phone) {
-      //   const sentMessage = await sendMessage({
-      //     body: outboundMessage,
-      //     to: subscriber.phone,
-      //   });
+      if (subscriber.phone) {
+        const sentMessage = await sendMessage({
+          body: outboundMessage,
+          to: subscriber.phone,
+        });
 
-      //   await db.insert(schema.messages).values({
-      //     role: "assistant",
-      //     message: outboundMessage,
-      //     external_id: sentMessage.sid,
-      //     segments: Number(sentMessage.numSegments),
-      //     digest_id: subscriber.id,
-      //     owner_id: subscriber.id,
-      //     workspace_id: workspace.id,
-      //     data: { msg: sentMessage, events: allEvents },
-      //   });
-      // }
+        await db.insert(schema.subscription_logs).values({
+          message: outboundMessage,
+          external_id: sentMessage.sid,
+          segments: Number(sentMessage.numSegments),
+          subscription_id: subscriber.id,
+          owner_id: subscriber.id,
+          workspace_id: subscriber.workspace.id,
+          data: { msg: sentMessage, events: allEvents },
+        });
+      }
     }
 
     // hit slack
-    // if (subscribers.length > 0) {
-    //   await sendNotification({
-    //     blocks: [
-    //       {
-    //         type: "header",
-    //         text: {
-    //           type: "plain_text",
-    //           text: "Daily Digest Report",
-    //         },
-    //       },
-    //       {
-    //         type: "rich_text",
-    //         elements: [
-    //           {
-    //             type: "rich_text_list",
-    //             style: "bullet",
-    //             elements: [
-    //               {
-    //                 type: "rich_text_section",
-    //                 elements: [
-    //                   {
-    //                     type: "text",
-    //                     text: `Digest Sent: ${subscribers.length}`,
-    //                   },
-    //                 ],
-    //               },
-    //               {
-    //                 type: "rich_text_section",
-    //                 elements: [
-    //                   {
-    //                     type: "text",
-    //                     text: `Total Events Captured: ${totalEventsCaptured}`,
-    //                   },
-    //                 ],
-    //               },
-    //             ],
-    //           },
-    //         ],
-    //       },
-    //     ],
-    //   });
-    // }
+    if (subscribers.length > 0) {
+      await sendNotification({
+        blocks: [
+          {
+            type: "header",
+            text: {
+              type: "plain_text",
+              text: "Daily Digest Report",
+            },
+          },
+          {
+            type: "rich_text",
+            elements: [
+              {
+                type: "rich_text_list",
+                style: "bullet",
+                elements: [
+                  {
+                    type: "rich_text_section",
+                    elements: [
+                      {
+                        type: "text",
+                        text: `Digest Sent: ${subscribers.length}`,
+                      },
+                    ],
+                  },
+                  {
+                    type: "rich_text_section",
+                    elements: [
+                      {
+                        type: "text",
+                        text: `Total Events Captured: ${totalEventsCaptured}`,
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+    }
 
     reply.send({
       data: {

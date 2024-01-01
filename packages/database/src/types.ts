@@ -2,6 +2,7 @@ import { InferSelectModel } from "drizzle-orm";
 import * as schema from "./schema";
 
 export type Profile = InferSelectModel<typeof schema.profiles>;
+export type Workspace = InferSelectModel<typeof schema.workspaces>;
 
 /**
  * Connection + Calendars
