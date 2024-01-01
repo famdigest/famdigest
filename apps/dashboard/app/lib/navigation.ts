@@ -13,7 +13,7 @@ import {
 export const navigation = [
   { slug: "/", name: "Dashboard", icon: IconLayoutDashboard },
   { slug: "/calendars", name: "Calendars", icon: IconCalendar },
-  { slug: "/contacts", name: "Contacts", icon: IconMessage },
+  { slug: "/subscribers", name: "Subscribers", icon: IconMessage },
   { slug: "/settings", name: "Settings", icon: IconSettings },
 ];
 

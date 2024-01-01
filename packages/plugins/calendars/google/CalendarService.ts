@@ -152,6 +152,19 @@ export class GoogleCalendarService implements ExternalCalendar {
     return events;
   }
 
+  async getTomorrowEvents(calendarId: string): Promise<CalendarEvent[]> {
+    const timezone = await this.getCalendarTimezone(calendarId);
+    const calendarTime = getLocalTime(timezone ?? "America/New_York");
+    const start = calendarTime.add(1, "day").startOf("day");
+    const end = calendarTime.add(1, "day").endOf("day");
+
+    const events = await this.getEvents(calendarId, {
+      start: start.toISOString(),
+      end: end.toISOString(),
+    });
+    return events;
+  }
+
   private transformEvent(event: calendar_v3.Schema$Event): CalendarEvent {
     const allDay = !!event.start?.date;
     return {

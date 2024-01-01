@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs, MetaFunction, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { db, desc, eq, schema } from "~/lib/db.server";
+import { db, desc, eq, schema } from "@repo/database";
 import { DigestsView } from "~/components/Digests/Digests";
 import { getSession, requireAuthSession } from "~/lib/session.server";
 import { people, trackPageView } from "@repo/tracking";
@@ -50,7 +50,7 @@ export default function Route() {
   const { digests } = useLoaderData<typeof loader>();
 
   return (
-    <div className="p-6 md:p-12 space-y-12 container max-w-screen-lg">
+    <div className="py-6 md:py-12 space-y-12 container max-w-screen-lg">
       <DigestsView initialData={digests} />
     </div>
   );

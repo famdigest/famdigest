@@ -21,6 +21,12 @@ export function getUtcOffset(timezone: string) {
   return dayjs.utc().tz(timezone).utcOffset();
 }
 
+export function convertTimeToUTC(datetimestring: string) {
+  const now = dayjs(datetimestring).second(0);
+  const utcTime = now.utc();
+  return utcTime.format("HH:mm:ss");
+}
+
 export function convertToUTC(timestring: string) {
   const hasSeconds = timestring.split(":").length === 3;
   const hasAmPm = timestring.toLowerCase().includes("m");

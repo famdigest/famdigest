@@ -66,7 +66,7 @@ import type { Enums } from "@repo/supabase";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
 import { getSessionWorkspace } from "~/lib/workspace.server";
-import { db, eq, schema } from "~/lib/db.server";
+import { db, eq, schema } from "@repo/database";
 import { getSession } from "~/lib/session.server";
 import { trackPageView } from "@repo/tracking";
 
@@ -189,13 +189,12 @@ export default function Route() {
                 >
                   <div className="flex items-center gap-x-3">
                     <Avatar className="">
-                      {user.avatar_url ? (
+                      {user.avatar_url && (
                         <AvatarImage src={user.avatar_url}></AvatarImage>
-                      ) : (
-                        <AvatarFallback className="uppercase bg-muted">
-                          {user.email?.substring(0, 2)}
-                        </AvatarFallback>
                       )}
+                      <AvatarFallback className="uppercase bg-muted">
+                        {user.email?.substring(0, 2)}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="text-sm font-medium">

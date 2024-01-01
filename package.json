@@ -3,7 +3,12 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
+    "build:dashboard": "turbo build --filter @repo/dashboard...",
+    "build:cron": "turbo build --filter @repo/cron-server...",
     "dev": "turbo dev",
+    "dev:dashboard": "turbo dev --filter @repo/dashboard...",
+    "dev:cron": "turbo dev --filter @repo/cron-server...",
+    "dev:stack": "turbo dev --filter @repo/dashboard... --filter @repo/cron-server...",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },

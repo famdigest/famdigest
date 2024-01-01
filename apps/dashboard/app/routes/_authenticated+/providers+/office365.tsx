@@ -1,14 +1,11 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { o365CalendarHandler as handler } from "@repo/plugins";
 import { track } from "@repo/tracking";
-import {
-  commitSession,
-  getSession,
-  requireAuthSession,
-} from "~/lib/session.server";
+import { commitSession, getSession } from "~/lib/session.server";
+import { getSessionWorkspace } from "~/lib/workspace.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { user, response } = await requireAuthSession(request);
+  const { user, workspace, response } = await getSessionWorkspace(request);
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   if (!code) {
@@ -20,6 +17,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const connectionId = await handler({
       code,
       user,
+      workspace,
     });
 
     const session = await getSession(request);

@@ -3,7 +3,7 @@ import { createSessionStorage } from "@remix-run/node"; // or cloudflare/deno
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import crypto from "crypto";
-import { db, schema, eq } from "~/lib/db.server";
+import { db, schema, eq } from "@repo/database";
 dayjs.extend(utc);
 
 // write a encrypt methos using crypto to encrypt the session data

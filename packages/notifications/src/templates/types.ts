@@ -1,7 +1,9 @@
+import { Profile, Subscriber, Workspace } from "@repo/database";
 import { Table } from "@repo/supabase";
 
 export interface TemplateProps {
-  owner: Table<"profiles">;
-  contact: Table<"digests">;
+  workspace: Workspace;
+  owner: Profile;
+  contact: Profile | Subscriber;
   calendar?: Table<"calendars">;
 }

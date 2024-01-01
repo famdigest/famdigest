@@ -158,6 +158,10 @@ export class Office365CalendarService implements ExternalCalendar {
     return Promise.resolve([]);
   }
 
+  getTomorrowEvents(_calendarId: string): Promise<CalendarEvent[]> {
+    return Promise.resolve([]);
+  }
+
   private fetcher = async (
     endpoint: string,
     init?: RequestInit | undefined

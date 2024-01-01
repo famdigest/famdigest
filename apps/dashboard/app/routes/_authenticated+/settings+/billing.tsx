@@ -24,7 +24,7 @@ import { trpc } from "~/lib/trpc";
 import { useIsTeamOwner } from "~/hooks/is-team-owner";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
 import { LoaderFunctionArgs, json } from "@remix-run/node";
-import { db, eq, schema } from "~/lib/db.server";
+import { db, eq, schema } from "@repo/database";
 import { useLoaderData } from "@remix-run/react";
 import { useDisclosure } from "@mantine/hooks";
 import { getDaysLeft } from "~/lib/dates";

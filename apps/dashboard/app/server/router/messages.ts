@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../trpc.server";
-import { and, db, desc, eq, schema, sql } from "~/lib/db.server";
+import { and, db, desc, eq, schema, sql } from "@repo/database";
 import dayjs from "dayjs";
 
 const messageFilters = z.object({

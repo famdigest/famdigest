@@ -9,6 +9,7 @@ import { connectionsRouter } from "./connections";
 import { digestsRouter } from "./digests";
 import { calendarRouter } from "./calendars";
 import { messagesRouter } from "./messages";
+import { subscriptionRouter } from "./subscriptions";
 
 export const appRouter = router({
   healthcheck: publicProcedure.query(() => "yay!"),
@@ -22,6 +23,7 @@ export const appRouter = router({
   digests: digestsRouter,
   calendars: calendarRouter,
   messages: messagesRouter,
+  subscribers: subscriptionRouter,
 });
 
 // Export only the type of a router!

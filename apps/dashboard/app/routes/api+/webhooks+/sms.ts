@@ -1,7 +1,7 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import { NotificationService } from "@repo/notifications";
 import MessagingResponse from "twilio/lib/twiml/MessagingResponse.js";
-import { db, eq, schema } from "~/lib/db.server";
+import { db, eq, schema } from "@repo/database";
 import { TwilioMessageSchema, sendMessage } from "~/lib/twilio.server";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -23,18 +23,19 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const { From, Body, SmsSid, NumSegments } = validation.data;
 
-  const digest = await db.query.digests.findFirst({
-    where: eq(schema.digests.phone, From),
+  const subscriber = await db.query.subscriptions.findFirst({
+    where: (table, { eq }) => eq(table.phone, From),
     with: {
-      profile: true,
+      owner: true,
+      workspace: true,
     },
   });
-  if (!digest) {
+  if (!subscriber) {
     // nope
     return json(
       {
         success: false,
-        error: "Digest user not found",
+        error: "User not found",
       },
       {
         status: 500,
@@ -42,14 +43,14 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  await db.insert(schema.messages).values({
+  await db.insert(schema.subscription_logs).values({
     message: Body,
-    role: "user",
     external_id: SmsSid,
-    digest_id: digest.id,
+    subscription_id: subscriber.id,
     segments: Number(NumSegments),
     data: validation.data,
-    owner_id: digest.owner_id,
+    owner_id: subscriber.owner_id,
+    workspace_id: subscriber.workspace_id,
   });
 
   const twiml = new MessagingResponse();
@@ -58,34 +59,37 @@ export async function action({ request }: ActionFunctionArgs) {
     Body.toLowerCase().startsWith("yes") ||
     Body.toLowerCase().includes("yes")
   ) {
-    if (!digest.opt_in) {
+    if (!subscriber.opt_in) {
+      // opt-in all instances
       await db
-        .update(schema.digests)
+        .update(schema.subscriptions)
         .set({
           opt_in: true,
         })
-        .where(eq(schema.digests.id, digest.id));
+        .where(eq(schema.subscriptions.phone, subscriber.phone));
 
       // send message
       NotificationService.send({
         key: "owner.subscriberOptInConfirmation",
-        owner: digest.profile,
-        contact: digest,
-        recipient: digest.profile,
+        owner: subscriber.owner,
+        contact: subscriber,
+        recipient: subscriber.owner,
+        workspace: subscriber.workspace,
         type: "both",
       });
     }
 
     NotificationService.send({
       key: "contact.optInConfirmation",
-      owner: digest.profile,
-      contact: digest,
-      recipient: digest,
+      owner: subscriber.owner,
+      contact: subscriber,
+      recipient: subscriber,
+      workspace: subscriber.workspace,
       type: "sms",
     });
   } else {
     twiml.message(
-      `Thanks for reaching out, ${digest.full_name}. We are not accpeting inbound messages at the moment.`
+      `Thanks for reaching out, ${subscriber.full_name}. We are not accpeting inbound messages at the moment.`
     );
   }
 

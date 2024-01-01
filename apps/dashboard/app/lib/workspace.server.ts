@@ -51,7 +51,7 @@ export async function getSessionWorkspace(request: Request) {
     };
   }
 
-  throw redirect("/onboarding", {
+  throw redirect("/setup", {
     headers: response.headers,
   });
 }

@@ -1,8 +1,7 @@
 import { google } from "googleapis";
 import jwt from "jsonwebtoken";
 import { getBaseUrl } from "../../lib/base-url";
-import { db, eq, schema } from "@repo/database";
-import { Table } from "@repo/supabase";
+import { Profile, Workspace, db, eq, schema } from "@repo/database";
 
 const scopes = [
   "https://www.googleapis.com/auth/calendar.readonly",
@@ -35,9 +34,12 @@ export async function getToken(code: string) {
 export async function handler({
   code,
   user,
+  workspace,
 }: {
-  user: Table<"profiles">;
+  user: Profile;
+  workspace: Workspace;
   code: string;
+  is_external?: boolean;
 }) {
   const { tokens } = await auth.getToken(code);
   auth.setCredentials(tokens);
@@ -56,6 +58,7 @@ export async function handler({
     where: (connection, { and, eq }) =>
       and(
         eq(connection.owner_id, user.id),
+        eq(connection.workspace_id, workspace.id),
         eq(connection.email, parsedIdToken.email!),
         eq(connection.provider, "google")
       ),
@@ -66,6 +69,7 @@ export async function handler({
     const [connection] = await db
       .insert(schema.connections)
       .values({
+        workspace_id: workspace.id,
         owner_id: user.id,
         email: parsedIdToken.email,
         provider: "google",

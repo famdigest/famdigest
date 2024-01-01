@@ -11,7 +11,7 @@ import {
 } from "~/server/trpc.server";
 import { WORKSPACE_ROLES, type WorkspaceBillingStatus } from "@repo/supabase";
 import { people, track } from "@repo/tracking";
-import { db, eq, schema } from "~/lib/db.server";
+import { db, eq, schema } from "@repo/database";
 
 export const billingRouter = router({
   status: workspaceProcedure.query(async ({ ctx }) => {
@@ -22,14 +22,15 @@ export const billingRouter = router({
     return data as WorkspaceBillingStatus;
   }),
   plans: protectedProcedure.query(async ({ ctx }) => {
-    const { data, error } = await ctx.supabase
-      .from("billing_products")
-      .select("*, billing_prices(*)")
-      .match({ active: true })
-      .neq("name", "Free")
-      .order("name");
-    if (error) throw error;
-    return data;
+    const products = await db.query.billing_products.findMany({
+      with: {
+        billing_prices: {
+          where: (bp, { eq }) => eq(bp.active, true),
+        },
+      },
+      where: eq(schema.billing_products.active, true),
+    });
+    return products;
   }),
   portal: workspaceProcedure.mutation(async ({ ctx }) => {
     const { data, error } = await ctx.supabase

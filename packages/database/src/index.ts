@@ -14,3 +14,4 @@ export const schema = {
 export const db = drizzle(connection, { schema });
 
 export * from "drizzle-orm";
+export * from "./types";

@@ -4,7 +4,7 @@ import {
   type MetaFunction,
 } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { and, db, desc, eq, schema } from "~/lib/db.server";
+import { and, db, desc, eq, schema } from "@repo/database";
 import {
   Avatar,
   AvatarFallback,
@@ -20,6 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
   Separator,
+  Switch,
 } from "@repo/ui";
 import { getSession, requireAuthSession } from "~/lib/session.server";
 import { useWorkspaceLoader } from "~/hooks/useWorkspaceLoader";
@@ -28,12 +29,16 @@ import {
   IconChevronRight,
   IconMessage,
   IconSettings,
+  IconUserBolt,
   IconWallet,
 } from "@tabler/icons-react";
 import { AppFab } from "~/components/AppFab";
 import dayjs from "dayjs";
 import { useMemo } from "react";
 import { trackPageView } from "@repo/tracking";
+import { EnableDigest } from "~/components/EnableDigest";
+import { trpc } from "~/lib/trpc";
+import { getSessionWorkspace } from "~/lib/workspace.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -46,7 +51,7 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { user, response } = await requireAuthSession(request);
+  const { user, workspace, response } = await getSessionWorkspace(request);
 
   const calendars = await db
     .select()
@@ -63,16 +68,27 @@ export async function loader({ request }: LoaderFunctionArgs) {
     )
     .orderBy(desc(schema.calendars.created_at));
 
-  const digests = await db
-    .select()
-    .from(schema.digests)
-    .where(
-      and(
-        eq(schema.digests.owner_id, user.id),
-        eq(schema.digests.enabled, true)
-      )
-    )
-    .orderBy(desc(schema.digests.created_at));
+  const subscribers = await db.query.subscriptions.findMany({
+    where: (table, { eq }) => eq(table.owner_id, user.id),
+    with: {
+      subscription_calendars: {
+        with: {
+          calendar: true,
+        },
+      },
+    },
+  });
+
+  const subscriptions = await db.query.subscriptions.findMany({
+    where: (table, { eq }) => eq(table.user_id, user.id),
+    with: {
+      subscription_calendars: {
+        with: {
+          calendar: true,
+        },
+      },
+    },
+  });
 
   const session = await getSession(request);
   trackPageView({
@@ -88,7 +104,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     {
       user,
       calendars,
-      digests,
+      subscribers,
+      subscriptions,
     },
     {
       headers: response.headers,
@@ -97,8 +114,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Index() {
-  const { user, calendars, digests } = useLoaderData<typeof loader>();
+  const {
+    user: initialUser,
+    calendars,
+    subscribers,
+    subscriptions,
+  } = useLoaderData<typeof loader>();
   const { workspace, billing_status } = useWorkspaceLoader();
+
+  const { data: user } = trpc.users.me.useQuery(undefined, {
+    initialData: initialUser,
+  });
 
   const planMessage = useMemo(() => {
     if (!billing_status) return "";
@@ -116,11 +142,9 @@ export default function Index() {
   }, [billing_status]);
 
   return (
-    <div className="flex-1 py-6 md:py-12 relative">
+    <div className="flex-1 py-6 md:py-12 relative space-y-12">
       <header
-        className={cn(
-          "flex items-center gap-x-4 container max-w-screen-lg mb-12 md:mb-24"
-        )}
+        className={cn("flex items-center gap-x-4 container max-w-screen-lg")}
       >
         <Avatar className="">
           {user.avatar_url ? (
@@ -159,11 +183,13 @@ export default function Index() {
               <IconChevronRight className="ml-auto" />
             </div>
             <div className="border rounded-lg p-4 relative flex items-center gap-x-4">
-              <Link to="/contacts" className="absolute inset-0">
-                <span className="sr-only">Contacts</span>
+              <Link to="/subscribers" className="absolute inset-0">
+                <span className="sr-only">subscribers</span>
               </Link>
-              <IconMessage />
-              <p className="font-medium text-sm">Contacts ({digests.length})</p>
+              <IconUserBolt />
+              <p className="font-medium text-sm">
+                Subscribers ({subscribers.length})
+              </p>
               <IconChevronRight className="ml-auto" />
             </div>
           </div>

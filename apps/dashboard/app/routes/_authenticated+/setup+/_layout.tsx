@@ -15,7 +15,10 @@ export default function Layout() {
       />
       <header>
         <div className="container flex items-center justify-between py-4">
-          <div className="text-2xl font-medium font-serif">FamDigest</div>
+          <div className="text-2xl font-medium font-serif">
+            FamDigest{" "}
+            <span className="font-sans text-base font-normal">/ Setup</span>
+          </div>
         </div>
       </header>
       <main id="main" className="flex-1 flex flex-col relative z-10">

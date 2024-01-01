@@ -2,8 +2,7 @@ import { MessageInstance } from "twilio/lib/rest/api/v2010/account/message";
 import { sendMessage, sendEmail } from "./lib";
 import { TemplateProps } from "./templates/types";
 import { notificationsMap } from "./templates";
-import { db, schema } from "@repo/database";
-import { Table } from "@repo/supabase";
+import { Profile, Subscriber, db, schema } from "@repo/database";
 
 export * from "./lib";
 
@@ -11,7 +10,7 @@ export interface NotificationData extends TemplateProps {
   type: "email" | "sms" | "both";
   key: keyof typeof notificationsMap;
   subject?: string;
-  recipient: Table<"profiles"> | Table<"digests">;
+  recipient: Profile | Subscriber;
   includeVCard?: boolean;
 }
 export class NotificationService {
@@ -20,6 +19,7 @@ export class NotificationService {
       type,
       key,
       recipient,
+      workspace,
       owner,
       contact,
       calendar,
@@ -32,6 +32,7 @@ export class NotificationService {
       sendEmail({
         to: recipient.email!,
         react: template.react({
+          workspace,
           owner,
           contact,
           calendar,
@@ -42,13 +43,14 @@ export class NotificationService {
 
     if ((type === "both" || type === "sms") && recipient.phone) {
       const message = await sendMessage({
-        to: recipient.phone,
-        body: template.text({ owner, contact, calendar }),
+        to: `+${recipient.phone}`,
+        body: template.text({ workspace, owner, contact, calendar }),
         mediaUrl: includeVCard
           ? [`https://www.famdigest.com/assets/vcard.vcf`]
           : undefined,
       });
       this.saveToDatabase({
+        workspace,
         message,
         owner,
         contact,
@@ -57,12 +59,14 @@ export class NotificationService {
   }
 
   private static async saveToDatabase({
+    workspace,
     message,
     owner,
     contact,
   }: TemplateProps & { message: MessageInstance }): Promise<void> {
     // Implement saving to the database
     await db.insert(schema.messages).values({
+      workspace_id: workspace.id,
       role: "assistant",
       message: message.body,
       external_id: message.sid,

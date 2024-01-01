@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { and, db, eq, schema } from "@repo/database";
+import { db, schema } from "@repo/database";
 import { getCalendarProviderClass } from "@repo/plugins";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
@@ -15,126 +15,10 @@ dayjs.extend(timezone);
 
 async function routes(fastify: FastifyInstance, _options: any) {
   fastify.post("/opt-in-reminder", async (_request, reply) => {
-    const digests = await db.query.digests.findMany({
-      with: {
-        profile: true,
-      },
-      where: (table, { and, eq }) =>
-        and(eq(table.opt_in, false), eq(table.enabled, true)),
-    });
-
-    const today = dayjs();
-
-    for (const digest of digests) {
-      const diff = Math.abs(today.diff(dayjs(digest.created_at), "days"));
-      if (diff === 3) {
-        NotificationService.send({
-          owner: digest.profile,
-          contact: digest,
-          recipient: digest.profile,
-          key: "owner.subscriberFailedToOptIn",
-          type: "email",
-        });
-
-        await db
-          .update(schema.digests)
-          .set({
-            enabled: false,
-          })
-          .where(eq(schema.digests.id, digest.id));
-      } else if (diff >= 1 && diff < 3) {
-        NotificationService.send({
-          owner: digest.profile,
-          contact: digest,
-          recipient: digest.profile,
-          key: "owner.subscriberOptInReminder",
-          type: "sms",
-        });
-
-        NotificationService.send({
-          owner: digest.profile,
-          contact: digest,
-          recipient: digest,
-          key: "contact.optInReminder",
-          type: "sms",
-        });
-      }
-    }
-
     reply.send({
       data: {
         ok: true,
       },
-    });
-  });
-
-  fastify.get("/digests/:id", async (request, reply) => {
-    // if (process.env.NODE_ENV === "production") {
-    //   return reply.send({
-    //     error: {
-    //       message: "Nice Try",
-    //     },
-    //   });
-    // }
-    const { id } = request.params as { id: string };
-    const digest = await db.query.digests.findFirst({
-      with: {
-        profile: true,
-      },
-      where: (table, { and, eq }) => and(eq(table.id, id)),
-    });
-    if (!digest) {
-      return reply.send({
-        error: {
-          message: "No Digest Found",
-        },
-      });
-    }
-
-    const calendars = await db.query.calendars.findMany({
-      with: {
-        connection: true,
-      },
-      where: and(
-        eq(schema.calendars.owner_id, digest.owner_id),
-        eq(schema.calendars.enabled, true)
-      ),
-    });
-
-    const allEvents = [];
-
-    for (const calendar of calendars) {
-      try {
-        const service = getCalendarProviderClass(calendar.connection);
-        const events = await service.getTodayEvents(calendar.external_id);
-        allEvents.push(...events);
-      } catch (error) {
-        // shh
-      }
-    }
-
-    allEvents.sort((a, b) => (dayjs(a.start).isAfter(dayjs(b.start)) ? 1 : -1));
-
-    const eventString = allEvents
-      .map((event) => {
-        if (event.allDay) {
-          return `${event.title ?? "Busy"} - All Day`;
-        }
-        return `${event.title ?? "Busy"} - ${dayjs(event.start)
-          .tz(digest.timezone)
-          .format("h:mm a")} - ${dayjs(event.end)
-          .tz(digest.timezone)
-          .format("h:mm a")}`;
-      })
-      .join("\n");
-
-    const utc = dayjs.utc();
-    return reply.send({
-      utc: utc,
-      start: utc.startOf("day").toISOString(),
-      end: utc.endOf("day").toISOString(),
-      message: eventString,
-      data: allEvents,
     });
   });
 
@@ -143,9 +27,19 @@ async function routes(fastify: FastifyInstance, _options: any) {
     const roundedMinute = Math.floor(now.minute() / 15) * 15;
     const roundedTime = now.minute(roundedMinute).second(0).millisecond(0);
 
-    const digests = await db.query.digests.findMany({
+    const subscribers = await db.query.subscriptions.findMany({
       with: {
-        profile: true,
+        workspace: true,
+        owner: true,
+        subscription_calendars: {
+          with: {
+            calendar: {
+              with: {
+                connection: true,
+              },
+            },
+          },
+        },
       },
       where: (table, { and, eq }) =>
         and(
@@ -157,33 +51,28 @@ async function routes(fastify: FastifyInstance, _options: any) {
 
     let totalEventsCaptured = 0;
 
-    for (const digest of digests) {
-      const owner = digest.profile;
-      const calendars = await db.query.calendars.findMany({
-        with: {
-          connection: true,
-        },
-        where: and(
-          eq(schema.calendars.owner_id, digest.owner_id),
-          eq(schema.calendars.enabled, true)
-        ),
-      });
-
-      //
+    for (const subscriber of subscribers) {
+      const calendars = subscriber.subscription_calendars.map(
+        (sc) => sc.calendar
+      );
       const allEvents = [];
-
       for (const calendar of calendars) {
         try {
           const service = getCalendarProviderClass(calendar.connection);
-          const events = await service.getTodayEvents(calendar.external_id);
+          const events =
+            subscriber.event_preferences === "same-day"
+              ? await service.getTodayEvents(calendar.external_id)
+              : await service.getTomorrowEvents(calendar.external_id);
           allEvents.push(...events);
         } catch (error) {
           //
           NotificationService.send({
             key: "owner.connectionFailure",
-            recipient: digest.profile,
-            owner: digest.profile,
-            contact: digest,
+            recipient: subscriber,
+            owner: subscriber.owner,
+            contact: subscriber.owner,
+            // @ts-ignore jsonb bullshit
+            workspace: workspace,
             calendar: calendar,
             type: "both",
           });
@@ -194,7 +83,8 @@ async function routes(fastify: FastifyInstance, _options: any) {
         dayjs(a.start).isAfter(dayjs(b.start)) ? 1 : -1
       );
 
-      const local = dayjs(dayjs()).tz(digest.timezone);
+      const timezone = subscriber.timezone ?? "America/New_York";
+      const local = dayjs(dayjs()).tz(timezone);
       const hour = local.hour();
       let outboundMessage = "";
       let timeOfDay = "";
@@ -207,7 +97,7 @@ async function routes(fastify: FastifyInstance, _options: any) {
       }
 
       if (allEvents.length === 0) {
-        outboundMessage = dedent`Hey there ${digest.full_name}!\n\nNo events for ${owner.full_name} today.`;
+        outboundMessage = dedent`Hey there ${subscriber.full_name}!\n\nThere are no events today.`;
       } else {
         const eventString = allEvents
           .map((event) => {
@@ -215,16 +105,17 @@ async function routes(fastify: FastifyInstance, _options: any) {
               return `All Day - ${event.title ?? "Busy"}`;
             }
             return `${dayjs(event.start)
-              .tz(digest.timezone)
+              .tz(timezone)
               .format("h:mm a")} - ${dayjs(event.end)
-              .tz(digest.timezone)
+              .tz(timezone)
               .format("h:mm a")} ${event.title ?? "Busy"}`;
           })
           .join("\n");
 
-        outboundMessage = dedent`Good ${timeOfDay}, ${digest.full_name}!
+        outboundMessage = dedent`There are ${allEvents.length} events today.
+Good ${timeOfDay}!
 
-Here's your daily digest for ${owner.full_name}:
+Here is today's schedule:
 
 ${eventString}
 
@@ -235,24 +126,26 @@ FamDigest Team`;
       totalEventsCaptured = totalEventsCaptured + allEvents.length;
 
       // twilio
-      const sentMessage = await sendMessage({
-        body: outboundMessage,
-        to: digest.phone,
-      });
+      if (subscriber.phone) {
+        const sentMessage = await sendMessage({
+          body: outboundMessage,
+          to: subscriber.phone,
+        });
 
-      await db.insert(schema.messages).values({
-        role: "assistant",
-        message: outboundMessage,
-        external_id: sentMessage.sid,
-        segments: Number(sentMessage.numSegments),
-        digest_id: digest.id,
-        owner_id: owner.id,
-        data: { msg: sentMessage, events: allEvents },
-      });
+        await db.insert(schema.subscription_logs).values({
+          message: outboundMessage,
+          external_id: sentMessage.sid,
+          segments: Number(sentMessage.numSegments),
+          subscription_id: subscriber.id,
+          owner_id: subscriber.id,
+          workspace_id: subscriber.workspace.id,
+          data: { msg: sentMessage, events: allEvents },
+        });
+      }
     }
 
     // hit slack
-    if (digests.length > 0) {
+    if (subscribers.length > 0) {
       await sendNotification({
         blocks: [
           {
@@ -274,7 +167,7 @@ FamDigest Team`;
                     elements: [
                       {
                         type: "text",
-                        text: `Digest Sent: ${digests.length}`,
+                        text: `Digest Sent: ${subscribers.length}`,
                       },
                     ],
                   },

@@ -24,7 +24,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const { pathname } = new URL(request.url);
   if (data === null && !pathname.startsWith("/setup")) {
-    return redirect("/setup/confirm", {
+    return redirect("/setup", {
       headers: response.headers,
     });
   }

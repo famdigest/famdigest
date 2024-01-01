@@ -3,7 +3,8 @@ import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { SESSION_KEYS } from "~/constants";
 import { combineHeaders } from "~/lib/merge-headers.server";
 import { getSession } from "~/lib/session.server";
-import { createServerClient, type Table, type Profile } from "@repo/supabase";
+import { createServerClient, type Table } from "@repo/supabase";
+import { db, type Profile } from "@repo/database";
 
 export async function createContext({
   req,
@@ -18,15 +19,13 @@ export async function createContext({
     data: { user },
   } = await supabase.auth.getUser();
 
-  let userProfile: Profile | null = null;
+  let userProfile: Profile | undefined = undefined;
   if (user) {
-    const { data: userQuery } = await supabase
-      .from("profiles")
-      .select("*")
-      .match({ id: user.id })
-      .single<Profile | null>();
+    const profile = await db.query.profiles.findFirst({
+      where: (table, { eq }) => eq(table.id, user.id),
+    });
 
-    userProfile = userQuery;
+    userProfile = profile;
   }
 
   const workspaceId = session.get(SESSION_KEYS.workspace);

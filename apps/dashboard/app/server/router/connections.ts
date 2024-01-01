@@ -1,19 +1,21 @@
 import { Table, connectionsUpdateSchema } from "@repo/supabase";
-import { protectedProcedure, router } from "../trpc.server";
-import { db, desc, eq, schema } from "~/lib/db.server";
+import { protectedProcedure, publicProcedure, router } from "../trpc.server";
+import { db, desc, eq, schema } from "@repo/database";
 import { z } from "zod";
 import { generateAuthUrl, o365AuthUrl } from "@repo/plugins";
 import { commitSession } from "~/lib/session.server";
 
 export const connectionsRouter = router({
   all: protectedProcedure.query(async ({ ctx }) => {
-    const connections = await db
-      .select()
-      .from(schema.connections)
-      .where(eq(schema.connections.owner_id, ctx.user.id))
-      .orderBy(desc(schema.connections.created_at));
+    const connections = await db.query.connections.findMany({
+      with: {
+        calendars: true,
+      },
+      where: eq(schema.calendars.owner_id, ctx.user.id),
+      orderBy: desc(schema.connections.created_at),
+    });
 
-    return connections as Table<"connections">[];
+    return connections;
   }),
   update: protectedProcedure
     .input(connectionsUpdateSchema.extend({ id: z.string() }))
@@ -30,6 +32,19 @@ export const connectionsRouter = router({
     await db.delete(schema.connections).where(eq(schema.connections.id, input));
   }),
   google: protectedProcedure
+    .input(z.string().optional())
+    .mutation(async ({ ctx, input }) => {
+      // const { pathname } = new URL(ctx.req.url);
+      const authorizeUrl = generateAuthUrl();
+      if (input) {
+        ctx.session.set("redirect_uri", input);
+        ctx.res.headers.set("set-cookie", await commitSession(ctx.session));
+      }
+      return {
+        authorizeUrl,
+      };
+    }),
+  externalGoogle: publicProcedure
     .input(z.string().optional())
     .mutation(async ({ ctx, input }) => {
       // const { pathname } = new URL(ctx.req.url);

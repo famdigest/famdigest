@@ -15,6 +15,13 @@ export default {
     /ical/,
     /node-ical/,
     /\@repo\/plugins/,
+    /\@repo\/database/,
+    /\@repo\/notifications/,
+    /drizzle-orm/,
+    /postgres/,
+    /\@react-email/,
+    /\@radix-ui/,
+    /\@babel/,
   ],
   routes: async (defineRoutes) => {
     return flatRoutes("routes", defineRoutes, {

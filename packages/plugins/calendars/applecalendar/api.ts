@@ -1,17 +1,26 @@
-import { Table } from "@repo/supabase";
 import { symmetricEncrypt } from "../../lib/crypto";
 import { AppleCalendarService } from "./CalendarService";
-import { InferSelectModel, db, eq, schema } from "@repo/database";
+import {
+  InferSelectModel,
+  Profile,
+  Workspace,
+  db,
+  eq,
+  schema,
+} from "@repo/database";
 import { AppleConnection } from "./types";
 
 export async function handler({
   username,
   password,
   user,
+  workspace,
 }: {
   username: string;
   password: string;
-  user: Table<"profiles">;
+  user: Profile;
+  workspace: Workspace;
+  is_external?: boolean;
 }) {
   const existingConnection = await db.query.connections.findFirst({
     where: (connection, { and, eq }) =>
@@ -27,6 +36,7 @@ export async function handler({
     const [result] = await db
       .insert(schema.connections)
       .values({
+        workspace_id: workspace.id,
         owner_id: user.id,
         email: username,
         provider: "apple",
@@ -34,6 +44,8 @@ export async function handler({
           JSON.stringify({ username, password }),
           process.env.CALENDSO_ENCRYPTION_KEY || ""
         ),
+        invalid: false,
+        error: null,
       })
       .returning();
     if (result) {

@@ -5,13 +5,14 @@ import {
   protectedProcedure,
 } from "~/server/trpc.server";
 import {
+  UserPreferences,
   createAdminClient,
   invitationsInsertSchema,
   invitationsRowSchema,
 } from "@repo/supabase";
 import { resendClient } from "~/lib/resend.server";
-import { renderToString } from "react-dom/server";
 import { Invitation } from "~/emails/Invitation";
+import { db, schema } from "@repo/database";
 
 export const inviteRouter = router({
   all: workspaceProcedure.query(async ({ ctx }) => {
@@ -122,11 +123,57 @@ export const inviteRouter = router({
   accept: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input }) => {
+      const invitation = await db.query.invitations.findFirst({
+        where: (table, { eq }) => eq(table.token, input),
+        with: {
+          invited_by: true,
+        },
+      });
+
       const { data, error } = await ctx.supabase.rpc("accept_invitation", {
         lookup_invitation_token: input,
       });
       if (error) throw error;
-      return data;
+
+      if (invitation?.request_type) {
+        const prefCheck = z.object({
+          full_name: z.string(),
+          phone: z.string(),
+          notify_on: z.string(),
+          timezone: z.string(),
+          event_preferences: z.enum(["same-day", "next-day"]),
+        });
+
+        // create the request
+        const { invited_by } = invitation;
+        const pref = prefCheck.safeParse({
+          full_name: invited_by.full_name,
+          phone: invited_by.phone,
+          ...invitation.invited_by.preferences,
+        });
+        if (pref.success) {
+          const [newSubscription] = await db
+            .insert(schema.subscriptions)
+            .values({
+              ...pref.data,
+              owner_id: ctx.user.id,
+              user_id: invited_by.id,
+              workspace_id: invitation.workspace_id,
+            })
+            .returning();
+
+          return {
+            type: "subscription",
+            subscription: newSubscription,
+            workspace_id: data,
+          };
+        }
+      }
+
+      return {
+        type: "general",
+        workspace_id: data,
+      };
     }),
   remove: workspaceProcedure
     .input(z.string())

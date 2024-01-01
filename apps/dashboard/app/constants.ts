@@ -1,6 +1,7 @@
 export const SESSION_KEYS = {
   workspace: "__saas-workspace",
   theme: "__saas-theme",
+  join: "__saas-join",
 };
 
 export const DEFAULT_GEO = {

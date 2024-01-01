@@ -3,7 +3,7 @@ import {
   workspaceUsersRowSchema,
   workspaceUsersUpdateSchema,
 } from "@repo/supabase";
-import { db, eq, schema } from "~/lib/db.server";
+import { db, eq, schema } from "@repo/database";
 
 export const memberRouter = router({
   all: workspaceProcedure.query(async ({ ctx }) => {
