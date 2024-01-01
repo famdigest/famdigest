@@ -88,6 +88,8 @@ async function routes(fastify: FastifyInstance, _options: any) {
       const hour = local.hour();
       let outboundMessage = "";
       let timeOfDay = "";
+      let event_pref =
+        subscriber.event_preferences === "same-day" ? "today" : "tomorrow";
       if (hour < 12) {
         timeOfDay = "morning";
       } else if (hour < 17) {
@@ -97,7 +99,7 @@ async function routes(fastify: FastifyInstance, _options: any) {
       }
 
       if (allEvents.length === 0) {
-        outboundMessage = dedent`Hey there ${subscriber.full_name}!\n\nThere are no events today.`;
+        outboundMessage = dedent`Good ${timeOfDay} ${subscriber.full_name}\n\nThere are no events today.`;
       } else {
         const eventString = allEvents
           .map((event) => {
@@ -112,10 +114,10 @@ async function routes(fastify: FastifyInstance, _options: any) {
           })
           .join("\n");
 
-        outboundMessage = dedent`There are ${allEvents.length} events today.
+        outboundMessage = dedent`There are ${allEvents.length} event(s) ${event_pref}.
 Good ${timeOfDay}!
 
-Here is today's schedule:
+Here is ${event_pref}'s schedule:
 
 ${eventString}
 
