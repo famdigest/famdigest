@@ -65,13 +65,12 @@ export class NotificationService {
     contact,
   }: TemplateProps & { message: MessageInstance }): Promise<void> {
     // Implement saving to the database
-    await db.insert(schema.messages).values({
+    await db.insert(schema.subscription_logs).values({
       workspace_id: workspace.id,
-      role: "assistant",
       message: message.body,
       external_id: message.sid,
       segments: Number(message.numSegments),
-      digest_id: contact.id,
+      subscription_id: contact.id,
       owner_id: owner.id,
       data: { msg: message },
     });

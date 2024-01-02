@@ -99,7 +99,7 @@ async function routes(fastify: FastifyInstance, _options: any) {
       }
 
       if (allEvents.length === 0) {
-        outboundMessage = dedent`Good ${timeOfDay} ${subscriber.full_name}\n\nThere are no events today.`;
+        outboundMessage = dedent`Good ${timeOfDay} ${subscriber.full_name}\n\nThere are no events ${event_pref}.`;
       } else {
         const eventString = allEvents
           .map((event) => {
