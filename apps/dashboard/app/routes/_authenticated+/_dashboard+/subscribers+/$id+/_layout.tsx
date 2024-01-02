@@ -10,7 +10,10 @@ import {
   IconUserSquareRounded,
   IconCalendarCog,
   IconMessage2,
+  IconCheck,
+  IconX,
 } from "@tabler/icons-react";
+import dayjs from "dayjs";
 import { SubscriberDropdownMenu } from "~/components/SubscriberDropdownMenu";
 import { trpc } from "~/lib/trpc";
 import { getSessionWorkspace } from "~/lib/workspace.server";
@@ -76,7 +79,23 @@ export default function Layout() {
           <div className="space-y-0.5">
             <h2 className="text-2xl font-semibold font-serif">
               {subscriber?.full_name}
+              <span className="text-base font-normal pl-1.5">
+                / {subscriber?.phone}
+              </span>
             </h2>
+            <ul className="flex items-center divide-x text-xs -mx-2">
+              <li className="flex items-center gap-x-1.5 px-2">
+                Added on {dayjs(subscriber?.created_at).format("MM/YYYY")}
+              </li>
+              <li className="flex items-center gap-x-1.5 px-2">
+                Opt-in:{" "}
+                {subscriber?.opt_in ? (
+                  <IconCheck size={14} />
+                ) : (
+                  <IconX size={14} />
+                )}
+              </li>
+            </ul>
           </div>
           <div className="ml-auto">
             {subscriber && <SubscriberDropdownMenu subscriber={subscriber} />}

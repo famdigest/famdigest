@@ -47,17 +47,6 @@ export function SubscriberDropdownMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => {
-            const url = `${window.location.origin}/manage-subscription/${subscriber.access_code}`;
-            navigator.clipboard.writeText(url);
-            toast({
-              title: "Copied!",
-            });
-          }}
-        >
-          Copy Access Code
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => {
