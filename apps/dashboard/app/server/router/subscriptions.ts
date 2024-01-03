@@ -27,7 +27,11 @@ export const subscriptionRouter = router({
           },
         },
       },
-      where: (table, { eq }) => eq(table.owner_id, ctx.user.id),
+      where: (table, { eq, and }) =>
+        and(
+          eq(table.owner_id, ctx.user.id),
+          eq(table.workspace_id, ctx.workspace.id)
+        ),
     });
   }),
   workspace: workspaceProcedure.query(async ({ ctx }) => {
