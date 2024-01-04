@@ -106,14 +106,17 @@ export default function Route() {
                         <div>
                           <Checkbox
                             checked={isChecked}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
+                            onCheckedChange={() => {
+                              if (isChecked) {
+                                const index = (
+                                  form.values.calendar_ids ?? []
+                                ).indexOf(calendar.id);
+                                form.removeListItem("calendar_ids", index);
+                              } else {
                                 form.insertListItem(
                                   "calendar_ids",
                                   calendar.id
                                 );
-                              } else {
-                                form.removeListItem("calendar_ids", idx);
                               }
                             }}
                           />

@@ -59,6 +59,14 @@ export const subscriptionRouter = router({
         and(eq(table.workspace_id, ctx.workspace.id), eq(table.id, input)),
     });
   }),
+  lastMessage: workspaceProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      return await db.query.subscription_logs.findFirst({
+        where: (table, { eq }) => eq(table.subscription_id, input),
+        orderBy: (table, { desc }) => desc(table.created_at),
+      });
+    }),
   messages: workspaceProcedure
     .input(messageFilters)
     .query(async ({ ctx, input }) => {
@@ -245,6 +253,44 @@ export const subscriptionRouter = router({
       }
 
       return sub;
+    }),
+  resendOptIn: workspaceProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const sub = await db.query.subscriptions.findFirst({
+        where: (table, { and, eq }) =>
+          and(eq(table.workspace_id, ctx.workspace.id), eq(table.id, input)),
+      });
+
+      if (!sub) throw new Error("No subscriber found");
+
+      const message = await db.query.subscription_logs.findFirst({
+        where: (msg, { eq }) => eq(msg.subscription_id, sub.id),
+        orderBy: (msg, { desc }) => desc(msg.created_at),
+      });
+
+      if (message) {
+        const lastSentOn = dayjs(message?.created_at);
+        const now = dayjs();
+
+        console.log(Math.abs(lastSentOn.diff(now, "days")));
+        if (Math.abs(lastSentOn.diff(now, "days")) < 1) {
+          throw new Error(
+            "Can only resend opt-in messages once every 24 hours"
+          );
+        }
+      }
+
+      // opt-in
+      NotificationService.send({
+        key: "contact.welcomeMessage",
+        recipient: sub,
+        owner: ctx.user,
+        contact: sub,
+        type: "sms",
+        includeVCard: true,
+        workspace: ctx.workspace,
+      });
     }),
   remove: workspaceProcedure
     .input(z.string())

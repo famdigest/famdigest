@@ -15,6 +15,7 @@ import {
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { SubscriberDropdownMenu } from "~/components/SubscriberDropdownMenu";
+import { SubscriberOptInAlert } from "~/components/SubscriberOptInAlert";
 import { trpc } from "~/lib/trpc";
 import { getSessionWorkspace } from "~/lib/workspace.server";
 
@@ -49,10 +50,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       and(eq(table.owner_id, user.id), eq(table.workspace_id, workspace.id)),
   });
 
+  const lastMessage = await db.query.subscription_logs.findFirst({
+    where: (table, { eq }) => eq(table.subscription_id, subscriber.id),
+    orderBy: (table, { desc }) => desc(table.created_at),
+  });
+
   return json(
     {
       subscriber,
       connections,
+      lastMessage,
     },
     {
       headers: response.headers,
@@ -66,8 +73,11 @@ export type ContextType = {
 };
 
 export default function Layout() {
-  const { subscriber: initialData, connections } =
-    useLoaderData<typeof loader>();
+  const {
+    subscriber: initialData,
+    connections,
+    lastMessage,
+  } = useLoaderData<typeof loader>();
   const { data: subscriber } = trpc.subscribers.one.useQuery(initialData.id, {
     initialData,
   });
@@ -103,7 +113,7 @@ export default function Layout() {
         </header>
         <Separator />
         <div className="border border-border rounded-lg flex flex-col md:flex-row">
-          <div className="w-full md:w-40 lg:w-52 p-2 shrink-0">
+          <div className="w-full md:w-40 lg:w-52 p-2 shrink-0 flex flex-col">
             <nav className="flex flex-row md:flex-col gap-x-1.5 md:gap-x-0 md:gap-y-1.5">
               <NavLink
                 to={`/subscribers/${subscriber?.id}`}
@@ -143,6 +153,14 @@ export default function Layout() {
                 Messages
               </NavLink>
             </nav>
+            {subscriber && !subscriber.opt_in && (
+              <div className="mt-2 md:mt-auto">
+                <SubscriberOptInAlert
+                  subscription={subscriber}
+                  lastMessage={lastMessage}
+                />
+              </div>
+            )}
           </div>
           <div className="border-t md:border-t-0 md:border-l flex-1 flex flex-col min-h-[600px]">
             <Outlet context={{ subscriber, connections } as ContextType} />

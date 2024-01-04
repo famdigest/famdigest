@@ -71,7 +71,7 @@ export function useCreateSubscriberForm(subscriber?: SubscriberWithRelations) {
       event_preferences: subscriber?.event_preferences ?? "same-day",
       calendar_ids: subscriber
         ? subscriber.subscription_calendars.map((sc) => sc.calendar_id)
-        : undefined,
+        : [],
     },
   });
 
