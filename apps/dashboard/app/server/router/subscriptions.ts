@@ -159,6 +159,7 @@ export const subscriptionRouter = router({
           ...values,
           workspace_id: ctx.workspace.id,
           owner_id: ctx.user.id,
+          opt_in: true,
         })
         .returning();
 
