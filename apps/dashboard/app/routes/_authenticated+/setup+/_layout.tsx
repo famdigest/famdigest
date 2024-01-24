@@ -2,6 +2,16 @@ import { Link, Outlet } from "@remix-run/react";
 import { cn } from "@repo/ui";
 import noise from "~/assets/noise.svg";
 
+export const meta = () => {
+  return [
+    { title: "Account Setup | FamDigest" },
+    {
+      property: "og:title",
+      content: "Account Setup | FamDigest",
+    },
+  ];
+};
+
 export default function Layout() {
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-r from-rose-100 to-teal-100">

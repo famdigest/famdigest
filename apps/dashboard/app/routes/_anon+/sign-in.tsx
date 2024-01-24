@@ -206,12 +206,12 @@ export default function AuthSignInRoute() {
                         )}
                       </Button>
                     </div>
-                    <Link
+                    {/* <Link
                       to="/forgot"
                       className="mt-1 text-xs text-muted-foreground"
                     >
                       Forgot your password?
-                    </Link>
+                    </Link> */}
                   </>
                 )}
               />

@@ -16,6 +16,7 @@ import { useSupabase } from "~/components/SupabaseProvider";
 import { SESSION_KEYS } from "~/constants";
 import noise from "~/assets/noise.svg";
 import { trackPageView } from "@repo/tracking";
+import { db, schema } from "@repo/database";
 
 export const meta = () => {
   return [
@@ -29,15 +30,17 @@ export const meta = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { user, response, supabase } = await requireAuthSession(request);
+  const session = await getSession(request);
 
   const { data: workspaces } = await supabase.from("workspaces").select("*");
   if (workspaces?.length) {
-    return redirect("/setup/user-info", {
+    session.set(SESSION_KEYS.workspace, workspaces[0].id);
+    response.headers.append("Set-cookie", await commitSession(session));
+    return redirect("/", {
       headers: response.headers,
     });
   }
 
-  const session = await getSession(request);
   trackPageView({
     request,
     properties: {
@@ -65,7 +68,7 @@ export async function action({ request }: ActionFunctionArgs) {
   session.set(SESSION_KEYS.workspace, formData.workspace);
   response.headers.append("set-cookie", await commitSession(session));
 
-  return redirect("/setup/user-info", {
+  return redirect("/setup", {
     headers: response.headers,
   });
 }
@@ -138,68 +141,23 @@ export default function OnboardingRoute() {
       />
       <header>
         <div className="container flex items-center justify-between py-4">
-          <p className="text-2xl font-medium font-serif">FamDigest</p>
+          <p className="text-2xl font-medium font-serif">
+            FamDigest{" "}
+            <span className="font-sans text-base font-normal">/ Welcome</span>
+          </p>
         </div>
       </header>
       <main id="main" className="flex-1 flex flex-col relative z-10">
-        <form
-          className="flex-1 flex flex-col py-20 overflow-hidden"
-          onSubmit={form.onSubmit(onSubmit)}
-        >
-          <div className="container max-w-screen-md">
-            <div className="grid grid-cols-4 gap-x-3 mb-12">
-              <div className="h-3 rounded-full bg-foreground" />
-              <div className="h-3 rounded-full bg-slate-300" />
-              <div className="h-3 rounded-full bg-slate-300" />
-              <div className="h-3 rounded-full bg-slate-300" />
-            </div>
-
-            <div className="animate-in duration-500 fade-in-0 slide-in-from-bottom-4">
-              <p className="text-xl md:text-2xl">
-                Let's set up your workspace.
-              </p>
-              <Input
-                className="px-0 text-4xl h-20 mt-2 md:mt-4 mb-6 font-serif bg-transparent border-none ring-offset-transparent shadow-none focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
-                placeholder="Valdes Family"
-                {...form.getInputProps("name")}
-                onChange={(e) => {
-                  form.setFieldValue("name", e.target.value);
-                  form.setFieldValue("slug", slugify(e.target.value));
-                }}
-              />
-              <Button type="submit" disabled={createWorkspace.isLoading}>
-                {createWorkspace.isLoading && (
-                  <IconLoader className="animate-spin mr-2" />
-                )}
-                Next
-              </Button>
-            </div>
-          </div>
-        </form>
-      </main>
-    </div>
-  );
-
-  return (
-    <div className="flex min-h-screen flex-col">
-      <main
-        id="main"
-        className="flex flex-1 flex-col items-center justify-center bg-muted/50 relative z-10"
-      >
-        <div className="w-full max-w-screen-sm flex flex-col">
-          <div className="flex items-center gap-x-3">
-            <Logo className="h-12" />
-          </div>
-
-          <div className="my-8 space-y-1.5">
-            <p className="text-4xl text-primary font-serif">
-              Hi, {user.full_name ?? user.email}!
-            </p>
-            <p className="text-lg">Let's set up your account.</p>
+        <div className="container sm:max-w-sm flex flex-col gap-y-10 py-16">
+          <div>
+            <h1 className="text-5xl md:text-6xl font-serif font-medium mb-6">
+              Welcome to FamDigest
+            </h1>
+            <p>Let's set up your workspace.</p>
           </div>
           <form
+            className="flex-1 flex flex-col space-y-6"
             onSubmit={form.onSubmit(onSubmit)}
-            className="flex flex-col items-stretch gap-y-2"
           >
             <FormField
               type="text"
@@ -216,34 +174,12 @@ export default function OnboardingRoute() {
                 />
               )}
             />
-
-            <div className="flex items-center gap-x-3 mt-2">
-              <Button type="submit" disabled={createWorkspace.isLoading}>
-                {createWorkspace.isLoading && (
-                  <IconLoader className="animate-spin mr-2" />
-                )}
-                Next
-              </Button>
-              {/* <Button
-                type="button"
-                variant="link"
-                onClick={() => {
-                  createWorkspace.mutate(
-                    {
-                      name: "Personal",
-                      slug: user.id,
-                    },
-                    {
-                      onSuccess: () => {
-                        navigate("/subscribe");
-                      },
-                    }
-                  );
-                }}
-              >
-                or continue with personal account
-              </Button> */}
-            </div>
+            <Button type="submit" disabled={createWorkspace.isLoading}>
+              {createWorkspace.isLoading && (
+                <IconLoader className="animate-spin mr-2" />
+              )}
+              Next
+            </Button>
           </form>
         </div>
       </main>

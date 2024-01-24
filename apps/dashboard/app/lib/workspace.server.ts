@@ -16,9 +16,10 @@ export async function getSessionWorkspace(request: Request) {
 
   let workspaceId = (session.get(SESSION_KEYS.workspace) ??
     workspaces?.[0].id) as string | null | undefined;
+
   if (!workspaceId) {
     // nothing in my cookie for workspace
-    throw redirect("/workspaces", {
+    throw redirect("/onboarding", {
       headers: response.headers,
     });
   }
@@ -31,7 +32,7 @@ export async function getSessionWorkspace(request: Request) {
         "set-cookie",
         await sessionStorage.destroySession(session)
       );
-      throw redirect("/workspaces", {
+      throw redirect("/onboarding", {
         headers: response.headers,
       });
     }

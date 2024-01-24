@@ -7,7 +7,8 @@ import { db, eq, schema } from "@repo/database";
 
 export const sessionStorage = createDatabaseSessionStorage({
   cookie: {
-    name: "__famdigest",
+    name:
+      process.env.NODE_ENV === "production" ? "__famdigest" : "__famdigest-dev",
     httpOnly: true,
     domain:
       process.env.NODE_ENV === "production" ? "famdigest.com" : "localhost",

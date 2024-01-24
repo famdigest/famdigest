@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs, json } from "@remix-run/node";
 import {
   Outlet,
   Scripts,
@@ -22,13 +22,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     })
     .returns<WorkspaceBillingStatus>();
 
-  const { pathname } = new URL(request.url);
-  if (data === null && !pathname.startsWith("/setup")) {
-    return redirect("/setup", {
-      headers: response.headers,
-    });
-  }
-
   return json(
     {
       user,
@@ -47,8 +40,12 @@ export default function WorkspaceLayout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (billing_status === null && !location.pathname.startsWith("/setup")) {
-      navigate("/setup/confirm");
+    if (
+      billing_status === null &&
+      !location.pathname.startsWith("/setup") &&
+      !location.pathname.startsWith("/providers")
+    ) {
+      // navigate("/settings/billing");
     }
   }, [location, billing_status]);
 

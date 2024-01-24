@@ -164,7 +164,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         }
       }
 
-      const { data: workspaces } = await supabase.from("workspaces").select();
+      const workspaces = await db.query.workspace_users.findMany({
+        where(fields, { eq }) {
+          return eq(fields.user_id, data.user!.id);
+        },
+      });
       if (!workspaces?.length) {
         identify({
           request,
@@ -185,32 +189,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           },
         });
 
-        // auto create a workspace since the workspace
-        // is not really a need here and allows us to
-        // skip a step
-        const name = `${data.user.user_metadata.full_name}'s Workspace`;
-        const [autoWorkspace] = await db
-          .insert(schema.workspaces)
-          .values({
-            owner_id: data.user.id,
-            name: name,
-            slug: slugify(name),
-          })
-          .returning();
-        await db.insert(schema.workspace_users).values({
-          user_id: data.user.id,
-          workspace_id: autoWorkspace.id,
-          role: "owner",
-        });
-        session.set(SESSION_KEYS.workspace, autoWorkspace.id);
-        response.headers.append("Set-cookie", await commitSession(session));
-
-        return redirect("/setup", {
+        return redirect("/onboarding", {
           headers: response.headers,
         });
       }
 
-      session.set(SESSION_KEYS.workspace, workspaces[0].id);
+      session.set(SESSION_KEYS.workspace, workspaces[0].workspace_id);
       response.headers.append("Set-cookie", await commitSession(session));
 
       identify({
