@@ -53,7 +53,11 @@ export function AddConnectionDropdown({
           Connect with Google
         </DropdownMenuItem>
         <DropdownMenuItem className="cursor-pointer" asChild>
-          <Link to={`/providers/apple/setup?redirect_uri=${redirectUri}`}>
+          <Link
+            to={`/providers/apple/setup?${
+              redirectUri ? `redirect_uri=${redirectUri}` : ""
+            }`}
+          >
             <IconBrandApple size={14} className="mr-2" />
             Connect with iCloud
           </Link>
