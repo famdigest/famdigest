@@ -10,21 +10,13 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (!validation.success) {
-    return json(
-      {
-        success: false,
-        error: validation.error.flatten(),
-      },
-      {
-        status: 500,
-      }
-    );
+    throw new Response("", { status: 500, statusText: "Validation Error" });
   }
 
   const { From, Body, SmsSid, NumSegments } = validation.data;
 
   const subscriber = await db.query.subscriptions.findFirst({
-    where: (table, { eq }) => eq(table.phone, From),
+    where: (table, { eq }) => eq(table.phone, From.replace("+", "")),
     with: {
       owner: true,
       workspace: true,
@@ -32,15 +24,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   if (!subscriber) {
     // nope
-    return json(
-      {
-        success: false,
-        error: "User not found",
-      },
-      {
-        status: 500,
-      }
-    );
+    throw new Response("", { status: 500, statusText: "User not found" });
   }
 
   await db.insert(schema.subscription_logs).values({
